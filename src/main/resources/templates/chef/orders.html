@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Chef Orders</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		
+		body {
+			font-family: 'Poppins', sans-serif;
+			background-color: #fffaf3;
+			color: #333;
+		}
+		
+		.navbar-custom {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			padding: 15px 0;
+			box-shadow: 0 4px 20px rgba(220, 53, 69, 0.3);
+		}
+		.navbar-custom .navbar-brand {
+			color: #fff;
+			font-weight: 700;
+			font-size: 24px;
+			letter-spacing: 1px;
+		}
+		.navbar-custom .nav-link {
+			color: #fff;
+			font-weight: 500;
+			padding: 8px 16px;
+			border-radius: 25px;
+			transition: all 0.3s ease;
+		}
+		.navbar-custom .nav-link:hover {
+			background: rgba(255, 255, 255, 0.2);
+			transform: translateY(-2px);
+		}
+		
+		.page-header {
+			background: #fff;
+			border-radius: 20px;
+			padding: 25px 30px;
+			box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+			margin-bottom: 30px;
+		}
+		.page-header h2 {
+			color: #fc8019;
+			font-weight: 700;
+			margin: 0;
+		}
+		
+		.order-card {
+			background: #fff;
+			border: 2px solid transparent;
+			border-radius: 15px;
+			padding: 25px;
+			margin-bottom: 20px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+			transition: all 0.3s ease;
+		}
+		.order-card:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 8px 25px rgba(220, 53, 69, 0.2);
+			border-color: #fc8019;
+		}
+		.order-card h5 {
+			color: #fc8019;
+			font-weight: 700;
+			margin-bottom: 20px;
+			font-size: 1.25rem;
+		}
+		
+		.status-badge {
+			padding: 6px 12px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+			text-transform: uppercase;
+		}
+		.status-NEW { background: #17a2b8; color: white; }
+		.status-CONFIRMED { background: #28a745; color: white; }
+		.status-PREPARING { background: #ffc107; color: #333; }
+		.status-OUT_FOR_DELIVERY { background: #007bff; color: white; }
+		.status-DELIVERED { background: #28a745; color: white; }
+		.status-CANCELLED { background: #fc8019; color: white; }
+		
+		.btn-outline-secondary {
+			border-color: #6c757d;
+			color: #6c757d;
+		}
+		.btn-outline-secondary:hover {
+			background: #6c757d;
+			color: #fff;
+		}
+		
+		.alert {
+			border-radius: 15px;
+			border: none;
+		}
+	</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-custom">
+	<div class="container">
+		<a class="navbar-brand" th:href="@{/chef/dashboard}">Tummy Go!</a>
+		<div class="ml-auto d-flex align-items-center">
+			<a class="nav-link" th:href="@{/chef/dashboard}">Dashboard</a>
+			<a class="nav-link" th:href="@{/chef/menus}">Menus</a>
+			<a class="nav-link" th:href="@{/chef/orders}">Orders</a>
+			<a class="nav-link" th:href="@{/logout}">Logout</a>
+		</div>
+	</div>
+</nav>
+
+<div class="container py-4">
+	<div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+		<span th:text="${successMessage}"></span>
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+	<div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+		<span th:text="${errorMessage}"></span>
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+
+	<div class="page-header d-flex justify-content-between align-items-center flex-wrap">
+		<div>
+			<h2 class="mb-1">Your Orders</h2>
+			<p class="text-muted mb-0">Manage and track orders from your customers</p>
+		</div>
+		<a class="btn btn-outline-secondary mt-3 mt-md-0" th:href="@{/chef/dashboard}">
+			<i class="fa fa-arrow-left mr-1"></i> Back to Dashboard
+		</a>
+	</div>
+
+	<div th:if="${#lists.isEmpty(orders)}" class="alert alert-info text-center" style="padding: 40px; border-radius: 15px;">
+		<i class="fa fa-shopping-cart fa-3x mb-3 d-block" style="color: #fc8019;"></i>
+		<h5 style="color: #fc8019; font-weight: 600;">No orders found</h5>
+		<p class="text-muted mb-0">Orders will appear here when customers place orders from your menus.</p>
+	</div>
+
+	<div th:if="${!#lists.isEmpty(orders)}">
+		<div th:each="order : ${orders}" class="order-card">
+			<div class="d-flex justify-content-between align-items-start flex-wrap">
+				<div class="flex-grow-1" style="min-width: 250px;">
+					<div class="d-flex align-items-center mb-2">
+						<h5 class="mb-0 mr-3">Order #<span th:text="${order.id}">123</span></h5>
+						<span class="status-badge" th:classappend="'status-' + ${order.status}" th:text="${order.status}">NEW</span>
+					</div>
+					<div class="order-info mb-3">
+						<p class="mb-1"><strong><i class="fa fa-user mr-1" style="color: #fc8019;"></i> Customer:</strong> <span th:text="${order.user.fullName}">Name</span></p>
+						<p class="mb-1"><strong><i class="fa fa-map-marker mr-1" style="color: #fc8019;"></i> Delivery Address:</strong> <span th:text="${order.deliveryAddress}">Address</span></p>
+						<p class="mb-1" th:if="${order.specialInstructions}"><strong><i class="fa fa-sticky-note mr-1" style="color: #fc8019;"></i> Special Instructions:</strong> <span th:text="${order.specialInstructions}">Notes</span></p>
+						<p class="mb-1"><strong><i class="fa fa-rupee mr-1" style="color: #fc8019;"></i> Amount:</strong> <span class="text-success font-weight-bold" th:text="|₹${#numbers.formatDecimal(order.totalAmount, 1, 2)}|">₹0.00</span></p>
+						<p class="mb-0 text-muted"><small><i class="fa fa-clock-o mr-1"></i> <span th:text="${#temporals.format(order.createdAt, 'MMM dd, yyyy HH:mm')}">Date</span></small></p>
+					</div>
+					
+					<div class="mt-3">
+						<h6 class="mb-2" style="color: #fc8019; font-weight: 600;">Order Items:</h6>
+						<ul class="list-unstyled mb-0">
+							<li th:each="item : ${order.items}" class="mb-1">
+								<span th:text="${item.itemName}">Item</span> 
+								<span class="text-muted">x <span th:text="${item.quantity}">1</span></span>
+								<span class="text-muted">- ₹<span th:text="${#numbers.formatDecimal(item.lineTotal, 1, 2)}">0.00</span></span>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="ml-3 mt-3 mt-md-0" style="min-width: 200px;">
+					<label class="small text-muted mb-2 d-block">Update Status:</label>
+					<form th:action="@{|/chef/orders/${order.id}/status|}" method="post">
+						<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+						<select name="status" class="form-control form-control-sm" onchange="this.form.submit()" style="min-width: 180px;">
+							<option value="NEW" th:selected="${order.status == 'NEW'}">NEW</option>
+							<option value="CONFIRMED" th:selected="${order.status == 'CONFIRMED'}">CONFIRMED</option>
+							<option value="PREPARING" th:selected="${order.status == 'PREPARING'}">PREPARING</option>
+							<option value="OUT_FOR_DELIVERY" th:selected="${order.status == 'OUT_FOR_DELIVERY'}">OUT FOR DELIVERY</option>
+							<option value="DELIVERED" th:selected="${order.status == 'DELIVERED'}">DELIVERED</option>
+							<option value="CANCELLED" th:selected="${order.status == 'CANCELLED'}">CANCELLED</option>
+						</select>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/bootstrap.js}"></script>
+</body>
+</html>

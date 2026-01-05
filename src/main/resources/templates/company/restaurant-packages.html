@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Restaurant Packages - Tummy Go!</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+		rel="stylesheet">
+	<style>
+		body {
+			font-family: 'Poppins', sans-serif;
+			background-color: #fffaf3;
+		}
+
+		.navbar-custom {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			padding: 15px 0;
+		}
+
+		.navbar-custom .navbar-brand,
+		.navbar-custom .nav-link {
+			color: #fff;
+			font-weight: 500;
+		}
+
+		.restaurant-header {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			color: #fff;
+			padding: 30px;
+			border-radius: 15px;
+			margin-bottom: 30px;
+		}
+
+		.package-card {
+			background: #fff;
+			border-radius: 15px;
+			padding: 30px;
+			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+			margin-bottom: 20px;
+			transition: all 0.3s ease;
+		}
+
+		.package-card:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 8px 25px rgba(220, 53, 69, 0.2);
+		}
+
+		.price {
+			font-size: 2rem;
+			font-weight: 700;
+			color: #fc8019;
+		}
+
+		.btn-primary {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			border: none;
+			border-radius: 50px;
+			padding: 12px 25px;
+			font-weight: 600;
+		}
+	</style>
+</head>
+
+<body>
+	<nav class="navbar navbar-expand-lg navbar-custom">
+		<div class="container">
+			<a class="navbar-brand" th:href="@{/company/dashboard}">Tummy Go! - Company</a>
+			<div class="ml-auto">
+				<a class="nav-link" th:href="@{/company/dashboard}">Dashboard</a>
+				<a class="nav-link" th:href="@{/company/subscriptions}">Subscriptions</a>
+				<a class="nav-link" th:href="@{/company/orders}">Orders</a>
+				<a class="nav-link" th:href="@{/logout}">Logout</a>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container py-4">
+		<div class="restaurant-header">
+			<h2 th:text="${restaurant.name}">Restaurant Name</h2>
+			<p class="mb-0" th:text="${restaurant.address}">Restaurant Address</p>
+		</div>
+
+		<div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+			<span th:text="${success}"></span>
+			<button type="button" class="close" data-dismiss="alert">&times;</button>
+		</div>
+		<div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+			<span th:text="${error}"></span>
+			<button type="button" class="close" data-dismiss="alert">&times;</button>
+		</div>
+
+		<h3 class="mb-4">Available Subscription Packages</h3>
+
+		<div th:if="${packages == null || packages.isEmpty()}" class="alert alert-info">
+			<p>No subscription packages available for this restaurant yet.</p>
+			<a th:href="@{|/company/subscriptions|}" class="btn btn-secondary">Back to Subscriptions</a>
+		</div>
+
+		<div class="row" th:if="${packages != null && !packages.isEmpty()}">
+			<div class="col-md-6" th:each="pkg : ${packages}">
+				<div class="package-card">
+					<h4 th:text="${pkg.name}">Package Name</h4>
+					<p class="text-muted" th:text="${pkg.description ?: 'No description'}">Description</p>
+					<div class="mb-3">
+						<span class="price">₹<span
+								th:text="${#numbers.formatDecimal(pkg.price, 0, 2)}">0.00</span></span>
+						<span class="text-muted">per person / month</span>
+					</div>
+					<p class="mb-1"><strong>Items are fixed for this package.</strong></p>
+					<p class="text-muted mb-3">Meal: <strong th:text="${pkg.mealType}">LUNCH</strong></p>
+
+					<div class="mt-3"
+						th:if="${packageItemsMap != null && packageItemsMap.containsKey(pkg.id) && !packageItemsMap.get(pkg.id).isEmpty()}">
+						<strong><i class="fa fa-utensils mr-2"></i>Included Items</strong>
+						<div class="mt-2">
+							<span class="badge badge-light mr-1 mb-1" th:each="item : ${packageItemsMap.get(pkg.id)}">
+								<span th:text="${item.name}">Item</span>
+								<span class="text-muted"> (₹<span
+										th:text="${#numbers.formatDecimal(item.price, 0, 2)}">0.00</span>)</span>
+							</span>
+						</div>
+					</div>
+					<div class="alert alert-warning mt-2 mb-2"
+						th:if="${packageItemsMap == null || !packageItemsMap.containsKey(pkg.id) || packageItemsMap.get(pkg.id).isEmpty()}">
+						<small><i class="fa fa-info-circle mr-2"></i>Owner has not added specific items. You can choose
+							from restaurant menu items.</small>
+					</div>
+
+					<form th:action="@{/company/subscriptions/subscribe}" method="post">
+						<input type="hidden" name="packageId" th:value="${pkg.id}">
+						<!-- People count is fixed by the package -->
+						<input type="hidden" name="peopleCount" th:value="${pkg.numberOfPeople}">
+
+						<div class="form-group">
+							<label>Duration</label>
+							<select name="duration" class="form-control">
+								<option value="MONTH">1 Month</option>
+								<option value="YEAR">1 Year</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Preferred delivery time</label>
+							<input type="time" name="preferredTime" class="form-control" value="12:00">
+						</div>
+						<div class="form-group">
+							<label>Days to skip (comma-separated)</label>
+							<input type="text" name="excludedDays" class="form-control"
+								placeholder="e.g. Saturday, Sunday">
+						</div>
+
+						<div class="alert alert-info mt-3">
+							<strong><i class="fa fa-calculator mr-2"></i>Estimated Monthly Cost:</strong>
+							<br>
+							₹<span th:text="${#numbers.formatDecimal(pkg.price * 30, 0, 2)}">0.00</span>
+							<small class="d-block text-muted">(Daily Group Price x 30 Days)</small>
+						</div>
+
+						<button class="btn btn-primary btn-block" type="submit">
+							<i class="fa fa-credit-card mr-2"></i>Subscribe &amp; Pay
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<div class="mt-4">
+			<a th:href="@{/company/subscriptions}" class="btn btn-secondary">
+				<i class="fa fa-arrow-left mr-2"></i>Back to All Restaurants
+			</a>
+		</div>
+	</div>
+
+	<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+	<script th:src="@{/js/bootstrap.js}"></script>
+</body>
+
+</html>

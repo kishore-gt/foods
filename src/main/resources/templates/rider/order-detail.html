@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details - Rider Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- OpenStreetMap for GPS tracking -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+            crossorigin=""></script>
+    <style>
+        :root {
+            --primary-color: #fc8019;
+            --secondary-color: #e66a00;
+            --success-color: #28a745;
+            --danger-color: #fc8019;
+            --dark: #2c3e50;
+            --red-theme: #fc8019;
+            --red-dark: #e66a00;
+        }
+
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+
+        .navbar-rider {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            padding: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .order-detail-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status-assigned { background: #fff3cd; color: #856404; }
+        .status-accepted { background: #d1ecf1; color: #0c5460; }
+        .status-en_route { background: #d4edda; color: #155724; }
+        .status-picked_up { background: #cce5ff; color: #004085; }
+        .status-delivered { background: #d4edda; color: #155724; }
+
+        .info-row {
+            padding: 15px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .btn-status {
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 600;
+            border: none;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-status:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-rider">
+        <div class="container">
+            <a class="navbar-brand text-white" th:href="@{/rider/dashboard}">
+                <i class="fa fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+
+        <div class="order-detail-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Order #<span th:text="${order.id}">123</span></h2>
+                <span class="status-badge" 
+                      th:classappend="'status-' + ${#strings.toLowerCase(#strings.replace(order.status, ' ', '_'))}"
+                      th:text="${order.status}">ASSIGNED</span>
+            </div>
+
+            <div class="info-row">
+                <strong><i class="fa fa-cutlery"></i> Restaurant:</strong>
+                <span th:text="${order.restaurant != null ? order.restaurant.name : 'N/A'}">Restaurant Name</span>
+            </div>
+
+            <div class="info-row" th:if="${order.multiOrder != null}">
+                <strong><i class="fa fa-user"></i> Customer:</strong>
+                <span th:text="${order.multiOrder.user != null ? order.multiOrder.user.fullName : 'N/A'}">Customer Name</span>
+            </div>
+
+            <div class="info-row" th:if="${order.multiOrder != null and order.multiOrder.user != null}">
+                <strong><i class="fa fa-phone"></i> Customer Phone:</strong>
+                <span th:text="${order.multiOrder.user.phoneNumber}">Phone</span>
+            </div>
+
+            <div class="info-row" th:if="${order.restaurant != null}">
+                <strong><i class="fa fa-map-marker"></i> Restaurant Address:</strong>
+                <span th:text="${order.restaurant.address != null ? order.restaurant.address : 'N/A'}">Restaurant Address</span>
+            </div>
+
+            <div class="info-row" th:if="${order.restaurant != null}">
+                <strong><i class="fa fa-phone"></i> Restaurant Contact:</strong>
+                <span th:text="${order.restaurant.contactNumber != null ? order.restaurant.contactNumber : 'N/A'}">Contact</span>
+            </div>
+
+            <div class="info-row" th:if="${order.multiOrder != null and order.multiOrder.deliveryAddress != null}">
+                <strong><i class="fa fa-home"></i> Delivery Address:</strong>
+                <span th:text="${order.multiOrder.deliveryAddress}">Address</span>
+            </div>
+
+            <div class="info-row" th:if="${order.multiOrder != null and order.multiOrder.specialInstructions != null}">
+                <strong><i class="fa fa-sticky-note"></i> Special Instructions:</strong>
+                <span th:text="${order.multiOrder.specialInstructions}">Instructions</span>
+            </div>
+
+            <div class="info-row">
+                <strong><i class="fa fa-rupee"></i> Order Amount:</strong>
+                <span>₹<span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)}">0.00</span></span>
+            </div>
+
+            <div class="info-row" th:if="${order.createdAt != null}">
+                <strong><i class="fa fa-clock-o"></i> Order Time:</strong>
+                <span th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy, HH:mm')}">Time</span>
+            </div>
+
+            <hr class="my-4">
+
+            <h5 class="mb-3"><i class="fa fa-list"></i> Order Items</h5>
+            <div th:each="item : ${order.items}" class="info-row">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <strong th:text="${item.itemName}">Item Name</strong>
+                        <span class="text-muted"> x <span th:text="${item.quantity}">1</span></span>
+                    </div>
+                    <div>
+                        ₹<span th:text="${#numbers.formatDecimal(item.lineTotal, 1, 2)}">0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div th:if="${order.status == 'ASSIGNED'}">
+                <form method="post" th:action="@{'/rider/orders/' + ${order.id} + '/accept'}" class="d-inline">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit" class="btn-status btn-success">
+                        <i class="fa fa-check"></i> Accept Order
+                    </button>
+                </form>
+                <form method="post" th:action="@{'/rider/orders/' + ${order.id} + '/decline'}" class="d-inline">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit" class="btn-status btn-danger">
+                        <i class="fa fa-times"></i> Decline
+                    </button>
+                </form>
+            </div>
+
+            <div th:if="${order.status == 'OUT_FOR_DELIVERY' or order.status == 'EN_ROUTE' or order.status == 'PICKED_UP'}">
+                <h5 class="mb-3" style="color: #fc8019;">Update Order Status (Rider Only)</h5>
+                <p class="text-muted small mb-3">
+                    <i class="fa fa-info-circle"></i> Only "Delivered" status can be updated by rider. 
+                    Restaurant owner manages "Preparing Food" and "Out for Delivery" statuses.
+                </p>
+                <form method="post" th:action="@{'/rider/orders/' + ${order.id} + '/status'}" class="d-inline">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" name="status" value="DELIVERED">
+                    <button th:if="${order.status == 'OUT_FOR_DELIVERY' or order.status == 'EN_ROUTE' or order.status == 'PICKED_UP'}" 
+                            type="submit" class="btn-status" 
+                            style="background: #fc8019; color: white; border: none;">
+                        <i class="fa fa-check-circle"></i> Mark as Delivered
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+    <script th:src="@{/js/bootstrap.js}"></script>
+    <meta th:if="${_csrf != null}" name="_csrf" th:content="${_csrf.token}">
+    <script>
+        // GPS Location Tracking
+        let locationUpdateInterval;
+        const riderId = /*[[${rider.id}]]*/ null;
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
+        const orderStatus = /*[[${order.status}]]*/ '';
+
+        function updateRiderLocation() {
+            if (navigator.geolocation && riderId && (orderStatus === 'ACCEPTED' || orderStatus === 'EN_ROUTE' || orderStatus === 'PICKED_UP')) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        
+                        fetch('/api/riders/' + riderId + '/location', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken
+                            },
+                            body: JSON.stringify({
+                                lat: lat,
+                                lon: lon
+                            })
+                        }).catch(err => console.error('Location update failed:', err));
+                    },
+                    function(error) {
+                        console.error('Geolocation error:', error);
+                    }
+                );
+            }
+        }
+
+        // Start location tracking for active orders
+        if (orderStatus === 'ACCEPTED' || orderStatus === 'EN_ROUTE' || orderStatus === 'PICKED_UP') {
+            updateRiderLocation();
+            locationUpdateInterval = setInterval(updateRiderLocation, 30000); // Every 30 seconds
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (locationUpdateInterval) {
+                clearInterval(locationUpdateInterval);
+            }
+        });
+    </script>
+</body>
+</html>
+

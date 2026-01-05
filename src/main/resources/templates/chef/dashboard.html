@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Chef Dashboard</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		
+		body {
+			font-family: 'Poppins', sans-serif;
+			background-color: #fffaf3;
+			color: #333;
+		}
+		
+		.navbar-custom {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			padding: 15px 0;
+			box-shadow: 0 4px 20px rgba(220, 53, 69, 0.3);
+		}
+		.navbar-custom .navbar-brand {
+			color: #fff;
+			font-weight: 700;
+			font-size: 24px;
+			letter-spacing: 1px;
+		}
+		.navbar-custom .nav-link {
+			color: #fff;
+			font-weight: 500;
+			padding: 8px 16px;
+			border-radius: 25px;
+			transition: all 0.3s ease;
+		}
+		.navbar-custom .nav-link:hover {
+			background: rgba(255, 255, 255, 0.2);
+			transform: translateY(-2px);
+		}
+		
+		.dashboard-header {
+			background: #fff;
+			border-radius: 20px;
+			padding: 30px;
+			box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+			margin-bottom: 30px;
+		}
+		.dashboard-header h2 {
+			color: #fc8019;
+			font-weight: 700;
+		}
+		
+		.profile-card {
+			background: #fff;
+			border-radius: 15px;
+			padding: 25px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+			margin-bottom: 30px;
+		}
+		.profile-card h5 {
+			color: #fc8019;
+			font-weight: 700;
+			margin-bottom: 20px;
+		}
+		
+		.stat-card {
+			background: #fff;
+			border-radius: 15px;
+			padding: 25px;
+			border: 2px solid transparent;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+			transition: all 0.3s ease;
+			text-align: center;
+		}
+		.stat-card:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 8px 25px rgba(220, 53, 69, 0.2);
+			border-color: #fc8019;
+		}
+		.stat-value {
+			font-size: 2.5rem;
+			font-weight: 700;
+			color: #fc8019;
+		}
+		.stat-label {
+			color: #666;
+			font-size: 0.9rem;
+			margin-top: 8px;
+		}
+		
+		.list-group-item {
+			background: #fff;
+			border: 2px solid transparent;
+			border-radius: 15px;
+			margin-bottom: 15px;
+			padding: 20px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+			transition: all 0.3s ease;
+		}
+		.list-group-item:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 8px 25px rgba(220, 53, 69, 0.2);
+			border-color: #fc8019;
+		}
+		.list-group-item strong {
+			color: #fc8019;
+			font-weight: 700;
+		}
+		
+		.btn-primary {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			border: none;
+			border-radius: 50px;
+			padding: 10px 20px;
+			font-weight: 600;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+		}
+		.btn-primary:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+		}
+		.btn-outline-primary {
+			border-color: #fc8019;
+			color: #fc8019;
+		}
+		.btn-outline-primary:hover {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			border-color: #fc8019;
+			color: #fff;
+		}
+		.btn-outline-secondary {
+			border-color: #6c757d;
+			color: #6c757d;
+		}
+		.btn-outline-secondary:hover {
+			background: #6c757d;
+			color: #fff;
+		}
+		.btn-outline-danger {
+			border-color: #fc8019;
+			color: #fc8019;
+		}
+		.btn-outline-danger:hover {
+			background: #fc8019;
+			color: #fff;
+		}
+		
+		.alert {
+			border-radius: 15px;
+			border: none;
+		}
+		
+		.badge {
+			padding: 6px 12px;
+			border-radius: 20px;
+			font-weight: 600;
+		}
+		.badge-info {
+			background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+			color: #fff;
+		}
+	</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-custom">
+	<div class="container">
+		<a class="navbar-brand" th:href="@{/chef/dashboard}">Tummy Go!</a>
+		<div class="ml-auto d-flex align-items-center">
+			<a class="nav-link" th:href="@{/chef/profile}">Edit Profile</a>
+			<a class="nav-link" th:href="@{/chef/menus}">Menus</a>
+			<a class="nav-link" th:href="@{/chef/orders}">Orders</a>
+			<a class="nav-link" th:href="@{/logout}">Logout</a>
+		</div>
+	</div>
+</nav>
+
+<div class="container py-4">
+	<div class="dashboard-header">
+		<h2 class="mb-2">Chef Dashboard 👨‍🍳</h2>
+		<p class="text-muted mb-0">Manage your menus, track orders, and delight your customers with delicious food.</p>
+	</div>
+	
+	<div class="profile-card">
+		<h5>Your Profile</h5>
+		<div class="row">
+			<div class="col-md-4">
+				<p><strong>Speciality:</strong> <span th:text="${profile.speciality ?: 'Not set'}">-</span></p>
+			</div>
+			<div class="col-md-4">
+				<p><strong>Location:</strong> <span th:text="${profile.location ?: 'Not set'}">-</span></p>
+			</div>
+			<div class="col-md-4">
+				<p><strong>Bio:</strong> <span th:text="${profile.bio ?: 'Not set'}">-</span></p>
+			</div>
+		</div>
+	</div>
+	
+	<div class="row mb-4">
+		<div class="col-md-4 mb-3">
+			<div class="stat-card">
+				<div class="stat-value" th:text="${#lists.size(menus)}">0</div>
+				<div class="stat-label">Total Menus</div>
+			</div>
+		</div>
+		<div class="col-md-4 mb-3">
+			<div class="stat-card">
+				<div class="stat-value" th:text="${#lists.size(orders)}">0</div>
+				<div class="stat-label">Total Orders</div>
+			</div>
+		</div>
+		<div class="col-md-4 mb-3">
+			<div class="stat-card">
+				<div class="stat-value" th:text="${#lists.size(orders.?[status == 'NEW' or status == 'CONFIRMED' or status == 'PREPARING'])}">0</div>
+				<div class="stat-label">Active Orders</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="d-flex justify-content-between align-items-center mb-3">
+		<h4 style="color: #fc8019; font-weight: 700;">Your Menus</h4>
+		<a class="btn btn-primary btn-sm" th:href="@{/chef/menus/new}"><i class="fa fa-plus mr-2"></i>Create Menu</a>
+	</div>
+	<div th:if="${#lists.isEmpty(menus)}" class="alert alert-info text-center" style="padding: 40px; border-radius: 15px;">
+		<i class="fa fa-list fa-3x mb-3 d-block" style="color: #fc8019;"></i>
+		<h5 style="color: #fc8019; font-weight: 600;">No menus yet</h5>
+		<p class="text-muted mb-0">Create your first menu to start adding items.</p>
+	</div>
+	<ul class="list-group mb-4" th:if="${!#lists.isEmpty(menus)}">
+		<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap" th:each="m : ${menus}">
+			<div class="flex-grow-1 mb-3 mb-md-0" style="min-width: 200px;">
+				<strong th:text="${m.title}" style="font-size: 1.1rem;">Title</strong>
+				<div class="text-muted mt-2" th:text="${m.description ?: 'No description'}">Description</div>
+			</div>
+			<div class="d-flex flex-wrap gap-2">
+				<a class="btn btn-outline-primary btn-sm" th:href="@{|/chef/menus/${m.id}/items|}"><i class="fa fa-list mr-1"></i>Items</a>
+				<a class="btn btn-outline-secondary btn-sm" th:href="@{|/chef/menus/${m.id}/edit|}"><i class="fa fa-pencil mr-1"></i>Edit</a>
+				<form th:action="@{|/chef/menus/${m.id}/delete|}" method="post" onsubmit="return confirm('Delete this menu?')" class="d-inline">
+					<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+					<button class="btn btn-outline-danger btn-sm" type="submit"><i class="fa fa-trash mr-1"></i>Delete</button>
+				</form>
+			</div>
+		</li>
+	</ul>
+
+	<div class="d-flex justify-content-between align-items-center mb-3">
+		<h4 style="color: #fc8019; font-weight: 700;">Recent Orders</h4>
+		<a class="btn btn-outline-primary btn-sm" th:href="@{/chef/orders}"><i class="fa fa-eye mr-1"></i>View All Orders</a>
+	</div>
+	<div th:if="${#lists.isEmpty(orders)}" class="alert alert-info text-center" style="padding: 40px; border-radius: 15px;">
+		<i class="fa fa-shopping-cart fa-3x mb-3 d-block" style="color: #fc8019;"></i>
+		<h5 style="color: #fc8019; font-weight: 600;">No orders yet</h5>
+		<p class="text-muted mb-0">Orders will appear here when customers place them.</p>
+	</div>
+	<div th:if="${!#lists.isEmpty(orders)}">
+		<div class="list-group">
+			<div class="list-group-item" th:each="order, iterStat : ${orders}" th:if="${iterStat.index < 5}">
+				<div class="d-flex justify-content-between align-items-center flex-wrap">
+					<div class="flex-grow-1">
+						<strong>Order #<span th:text="${order.id}">123</span></strong>
+						<span class="badge badge-info ml-2" th:text="${order.status}">NEW</span>
+						<p class="mb-0 text-muted small mt-2">
+							<i class="fa fa-user mr-1"></i>Customer: <span th:text="${order.user.fullName}">Name</span> | 
+							<i class="fa fa-rupee mr-1"></i><span th:text="|₹${#numbers.formatDecimal(order.totalAmount, 1, 2)}|">₹0.00</span>
+						</p>
+					</div>
+					<a class="btn btn-sm btn-outline-primary mt-2 mt-md-0" th:href="@{/chef/orders}"><i class="fa fa-eye mr-1"></i>View Details</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/bootstrap.js}"></script>
+</body>
+</html>

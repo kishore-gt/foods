@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Tummy Go! - Order Details</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		
+		body {
+			font-family: 'Poppins', sans-serif;
+			background-color: #0d1117;
+			color: #e0e0e0;
+			min-height: 100vh;
+		}
+		
+		.navbar-custom {
+			background-color: #161b22;
+			padding: 15px 0;
+			border-bottom: 1px solid #30363d;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+		}
+		.navbar-custom .navbar-brand {
+			color: #fff;
+			font-weight: 700;
+			font-size: 24px;
+			letter-spacing: 1px;
+		}
+		.navbar-custom .nav-link {
+			color: #c9d1d9;
+			font-weight: 500;
+			padding: 8px 16px;
+			border-radius: 25px;
+			transition: all 0.3s ease;
+		}
+		.navbar-custom .nav-link:hover {
+			background: rgba(255, 255, 255, 0.1);
+			color: #fff;
+			transform: translateY(-2px);
+		}
+		
+		.order-detail {
+			background: #161b22;
+			border: 1px solid #30363d;
+			border-radius: 15px;
+			padding: 30px;
+			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+		}
+		.order-detail h2 {
+			color: #58a6ff;
+			font-weight: 700;
+			margin-bottom: 30px;
+		}
+		.order-detail h5 {
+			color: #58a6ff;
+			font-weight: 600;
+			margin-bottom: 20px;
+		}
+		.order-detail strong {
+			color: #fff;
+		}
+		
+		.table {
+			color: #e0e0e0;
+			background: transparent;
+		}
+		.table thead th {
+			border-bottom: 2px solid #30363d;
+			color: #58a6ff;
+			font-weight: 600;
+			background: transparent;
+		}
+		.table tbody tr {
+			border-bottom: 1px solid #30363d;
+		}
+		.table tbody tr:hover {
+			background-color: #1c2128;
+		}
+		.table td, .table th {
+			border-color: #30363d;
+		}
+		.table tfoot th {
+			color: #58a6ff;
+			font-weight: 700;
+		}
+		
+		.form-control {
+			background-color: #0d1117;
+			border: 1px solid #30363d;
+			color: #e0e0e0;
+			border-radius: 8px;
+			padding: 10px 15px;
+		}
+		.form-control:focus {
+			background-color: #0d1117;
+			border-color: #58a6ff;
+			color: #e0e0e0;
+			box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+		}
+		.form-control option {
+			background-color: #161b22;
+			color: #e0e0e0;
+		}
+		
+		.btn-primary {
+			background: linear-gradient(135deg, #58a6ff 0%, #1f6feb 100%);
+			border: none;
+			border-radius: 25px;
+			padding: 10px 25px;
+			font-weight: 600;
+			color: #fff;
+			transition: all 0.3s ease;
+		}
+		.btn-primary:hover {
+			background: linear-gradient(135deg, #1f6feb 0%, #58a6ff 100%);
+			transform: translateY(-2px);
+			box-shadow: 0 4px 15px rgba(31, 111, 235, 0.4);
+		}
+		
+		.badge-info {
+			background: linear-gradient(135deg, #58a6ff 0%, #1f6feb 100%);
+			color: #fff;
+			padding: 6px 12px;
+			border-radius: 20px;
+			font-weight: 600;
+		}
+		
+		.alert {
+			border-radius: 10px;
+			border: 1px solid #30363d;
+		}
+		.alert-success {
+			background-color: #1a472a;
+			border-color: #238636;
+			color: #3fb950;
+		}
+		.alert-danger {
+			background-color: #3d1f1f;
+			border-color: #da3633;
+			color: #f85149;
+		}
+		
+		.text-muted {
+			color: #8b949e !important;
+		}
+	</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-custom">
+	<div class="container">
+		<a class="navbar-brand" th:href="@{/admin/dashboard}">Tummy Go! - Admin</a>
+		<div class="ml-auto d-flex align-items-center">
+			<a class="nav-link" th:href="@{/admin/dashboard}">Dashboard</a>
+			<a class="nav-link" th:href="@{/admin/users}">Users</a>
+			<a class="nav-link" th:href="@{/admin/restaurants}">Restaurants</a>
+			<a class="nav-link" th:href="@{/admin/orders}">Orders</a>
+			<a class="nav-link" th:href="@{/admin/donations}">Donations</a>
+			<a class="nav-link" th:href="@{/logout}">Logout</a>
+		</div>
+	</div>
+</nav>
+
+<div class="container py-4">
+	<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+	<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+	<div class="order-detail">
+		<h2>Order #<span th:text="${order.id}">123</span></h2>
+
+		<div class="row mb-4">
+			<div class="col-md-6">
+				<h5>Customer Information</h5>
+				<p><strong>Name:</strong> <span th:text="${order.user.fullName}">Name</span></p>
+				<p><strong>Email:</strong> <span th:text="${order.user.email}">Email</span></p>
+				<p><strong>Delivery Address:</strong> <span th:text="${order.deliveryAddress}">Address</span></p>
+				<p th:if="${order.specialInstructions}"><strong>Special Instructions:</strong> <span th:text="${order.specialInstructions}">Instructions</span></p>
+			</div>
+			<div class="col-md-6">
+				<h5 th:if="${order.restaurant != null}">Restaurant Information</h5>
+				<h5 th:if="${order.restaurant == null and order.chefProfile != null}">Chef Information</h5>
+				<h5 th:if="${order.restaurant == null and order.chefProfile == null}">Source Information</h5>
+				<div th:if="${order.restaurant != null}">
+					<p><strong>Name:</strong> <span th:text="${order.restaurant.name}">Restaurant</span></p>
+					<p><strong>Address:</strong> <span th:text="${order.restaurant.address}">Address</span></p>
+					<p><strong>Contact:</strong> <span th:text="${order.restaurant.contactNumber}">Contact</span></p>
+				</div>
+				<div th:if="${order.restaurant == null and order.chefProfile != null}">
+					<p><strong>Chef:</strong> <span th:text="${order.chefProfile.chef.fullName}">Chef Name</span></p>
+					<p><strong>Speciality:</strong> <span th:text="${order.chefProfile.speciality}">Speciality</span></p>
+					<p><strong>Location:</strong> <span th:text="${order.chefProfile.location}">Location</span></p>
+				</div>
+				<p th:if="${order.restaurant == null and order.chefProfile == null}" class="text-muted">No source information available</p>
+			</div>
+		</div>
+
+		<h5 class="mb-3">Order Items</h5>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Item</th>
+					<th>Quantity</th>
+					<th>Unit Price</th>
+					<th>Total</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="item : ${order.items}">
+					<td th:text="${item.itemName}">Item</td>
+					<td th:text="${item.quantity}">1</td>
+					<td th:text="|$${#numbers.formatDecimal(item.unitPrice, 1, 2)}|">$0.00</td>
+					<td th:text="|$${#numbers.formatDecimal(item.lineTotal, 1, 2)}|">$0.00</td>
+				</tr>
+			</tbody>
+			<tfoot>
+				<tr>
+					<th colspan="3">Total Amount</th>
+					<th th:text="|$${#numbers.formatDecimal(order.totalAmount, 1, 2)}|">$0.00</th>
+				</tr>
+			</tfoot>
+		</table>
+
+		<div class="mt-4">
+			<h5>Update Order Status</h5>
+			<form th:action="@{|/admin/orders/${order.id}/status|}" method="post">
+				<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+				<div class="form-group">
+					<select name="status" class="form-control" style="max-width: 300px;">
+						<option th:each="status : ${statuses}" th:value="${status}" th:text="${status}" th:selected="${order.status == status}"></option>
+					</select>
+				</div>
+				<button type="submit" class="btn btn-primary mt-2">Update Status</button>
+			</form>
+		</div>
+
+		<div class="mt-3">
+			<p><strong>Current Status:</strong> <span class="badge badge-info" th:text="${order.status}">NEW</span></p>
+			<p th:if="${order.trackingInfo}"><strong>Tracking Info:</strong> <span th:text="${order.trackingInfo}">Info</span></p>
+			<p><strong>Order Date:</strong> <span th:text="${#temporals.format(order.createdAt, 'MMM dd, yyyy HH:mm')}">Date</span></p>
+		</div>
+	</div>
+</div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/bootstrap.js}"></script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Donations</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		
+		body {
+			font-family: 'Poppins', sans-serif;
+			background-color: #fffaf3;
+			color: #333;
+		}
+		
+		.navbar-custom {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			padding: 15px 0;
+			box-shadow: 0 4px 20px rgba(220, 53, 69, 0.3);
+		}
+		.navbar-custom .navbar-brand {
+			color: #fff;
+			font-weight: 700;
+			font-size: 24px;
+			letter-spacing: 1px;
+		}
+		.navbar-custom .nav-link {
+			color: #fff;
+			font-weight: 500;
+			padding: 8px 16px;
+			border-radius: 25px;
+			transition: all 0.3s ease;
+		}
+		.navbar-custom .nav-link:hover {
+			background: rgba(255, 255, 255, 0.2);
+			transform: translateY(-2px);
+		}
+		
+		.page-header {
+			background: #fff;
+			border-radius: 20px;
+			padding: 25px 30px;
+			box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+			margin-bottom: 30px;
+		}
+		.page-header h2 {
+			color: #fc8019;
+			font-weight: 700;
+			margin: 0;
+		}
+		
+		.donation-card {
+			background: #fff;
+			border: 2px solid transparent;
+			border-radius: 15px;
+			padding: 25px;
+			margin-bottom: 20px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+			transition: all 0.3s ease;
+		}
+		.donation-card:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 8px 25px rgba(220, 53, 69, 0.2);
+			border-color: #fc8019;
+		}
+		.donation-card h5 {
+			color: #fc8019;
+			font-weight: 700;
+			margin-bottom: 15px;
+		}
+		.badge {
+			padding: 6px 12px;
+			border-radius: 20px;
+			font-weight: 600;
+		}
+		.badge-success {
+			background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+			color: #fff;
+		}
+		.badge-warning {
+			background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+			color: #fff;
+		}
+		.badge-info {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			color: #fff;
+		}
+		.badge-secondary {
+			background: #6c757d;
+			color: #fff;
+		}
+		.btn-primary {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			border: none;
+			border-radius: 50px;
+			padding: 12px 25px;
+			font-weight: 600;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+		}
+		.btn-primary:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+		}
+		.alert {
+			border-radius: 15px;
+			border: none;
+		}
+	</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-custom">
+	<div class="container">
+		<a class="navbar-brand" th:href="@{/owner/dashboard}">Tummy Go!</a>
+		<div class="ml-auto d-flex align-items-center">
+			<a class="nav-link" th:href="@{/owner/dashboard}">Dashboard</a>
+			<a class="nav-link" th:href="@{/logout}">Logout</a>
+		</div>
+	</div>
+</nav>
+
+<div class="container py-4">
+	<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+	<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+	<div class="page-header d-flex justify-content-between align-items-center">
+		<h2>Donations for <span th:text="${restaurant.name}">Restaurant</span></h2>
+		<a th:href="@{|/owner/restaurants/${restaurant.id}/donations/new|}" class="btn btn-primary">
+			<i class="fa fa-plus mr-2"></i>Create Donation
+		</a>
+	</div>
+
+	<div th:if="${#lists.isEmpty(donations)}" class="alert alert-info">No donations created yet</div>
+
+	<div th:each="donation : ${donations}" class="donation-card">
+		<div class="d-flex justify-content-between align-items-start">
+			<div>
+				<h5 th:text="${donation.foodName}">Food Name</h5>
+				<p class="mb-1"><strong>Quantity:</strong> <span th:text="${donation.quantity}">1</span></p>
+				<p class="mb-1" th:if="${donation.description}"><strong>Description:</strong> <span th:text="${donation.description}">Description</span></p>
+				<p class="mb-1">
+					<strong>Condition:</strong> 
+					<span class="badge" th:classappend="${donation.inGoodCondition} ? 'badge-success' : 'badge-warning'" 
+					      th:text="${donation.inGoodCondition} ? 'Good Condition' : 'Fair Condition'">Good</span>
+				</p>
+				<p class="mb-1">
+					<strong>Status:</strong> 
+					<span class="badge" th:classappend="${donation.isClaimed} ? 'badge-info' : 'badge-secondary'" 
+					      th:text="${donation.isClaimed} ? 'Claimed' : 'Available'">Available</span>
+				</p>
+				<p class="mb-0 text-muted"><small th:text="${#temporals.format(donation.createdAt, 'MMM dd, yyyy HH:mm')}">Date</small></p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/bootstrap.js}"></script>
+</body>
+</html>
+

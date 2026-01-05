@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title th:text="${packageId != null} ? 'Edit Subscription Package' : 'Create Subscription Package'">Subscription
+		Package - Tummy Go!</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+		rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Poppins', sans-serif;
+			background-color: #fffaf3;
+			color: #333;
+		}
+
+		.navbar-custom {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			padding: 15px 0;
+			box-shadow: 0 4px 20px rgba(220, 53, 69, 0.3);
+		}
+
+		.navbar-custom .navbar-brand {
+			color: #fff;
+			font-weight: 700;
+			font-size: 24px;
+			letter-spacing: 1px;
+		}
+
+		.navbar-custom .nav-link {
+			color: #fff;
+			font-weight: 500;
+			padding: 8px 16px;
+			border-radius: 25px;
+			transition: all 0.3s ease;
+		}
+
+		.navbar-custom .nav-link:hover {
+			background: rgba(255, 255, 255, 0.2);
+			transform: translateY(-2px);
+		}
+
+		.form-container {
+			background: #fff;
+			border-radius: 20px;
+			padding: 40px;
+			box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+			margin: 30px auto;
+			max-width: 1000px;
+		}
+
+		.form-container h3 {
+			color: #fc8019;
+			font-weight: 700;
+			margin-bottom: 30px;
+		}
+
+		.form-label {
+			font-weight: 600;
+			color: #333;
+			margin-bottom: 8px;
+		}
+
+		.form-control {
+			border-radius: 10px;
+			border: 2px solid #e0e0e0;
+			padding: 12px 15px;
+			transition: all 0.3s ease;
+		}
+
+		.form-control:focus {
+			border-color: #fc8019;
+			box-shadow: 0 0 0 0.2rem rgba(252, 128, 25, 0.25);
+		}
+
+		.btn-primary {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			border: none;
+			border-radius: 50px;
+			padding: 12px 30px;
+			font-weight: 600;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+		}
+
+		.btn-primary:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+		}
+
+		.btn-secondary {
+			border-radius: 50px;
+			padding: 12px 30px;
+			font-weight: 600;
+		}
+
+		.text-danger {
+			color: #fc8019;
+			font-size: 0.875rem;
+		}
+
+		.menu-items-section {
+			background: #f8f9fa;
+			border-radius: 15px;
+			padding: 25px;
+			margin-top: 20px;
+		}
+
+		.menu-item-card {
+			background: #fff;
+			border: 2px solid #e0e0e0;
+			border-radius: 10px;
+			padding: 15px;
+			margin-bottom: 10px;
+			transition: all 0.3s ease;
+			cursor: pointer;
+		}
+
+		.menu-item-card:hover {
+			border-color: #fc8019;
+			box-shadow: 0 4px 10px rgba(252, 128, 25, 0.15);
+		}
+
+		.menu-item-card.selected {
+			border-color: #fc8019;
+			background: #fff6ef;
+		}
+
+		.menu-item-card input[type="checkbox"] {
+			margin-right: 10px;
+			transform: scale(1.2);
+		}
+
+		.menu-item-info {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.menu-item-name {
+			font-weight: 600;
+			color: #333;
+		}
+
+		.menu-item-price {
+			color: #fc8019;
+			font-weight: 700;
+		}
+
+		.menu-item-description {
+			font-size: 0.875rem;
+			color: #666;
+			margin-top: 5px;
+		}
+
+		.search-box {
+			margin-bottom: 20px;
+		}
+
+		.selected-count {
+			background: #fc8019;
+			color: #fff;
+			padding: 5px 15px;
+			border-radius: 20px;
+			font-size: 0.875rem;
+			font-weight: 600;
+			margin-left: 10px;
+		}
+	</style>
+</head>
+
+<body>
+	<nav class="navbar navbar-expand-lg navbar-custom">
+		<div class="container">
+			<a class="navbar-brand" th:href="@{/owner/dashboard}">Tummy Go!</a>
+			<div class="ml-auto d-flex align-items-center">
+				<a class="nav-link" th:href="@{|/owner/restaurants/${restaurant.id}/subscription-packages|}">Back to
+					Packages</a>
+				<a class="nav-link" th:href="@{/owner/dashboard}">Dashboard</a>
+				<a class="nav-link" th:href="@{/logout}">Logout</a>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container py-4">
+		<div class="form-container">
+			<h3 th:text="${packageId != null} ? 'Edit Subscription Package' : 'Create Subscription Package'">
+				Create Subscription Package
+			</h3>
+			<p class="text-muted mb-4">Restaurant: <strong th:text="${restaurant.name}">Restaurant Name</strong></p>
+
+			<form
+				th:action="${packageId != null} ? @{|/owner/restaurants/${restaurant.id}/subscription-packages/${packageId}/edit|} : @{|/owner/restaurants/${restaurant.id}/subscription-packages|}"
+				th:object="${subscriptionPackageForm}" method="post">
+				<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}"
+					th:value="${_csrf.token}">
+
+				<div class="mb-3">
+					<label class="form-label">Package Name *</label>
+					<input type="text" class="form-control" th:field="*{name}"
+						placeholder="e.g., Basic Package - 10 People" required>
+					<div class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label">Description</label>
+					<textarea class="form-control" th:field="*{description}" rows="3"
+						placeholder="Describe what's included in this package"></textarea>
+					<div class="text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">
+					</div>
+				</div>
+
+				<div class="row mb-3">
+					<div class="col-md-6">
+						<label class="form-label">Meal Type *</label>
+						<select class="form-control" th:field="*{mealType}" required>
+							<option value="">Select meal type</option>
+							<option value="BREAKFAST">Breakfast</option>
+							<option value="LUNCH">Lunch</option>
+							<option value="DINNER">Dinner</option>
+						</select>
+						<div class="text-danger" th:if="${#fields.hasErrors('mealType')}" th:errors="*{mealType}"></div>
+					</div>
+				</div>
+
+				<div class="row mb-3">
+					<div class="col-md-6">
+						<label class="form-label">Number of People *</label>
+						<select class="form-control" th:field="*{numberOfPeople}" id="numberOfPeople"
+							onchange="calculateTotalPrice()" required>
+							<option value="">Select number of people</option>
+							<option value="10">10 People</option>
+							<option value="20">20 People</option>
+							<option value="30">30 People</option>
+							<option value="40">40 People</option>
+						</select>
+						<div class="text-danger" th:if="${#fields.hasErrors('numberOfPeople')}"
+							th:errors="*{numberOfPeople}"></div>
+					</div>
+					<div class="col-md-6">
+						<label class="form-label">Price per Person/Day (₹)</label>
+						<input type="number" class="form-control" th:field="*{price}" id="price" step="0.01" min="0.01"
+							placeholder="Calculated automatically..." readonly>
+						<small class="text-muted">
+							Total = (Item Prices × People) - 20% Discount
+							<br>
+							<span id="priceBreakdown" style="font-weight: 500; color: #fc8019;"></span>
+						</small>
+						<div class="text-danger" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
+					</div>
+				</div>
+
+				<!-- Menu Items Selection Section -->
+				<div class="menu-items-section">
+					<div class="d-flex justify-content-between align-items-center mb-3">
+						<h5 style="color: #fc8019; margin: 0;">
+							<i class="fa fa-utensils mr-2"></i>Select Food Items for Package
+						</h5>
+						<span class="selected-count" id="selectedCount">0 selected</span>
+					</div>
+
+					<div class="search-box">
+						<input type="text" class="form-control" id="searchMenuItems" placeholder="Search menu items...">
+					</div>
+
+					<div th:if="${menuItems == null || menuItems.isEmpty()}" class="alert alert-warning">
+						<i class="fa fa-exclamation-triangle mr-2"></i>
+						No menu items available. Please add menu items first.
+						<a th:href="@{|/owner/restaurants/${restaurant.id}/menus|}" class="alert-link">Go to Menus</a>
+					</div>
+
+					<div id="menuItemsContainer" th:if="${menuItems != null && !menuItems.isEmpty()}">
+						<div class="menu-item-card" th:each="item : ${menuItems}" th:data-item-id="${item.id}"
+							th:data-item-name="${item.name}" th:data-item-price="${item.price}">
+							<div class="menu-item-info">
+								<div>
+									<input type="checkbox" th:id="'item_' + ${item.id}" th:name="menuItemIds"
+										th:value="${item.id}"
+										th:checked="${subscriptionPackageForm.menuItemIds != null && subscriptionPackageForm.menuItemIds.contains(item.id)}"
+										onchange="updateSelectedCount(); calculateTotalPrice(); toggleCardSelection(this);">
+									<label th:for="'item_' + ${item.id}" class="menu-item-name" th:text="${item.name}"
+										style="cursor: pointer;">Item Name</label>
+								</div>
+								<div class="menu-item-price">₹<span
+										th:text="${#numbers.formatDecimal(item.price, 0, 2)}">0.00</span></div>
+							</div>
+							<div class="menu-item-description" th:if="${item.description}"
+								th:text="${item.description}">Description</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="d-flex gap-2 mt-4">
+					<button class="btn btn-primary" type="submit">
+						<i class="fa fa-save mr-2"></i>
+						<span th:text="${packageId != null} ? 'Update Package' : 'Create Package'">Create Package</span>
+					</button>
+					<a th:href="@{|/owner/restaurants/${restaurant.id}/subscription-packages|}"
+						class="btn btn-secondary">
+						Cancel
+					</a>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+	<script th:src="@{/js/bootstrap.js}"></script>
+	<script>
+		function toggleCardSelection(checkbox) {
+			const card = checkbox.closest('.menu-item-card');
+			if (checkbox.checked) {
+				card.classList.add('selected');
+			} else {
+				card.classList.remove('selected');
+			}
+		}
+
+		function updateSelectedCount() {
+			const checked = document.querySelectorAll('input[name="menuItemIds"]:checked').length;
+			document.getElementById('selectedCount').textContent = checked + ' selected';
+		}
+
+		// Make cards clickable
+		document.querySelectorAll('.menu-item-card').forEach(card => {
+			card.addEventListener('click', function (event) {
+				// Prevent clicking on the checkbox itself from triggering the card click
+				if (event.target.type !== 'checkbox') {
+					const checkbox = this.querySelector('input[type="checkbox"]');
+					if (checkbox) {
+						checkbox.checked = !checkbox.checked;
+						toggleCardSelection(checkbox);
+						updateSelectedCount();
+						calculateTotalPrice();
+					}
+				}
+			});
+		});
+
+		function calculateTotalPrice() {
+			let itemsTotal = 0;
+			document.querySelectorAll('input[name="menuItemIds"]:checked').forEach(checkbox => {
+				const card = checkbox.closest('.menu-item-card');
+				const price = parseFloat(card.getAttribute('data-item-price') || 0);
+				itemsTotal += price;
+			});
+
+			const peopleCount = parseInt(document.getElementById('numberOfPeople').value) || 0;
+			const priceInput = document.getElementById('price');
+			const priceBreakdown = document.getElementById('priceBreakdown');
+
+			if (peopleCount > 0 && itemsTotal > 0) {
+				const baseTotal = itemsTotal * peopleCount;
+				const discount = baseTotal * 0.20; // 20% discount
+				const finalTotal = baseTotal - discount;
+
+				priceInput.value = finalTotal.toFixed(2);
+				if (priceBreakdown) {
+					priceBreakdown.innerHTML =
+						`Base: ₹${itemsTotal.toFixed(2)} × ${peopleCount} = ₹${baseTotal.toFixed(2)} <br>` +
+						`Discount (20%): -₹${discount.toFixed(2)} <br>` +
+						`Final: ₹${finalTotal.toFixed(2)}`;
+				}
+			} else {
+				priceInput.value = '';
+				if (priceBreakdown) {
+					priceBreakdown.innerHTML = '';
+				}
+			}
+		}
+
+		// Search functionality
+		document.getElementById('searchMenuItems').addEventListener('input', function (e) {
+			const searchTerm = e.target.value.toLowerCase();
+			const items = document.querySelectorAll('.menu-item-card');
+
+			items.forEach(item => {
+				const itemName = item.getAttribute('data-item-name').toLowerCase();
+				if (itemName.includes(searchTerm)) {
+					item.style.display = 'block';
+				} else {
+					item.style.display = 'none';
+				}
+			});
+		});
+
+		// Initialize selected count and card states on page load
+		document.addEventListener('DOMContentLoaded', function () {
+			updateSelectedCount();
+
+			// Mark selected items on load
+			document.querySelectorAll('input[name="menuItemIds"]:checked').forEach(checkbox => {
+				toggleCardSelection(checkbox);
+			});
+		});
+	</script>
+</body>
+
+</html>

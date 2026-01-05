@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Subscription Requests</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+</head>
+<body>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Subscription Requests - <span th:text="${restaurant.name}">Restaurant</span></h3>
+        <a th:href="@{|/owner/restaurants/${restaurant.id}/subscription-packages|}" class="btn btn-secondary btn-sm">Back to packages</a>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <div th:if="${pendingRequests == null or pendingRequests.isEmpty()}" class="alert alert-info">
+        No pending subscription requests right now.
+    </div>
+
+    <table th:if="${pendingRequests != null && !pendingRequests.isEmpty()}" class="table table-striped">
+        <thead>
+        <tr>
+            <th>Company</th>
+            <th>Package</th>
+            <th>Meal</th>
+            <th>People</th>
+            <th>Duration</th>
+            <th>Time</th>
+            <th>Skip Days</th>
+            <th>Total</th>
+            <th>Requested At</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="req : ${pendingRequests}">
+            <td th:text="${req.company.companyName}">Company</td>
+            <td th:text="${req.subscriptionPackage.name}">Package</td>
+            <td th:text="${req.subscriptionPackage.mealType}">LUNCH</td>
+            <td th:text="${req.peopleCount}">1</td>
+            <td th:text="${req.durationMonths != null ? req.durationMonths : 1}">1</td>
+            <td th:text="${req.preferredTime ?: '-'}">-</td>
+            <td th:text="${req.excludedDays ?: '-'}">-</td>
+            <td>₹<span th:text="${#numbers.formatDecimal(req.totalAmount,0,2)}">0.00</span></td>
+            <td th:text="${#temporals.format(req.createdAt,'dd MMM yyyy HH:mm')}">now</td>
+            <td>
+                <form th:action="@{|/owner/restaurants/${restaurant.id}/subscription-requests/${req.id}/approve|}" method="post" class="d-inline">
+                    <input type="text" name="note" class="form-control form-control-sm mb-1" placeholder="Optional note">
+                    <button class="btn btn-success btn-sm" type="submit">Approve</button>
+                </form>
+                <form th:action="@{|/owner/restaurants/${restaurant.id}/subscription-requests/${req.id}/reject|}" method="post" class="d-inline ml-1">
+                    <input type="text" name="note" class="form-control form-control-sm mb-1" placeholder="Optional note">
+                    <button class="btn btn-danger btn-sm" type="submit">Reject</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Browse Restaurants - Tummy Go!</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<style>
+		:root {
+			--primary-color: #fc8019;
+			--primary-dark: #e66a00;
+			--secondary-color: #e66a00;
+			--text-dark: #1a1a1a;
+			--text-light: #4a4a4a;
+			--text-muted: #6b7280;
+			--bg-light: #ffffff;
+			--bg-secondary: #f8f9fa;
+			--border-color: #e5e7eb;
+			--white: #fff;
+			--shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+			--shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+			--shadow-lg: 0 10px 25px rgba(0,0,0,0.12);
+			--shadow: rgba(0, 0, 0, 0.1);
+		}
+
+		body.cafe-mode {
+			--primary-color: #d28b4b;
+			--primary-dark: #8b4513;
+			--secondary-color: #8b4513;
+			--text-dark: #f5e6d3;
+			--text-light: #d4b896;
+			--text-muted: #b8956a;
+			--bg-light: #3e2723;
+			--bg-secondary: #2c1810;
+			--border-color: rgba(255,255,255,0.15);
+			--white: rgba(79, 55, 45, 0.85);
+			--shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+			--shadow-md: 0 4px 15px rgba(0,0,0,0.4);
+			--shadow-lg: 0 10px 30px rgba(0,0,0,0.5);
+			--shadow: rgba(0, 0, 0, 0.4);
+			background: linear-gradient(180deg, #2c1810 0%, #3e2723 50%, #5d4037 100%) fixed;
+			color: var(--text-dark);
+		}
+
+		/* Cafe mode - remove white pop, make cards transparent/dark */
+		body.cafe-mode .mode-banner,
+		body.cafe-mode .item-card,
+		body.cafe-mode .restaurant-card,
+		body.cafe-mode .offer-card,
+		body.cafe-mode .offer-content,
+		body.cafe-mode .search-section,
+		body.cafe-mode .container > div[style*="background: white"],
+		body.cafe-mode div[style*="background: white"] {
+			background: var(--white) !important;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		body.cafe-mode .container {
+			background: transparent;
+		}
+
+		body.cafe-mode .item-card-body,
+		body.cafe-mode .restaurant-card > div {
+			background: transparent !important;
+		}
+
+		body.cafe-mode .item-card,
+		body.cafe-mode .restaurant-card {
+			background: rgba(79, 55, 45, 0.6) !important;
+			border: 1px solid rgba(255, 255, 255, 0.15);
+		}
+
+		body.cafe-mode .offer-card {
+			background: rgba(79, 55, 45, 0.6) !important;
+			border: 1px solid rgba(255, 255, 255, 0.15);
+		}
+
+		body.cafe-mode .text-muted {
+			color: var(--text-light) !important;
+		}
+
+		* {
+			font-family: 'Poppins', sans-serif;
+		}
+
+		body {
+			background-color: var(--bg-light);
+			color: var(--text-dark);
+			line-height: 1.6;
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
+		}
+
+		.navbar-custom {
+			background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+			padding: 15px 0;
+			box-shadow: 0 2px 10px var(--shadow);
+		}
+
+		.navbar-custom .navbar-brand {
+			color: white;
+			font-weight: 700;
+			font-size: 24px;
+		}
+
+		.navbar-custom .nav-link {
+			color: white;
+			font-weight: 500;
+			padding: 8px 16px;
+			border-radius: 20px;
+			transition: all 0.3s ease;
+		}
+
+		.navbar-custom .nav-link:hover {
+			background: rgba(255, 255, 255, 0.2);
+		}
+
+		.search-section {
+			background: var(--white);
+			padding: 15px 20px;
+			border-radius: 12px;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+			margin-bottom: 20px;
+		}
+
+		body.cafe-mode .search-section {
+			background: rgba(79, 55, 45, 0.5) !important;
+			border: 1px solid rgba(255, 255, 255, 0.15);
+			box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+		}
+
+		body.cafe-mode .search-section input.form-control {
+			background: rgba(255, 255, 255, 0.1) !important;
+			border: 1px solid rgba(255, 255, 255, 0.2) !important;
+			color: var(--text-dark) !important;
+		}
+
+		body.cafe-mode .search-section input.form-control::placeholder {
+			color: rgba(255, 255, 255, 0.5) !important;
+		}
+
+		.filter-buttons {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 8px;
+			margin-top: 12px;
+		}
+
+		.filter-btn {
+			padding: 6px 14px;
+			border: 1.5px solid #e0e0e0;
+			background: var(--white);
+			border-radius: 20px;
+			font-size: 13px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			color: var(--text-dark);
+		}
+
+		.filter-btn:hover {
+			border-color: var(--primary-color);
+			transform: translateY(-2px);
+		}
+
+		.filter-btn.active {
+			background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+			color: var(--white);
+			border-color: var(--primary-color);
+			box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+		}
+
+		.item-card {
+			background: var(--white);
+			border-radius: 16px;
+			padding: 0;
+			margin-bottom: 0;
+			box-shadow: var(--shadow-md);
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+			border: 1px solid var(--border-color);
+			min-height: 420px;
+		}
+
+		.item-card:hover {
+			transform: translateY(-8px);
+			box-shadow: var(--shadow-lg);
+			border-color: var(--primary-color);
+		}
+
+		.item-card img {
+			width: 100%;
+			height: 220px;
+			object-fit: cover;
+			display: block;
+			background: #f5f5f5;
+		}
+
+		.item-card-body {
+			padding: 24px;
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			min-height: 200px;
+		}
+
+		.item-name {
+			font-size: 21px;
+			font-weight: 700;
+			color: var(--text-dark);
+			margin-bottom: 10px;
+			line-height: 1.3;
+			min-height: 56px;
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+		}
+
+		.item-meta {
+			font-size: 14px;
+			color: var(--text-muted);
+			margin-bottom: 8px;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+
+		.item-meta i {
+			color: var(--primary-color);
+			font-size: 13px;
+		}
+
+		.item-description {
+			color: var(--text-light);
+			font-size: 14px;
+			margin: 12px 0;
+			line-height: 1.6;
+		}
+
+		.item-price {
+			font-size: 26px;
+			font-weight: 700;
+			color: var(--primary-color);
+			margin-top: auto;
+			padding-top: 12px;
+		}
+
+		body.cafe-mode .item-price {
+			color: #f4ba73;
+		}
+
+		.mt-auto {
+			margin-top: auto;
+		}
+
+		.available-badge {
+			display: inline-block;
+			padding: 6px 12px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+		}
+
+		.available-badge.yes {
+			background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+			color: white;
+		}
+
+		.available-badge.no {
+			background-color: #fc8019;
+			color: white;
+		}
+
+		.tag-chip {
+			display: inline-block;
+			padding: 5px 12px;
+			margin: 5px 5px 0 0;
+			background: #fff4e6;
+			border: 1px solid #ffd5a1;
+			border-radius: 15px;
+			font-size: 12px;
+			color: var(--primary-color);
+			font-weight: 500;
+		}
+
+		.btn-primary {
+			background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+			border: none;
+			border-radius: 25px;
+			padding: 12px 24px;
+			font-weight: 600;
+			font-size: 14px;
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			box-shadow: var(--shadow-sm);
+			color: white;
+		}
+
+		.btn-primary:hover {
+			transform: translateY(-2px);
+			box-shadow: var(--shadow-md);
+			color: white;
+		}
+
+		.btn-primary:active {
+			transform: translateY(0);
+		}
+
+		.btn-outline-primary {
+			border: 2px solid var(--primary-color);
+			color: var(--primary-color);
+			border-radius: 25px;
+			padding: 8px 18px;
+			font-weight: 500;
+			transition: all 0.3s ease;
+		}
+
+		.btn-outline-primary:hover {
+			background: var(--primary-color);
+			color: white;
+			transform: translateY(-2px);
+		}
+
+		/* Preorder Button Styles */
+		.btn-preorder {
+			background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+			border: none;
+			color: white;
+			border-radius: 25px;
+			padding: 10px 20px;
+			font-weight: 600;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+		}
+
+		.btn-preorder:hover {
+			background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
+			color: white;
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(23, 162, 184, 0.5);
+			text-decoration: none;
+		}
+
+		.btn-preorder i {
+			font-size: 16px;
+		}
+
+		.btn-preorder.btn-sm {
+			padding: 8px 16px;
+			font-size: 14px;
+		}
+
+		.section-title {
+			font-size: 36px;
+			font-weight: 700;
+			color: var(--text-dark);
+			margin-bottom: 35px;
+			position: relative;
+			padding-bottom: 15px;
+			letter-spacing: -0.5px;
+			line-height: 1.2;
+		}
+
+		body.cafe-mode .section-title {
+			color: var(--text-dark);
+			text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+		}
+
+		.section-title::after {
+			content: '';
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			width: 60px;
+			height: 4px;
+			background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+			border-radius: 2px;
+		}
+
+		/* Veg/Non-Veg Filter Styles */
+		.veg-filter-btn {
+			padding: 8px 20px;
+			border: 2px solid #ddd;
+			background: white;
+			border-radius: 25px;
+			font-size: 14px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			color: #333;
+		}
+
+		.veg-filter-btn:hover {
+			border-color: var(--primary-color);
+			transform: translateY(-2px);
+		}
+
+		.veg-filter-btn.active {
+			background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+			color: white;
+			border-color: var(--primary-color);
+			box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+		}
+
+		.veg-icon, .nonveg-icon {
+			margin-right: 5px;
+		}
+
+		/* Category Buttons */
+		.category-btn {
+			padding: 10px 20px;
+			background: white;
+			border: 2px solid #e0e0e0;
+			border-radius: 25px;
+			font-size: 14px;
+			font-weight: 500;
+			color: #333;
+			text-decoration: none;
+			transition: all 0.3s ease;
+			display: inline-block;
+		}
+
+		.category-btn:hover {
+			border-color: var(--primary-color);
+			background: var(--primary-color);
+			color: white;
+			transform: translateY(-2px);
+			text-decoration: none;
+		}
+
+		/* Offer Cards with Blinking Effect */
+		.offer-card {
+			background: white;
+			border-radius: 10px;
+			overflow: hidden;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+			transition: all 0.3s ease;
+			cursor: pointer;
+		}
+
+		.offer-card:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3);
+		}
+
+		.blink-offer {
+			animation: blink 2s infinite;
+		}
+
+		@keyframes blink {
+			0%, 100% {
+				box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+			}
+			50% {
+				box-shadow: 0 4px 25px rgba(220, 53, 69, 0.6);
+			}
+		}
+
+		/* Veg/Non-Veg Badges */
+		.veg-badge {
+			display: inline-block;
+			padding: 4px 10px;
+			border-radius: 15px;
+			font-size: 11px;
+			font-weight: 600;
+			margin-left: 8px;
+		}
+
+		.veg-badge.veg {
+			background: #28a745;
+			color: white;
+		}
+
+		.veg-badge.nonveg {
+			background: #fc8019;
+			color: white;
+		}
+
+		/* Restaurant Card Styles */
+		.restaurant-card {
+			transition: all 0.3s ease;
+		}
+
+		.restaurant-card:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3);
+		}
+
+		.mode-banner {
+			background: white;
+			padding: 20px 24px;
+			border-radius: 16px;
+			box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 16px;
+			flex-wrap: wrap;
+			margin-bottom: 24px;
+		}
+
+		body.cafe-mode .mode-banner {
+			background: rgba(79, 55, 45, 0.7) !important;
+			border: 1px solid rgba(255, 255, 255, 0.15);
+		}
+
+		body.cafe-mode .mode-banner h4,
+		body.cafe-mode .mode-banner p {
+			color: var(--text-dark) !important;
+		}
+
+		.mode-toggle {
+			display: inline-flex;
+			gap: 12px;
+			flex-wrap: wrap;
+		}
+
+		.mode-toggle a {
+			background: #f7f7f7;
+			border: 1px solid #ececec;
+			text-decoration: none;
+			padding: 8px 16px;
+			border-radius: 999px;
+			font-weight: 600;
+			color: var(--text-dark);
+			transition: all 0.3s ease;
+		}
+
+		.mode-toggle a.active {
+			background: var(--primary-color);
+			color: white;
+			box-shadow: 0 4px 12px rgba(252, 128, 25, 0.4);
+		}
+	</style>
+</head>
+<body th:classappend="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE} ? 'cafe-mode' : ''">
+	<!-- Navigation -->
+	<nav class="navbar navbar-expand-lg navbar-custom">
+		<div class="container">
+			<a class="navbar-brand" th:href="@{/(mode=${siteMode != null ? siteMode.name() : 'RESTAURANT'})}">Tummy Go!</a>
+			<div class="ml-auto d-flex align-items-center">
+			<a class="nav-link" th:href="@{/(mode=${siteMode != null ? siteMode.name() : 'RESTAURANT'})}">
+				<i class="fa fa-home"></i> Home
+			</a>
+			<a class="nav-link" th:href="@{/customer/orders}">
+				<i class="fa fa-list"></i> My Orders
+			</a>
+				<a class="nav-link d-flex align-items-center" th:href="@{/customer/cart}">
+					<i class="fa fa-shopping-cart"></i>
+					<span class="ml-1">Cart</span>
+					<span class="badge badge-light ml-2" th:text="${cartItemCount}">0</span>
+				</a>
+				<span sec:authorize="isAuthenticated()" class="text-white mr-3">
+					Welcome, <span sec:authentication="name"></span>
+				</span>
+				<a sec:authorize="!isAuthenticated()" class="nav-link" th:href="@{/login}">Login</a>
+				<a sec:authorize="isAuthenticated()" class="nav-link" th:href="@{/logout}">Logout</a>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container py-4">
+		<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+		<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+		<div class="mode-banner">
+			<div>
+				<h4 th:text="${modeDisplayName != null ? modeDisplayName : (siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE ? 'Cafe Mode' : 'Restaurant Mode')}">
+					Restaurant Mode
+				</h4>
+				<p class="text-muted mb-0" th:text="${modeDescription != null ? modeDescription : 'Discover full-service restaurants for delivery, dine-in, and preorders.'}">
+					Discover full-service restaurants for delivery, dine-in, and preorders.
+				</p>
+			</div>
+			<div class="mode-toggle">
+				<a th:href="@{/customer/restaurants(mode='RESTAURANT')}"
+				   th:classappend="${siteMode == T(com.srFoodDelivery.model.SiteMode).RESTAURANT} ? ' active' : ''">
+					Restaurant Mode
+				</a>
+				<a th:href="@{/customer/restaurants(mode='CAFE')}"
+				   th:classappend="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE} ? ' active' : ''">
+					Cafe Mode
+				</a>
+			</div>
+		</div>
+
+
+		<!-- Active Offers Section -->
+		<div class="offers-section mb-4" th:if="${activeOffers != null and !activeOffers.isEmpty()}">
+			<h5 class="mb-3" style="color: #333; font-weight: 600;">
+				<i class="fa fa-tag"></i> Special Offers
+			</h5>
+			<div class="row">
+				<div class="col-md-4 mb-3" th:each="offer : ${activeOffers}">
+					<div class="offer-card blink-offer" th:onclick="|window.location.href='/customer/restaurants/${offer.restaurant.id}'|">
+						<div class="offer-image" th:if="${offer.imageUrl != null}">
+							<img th:src="${offer.imageUrl}" alt="Offer" style="width: 100%; height: 150px; object-fit: cover; border-radius: 10px 10px 0 0;">
+						</div>
+						<div class="offer-content" style="padding: 15px; background: white; border-radius: 0 0 10px 10px;">
+							<h6 style="color: #fc8019; font-weight: 700; margin-bottom: 5px;" th:text="${offer.title}">20% OFF</h6>
+							<p class="text-muted small mb-2" th:text="${offer.description}">Offer description</p>
+							<small class="text-muted">
+								<i class="fa fa-cutlery"></i> <span th:text="${offer.restaurant.name}">Restaurant</span>
+							</small>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Search Section - Simple for Cafe Mode -->
+		<div class="search-section" th:if="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE}">
+			<form method="get" th:action="@{/customer/restaurants}" id="filterForm">
+				<input type="hidden" name="mode" th:value="${siteMode != null ? siteMode.name() : 'CAFE'}">
+				<div class="d-flex gap-2 align-items-center">
+					<input type="text" class="form-control" name="search" id="searchInput"
+					       th:value="${search}" placeholder="Search cafe items..." style="flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: var(--text-dark);">
+					<button type="submit" class="btn btn-primary" id="searchButton" style="min-width: 100px;">
+						<i class="fa fa-search"></i> Search
+					</button>
+				</div>
+			</form>
+		</div>
+
+		<!-- Search and Filter Section - Full for Restaurant Mode -->
+		<div class="search-section" th:if="${siteMode != T(com.srFoodDelivery.model.SiteMode).CAFE}">
+			<form method="get" th:action="@{/customer/restaurants}" id="filterForm">
+				<input type="hidden" name="mode" th:value="${siteMode != null ? siteMode.name() : 'RESTAURANT'}">
+				<input type="hidden" name="vegFilter" id="vegFilterInput" th:value="${vegFilter != null ? vegFilter : ''}">
+				<div class="d-flex gap-2 align-items-center mb-2">
+					<input type="text" class="form-control" name="search" id="searchInput"
+					       th:value="${search}" placeholder="Search food items..." style="flex: 1;">
+					<button type="submit" class="btn btn-primary" id="searchButton" style="min-width: 100px;">
+						<i class="fa fa-search"></i> Search
+					</button>
+				</div>
+				<div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+					<div class="filter-buttons" id="filterButtonsContainer" style="flex: 1;">
+						<button type="button" class="filter-btn" 
+						        th:each="entry : ${availableTags.entrySet()}"
+						        th:data-tag="${entry.key}"
+						        th:classappend="${selectedTags != null and !selectedTags.isEmpty() and selectedTags.contains(entry.key)} ? 'active' : ''"
+						        th:text="${entry.value}">Breakfast</button>
+					</div>
+					<div class="d-flex gap-2">
+						<a th:href="@{/customer/restaurants(mode=${siteMode != null ? siteMode.name() : 'RESTAURANT'})}" class="btn btn-outline-secondary btn-sm" style="white-space: nowrap;">Clear</a>
+						<button type="button" id="applyFiltersBtn" class="btn btn-primary btn-sm" style="display: none; white-space: nowrap;">
+							<i class="fa fa-filter"></i> Apply (<span id="filterCount">0</span>)
+						</button>
+					</div>
+				</div>
+				<div id="tagsContainer">
+					<!-- Hidden inputs for selected tags will be dynamically added here -->
+				</div>
+			</form>
+		</div>
+
+		<!-- Results Header -->
+		<div class="mb-4">
+			<h2 class="section-title"
+			    th:text="${modeLabel != null ? modeLabel + ' Items' : 'Food Items'}">
+				Food Items
+			</h2>
+			<p class="text-muted" th:if="${items != null and !items.isEmpty()}">
+				Found <span th:text="${itemCount}">0</span> items
+				<span th:if="${vegFilter != null and vegFilter == 'veg'}">(Veg only)</span>
+				<span th:if="${vegFilter != null and vegFilter == 'nonveg'}">(Non-Veg only)</span>
+			</p>
+		</div>
+
+		<!-- Items List (Always shown) -->
+		<div>
+			<div th:if="${items == null or items.isEmpty()}" class="alert alert-info">
+				<i class="fa fa-info-circle"></i> 
+				<span th:if="${searchPresent != null and searchPresent == true}">No items match your search.</span>
+				<span th:if="${searchPresent == null or searchPresent == false}">No items available at the moment. Please check back later.</span>
+			</div>
+
+			<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;" th:if="${items != null and !items.isEmpty()}">
+				<div th:each="item : ${items}">
+					<div class="item-card">
+						<div style="width: 100%; height: 220px; overflow: hidden;">
+							<img th:src="${item.imageUrl != null and !item.imageUrl.isEmpty() ? item.imageUrl : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400'}" 
+							     th:alt="${item.name}" 
+							     style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;"
+							     onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400'">
+						</div>
+						<div class="item-card-body">
+							<div class="d-flex align-items-center justify-content-between mb-2">
+								<div class="item-name" th:text="${item.name}">Item Name</div>
+							</div>
+							<div class="item-meta mb-2" th:if="${item.menu != null and item.menu.restaurant != null}">
+								<i class="fa fa-cutlery"></i>
+								<span th:text="${item.menu.restaurant.name}">Restaurant Name</span>
+							</div>
+							<div class="item-meta mb-2" th:if="${item.category != null and (item.menu == null or item.menu.restaurant == null or !item.menu.restaurant.isCafeLounge)}">
+								<i class="fa fa-tag"></i>
+								<span th:text="${item.category}">Category</span>
+							</div>
+							<div class="item-meta mb-2" th:if="${item.menu != null and item.menu.chefProfile != null and item.menu.chefProfile.chef != null}">
+								<i class="fa fa-user"></i>
+								<span th:text="${item.menu.chefProfile.chef.fullName}">Chef Name</span>
+							</div>
+							<div class="item-description mb-3" th:text="${item.description ?: 'No description available'}" style="display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Description</div>
+							<div class="item-tags mb-3" th:if="${item.tags != null and !item.tags.isEmpty() and (item.menu == null or item.menu.restaurant == null or !item.menu.restaurant.isCafeLounge)}">
+								<span class="tag-chip" th:each="tag : ${item.tags}" th:text="${availableTags[tag] != null ? availableTags[tag] : tag}">Breakfast</span>
+							</div>
+							<div class="mt-auto">
+								<div class="d-flex justify-content-between align-items-center mb-3">
+									<span class="item-price" th:text="'₹' + ${#numbers.formatDecimal(item.price,1,2)}">₹0.00</span>
+									<span class="available-badge" 
+									      th:classappend="${item.available} ? ' yes' : ' no'"
+									      th:text="${item.available} ? 'Available' : 'Unavailable'">Available</span>
+								</div>
+								<div class="d-flex justify-content-between align-items-center" th:if="${item.menu != null}">
+									<a class="btn btn-sm btn-outline-primary" th:href="@{|/customer/menus/${item.menu.id}|}">View Menu</a>
+									<sec:authorize access="isAuthenticated()">
+										<form class="d-inline" method="post" th:action="@{/customer/cart/add}">
+											<input type="hidden" name="menuItemId" th:value="${item.id}">
+											<input type="hidden" name="quantity" value="1">
+											<input type="hidden" name="returnUrl"
+											       th:value="${#httpServletRequest != null ? #httpServletRequest.requestURI : '/customer/restaurants'}">
+											<input type="hidden" name="returnQuery"
+											       th:if="${#httpServletRequest != null and #httpServletRequest.queryString != null}"
+											       th:value="${#httpServletRequest.queryString}">
+											<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+											<button type="submit" class="btn btn-sm btn-primary" th:disabled="${!item.available}">
+												<i class="fa fa-shopping-cart"></i> Add to Cart
+											</button>
+										</form>
+									</sec:authorize>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- All Restaurants Section -->
+		<div class="mt-5" th:if="${restaurants != null and !restaurants.isEmpty()}">
+			<div class="mb-4">
+				<h2 class="section-title"
+				    th:text="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE} ? 'All Cafes' : 'All Restaurants'">
+					All Restaurants
+				</h2>
+				<p class="text-muted">
+					Found <span th:text="${restaurantCount}">0</span>
+					<span th:text="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE ? 'cafes' : 'restaurants'}">restaurants</span>
+				</p>
+			</div>
+
+			<div class="row">
+				<div class="col-md-6 col-lg-4 mb-4" th:each="restaurant : ${restaurants}">
+					<div class="restaurant-card" style="background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s ease; cursor: pointer; height: 100%;" 
+					     th:onclick="|window.location.href='/customer/restaurants/${restaurant.id}'|">
+						<div th:if="${restaurant.imageUrl != null and !restaurant.imageUrl.isEmpty()}">
+							<img th:src="${restaurant.imageUrl}" 
+							     th:alt="${restaurant.name}" 
+							     style="width: 100%; height: 200px; object-fit: cover;"
+							     onerror="this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400'">
+						</div>
+						<div th:if="${restaurant.imageUrl == null or restaurant.imageUrl.isEmpty()}">
+							<img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400" 
+							     th:alt="${restaurant.name}" 
+							     style="width: 100%; height: 200px; object-fit: cover;">
+						</div>
+						<div style="padding: 20px;">
+							<h5 style="color: var(--text-dark); font-weight: 600; margin-bottom: 10px;" th:text="${restaurant.name}">Restaurant Name</h5>
+							<p class="text-muted mb-2" style="font-size: 14px;" th:if="${restaurant.description}" th:text="${restaurant.description}">Description</p>
+							<p class="mb-1" style="font-size: 13px;" th:if="${restaurant.address}">
+								<i class="fa fa-map-marker" style="color: var(--primary-color);"></i>
+								<span th:text="${restaurant.address}">Address</span>
+							</p>
+							<p class="mb-0" style="font-size: 13px;" th:if="${restaurant.contactNumber}">
+								<i class="fa fa-phone" style="color: var(--primary-color);"></i>
+								<span th:text="${restaurant.contactNumber}">Contact</span>
+							</p>
+							<div class="mt-3 d-flex gap-2">
+								<a th:href="@{|/customer/restaurants/${restaurant.id}|}" 
+								   class="btn btn-sm btn-primary" 
+								   style="flex: 1;"
+								   onclick="event.stopPropagation();">
+									<i class="fa fa-cutlery"></i> View Menu
+								</a>
+								<sec:authorize access="isAuthenticated()">
+									<a th:href="@{|/customer/restaurants/${restaurant.id}/preorder|}" 
+									   class="btn btn-sm btn-preorder" 
+									   style="flex: 1;"
+									   onclick="event.stopPropagation();">
+										<i class="fa fa-clock-o"></i> Preorder
+									</a>
+								</sec:authorize>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- No Restaurants Message -->
+		<div th:if="${restaurants == null or restaurants.isEmpty()}" class="mt-5">
+			<div class="alert alert-info text-center">
+				<i class="fa fa-info-circle fa-3x mb-3 d-block" style="color: var(--primary-color);"></i>
+				<h5 style="color: var(--primary-color); font-weight: 600;"
+				    th:text="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE} ? 'No cafes found' : 'No restaurants found'">
+					No restaurants found
+				</h5>
+				<p class="text-muted mb-0"
+				   th:text="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE} ? 'Cafes will appear here when they are available.' : 'Restaurants will appear here when they are available.'">
+					Restaurants will appear here when they are available.
+				</p>
+			</div>
+		</div>
+
+	</div>
+
+	<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+	<script th:src="@{/js/bootstrap.js}"></script>
+	<script>
+		function setVegFilter(value) {
+			document.getElementById('vegFilterInput').value = value === 'all' ? '' : value;
+			// Update active state
+			document.querySelectorAll('.veg-filter-btn').forEach(btn => {
+				btn.classList.remove('active');
+			});
+			event.target.closest('.veg-filter-btn').classList.add('active');
+			// Submit form
+			document.getElementById('filterForm').submit();
+		}
+
+		document.addEventListener('DOMContentLoaded', function() {
+			// Properly convert Thymeleaf list to JavaScript array
+			var selectedTags = /*[[${selectedTags}]]*/ [];
+			// Ensure it's an array
+			if (!Array.isArray(selectedTags)) {
+				if (typeof selectedTags === 'string' && selectedTags.length > 0) {
+					selectedTags = selectedTags.split(',');
+				} else if (selectedTags && typeof selectedTags === 'object') {
+					// Try to convert object/collection to array
+					selectedTags = Array.from(selectedTags);
+				} else {
+					selectedTags = [];
+				}
+			}
+			
+			console.log('Initial selectedTags:', selectedTags);
+			
+			var filterButtons = document.querySelectorAll('.filter-btn');
+			var tagsContainer = document.getElementById('tagsContainer');
+			var form = document.getElementById('filterForm');
+			var searchInput = document.getElementById('searchInput');
+
+			// Function to update hidden tag inputs
+			function updateTagInputs() {
+				// Remove ALL existing tag inputs
+				var existingInputs = tagsContainer.querySelectorAll('input[name="tags"]');
+				existingInputs.forEach(function(input) {
+					input.remove();
+				});
+				
+				// Add new inputs for each selected tag
+				selectedTags.forEach(function(tag) {
+					if (tag) {
+						var input = document.createElement('input');
+						input.type = 'hidden';
+						input.name = 'tags';
+						input.value = tag;
+						tagsContainer.appendChild(input);
+					}
+				});
+				
+				console.log('Updated tag inputs. Selected tags:', selectedTags, 'Inputs created:', selectedTags.length);
+			}
+			
+			// Initialize: create inputs for initial selected tags
+			updateTagInputs();
+
+			// Initialize button states based on selectedTags
+			filterButtons.forEach(function(btn) {
+				var tag = btn.getAttribute('data-tag');
+				if (tag && selectedTags.indexOf(tag) !== -1) {
+					btn.classList.add('active');
+				}
+			});
+			
+			// Initialize Apply Filters button state
+			var applyBtn = document.getElementById('applyFiltersBtn');
+			var filterCount = document.getElementById('filterCount');
+			if (applyBtn && selectedTags.length > 0) {
+				applyBtn.style.display = 'inline-block';
+				if (filterCount) {
+					filterCount.textContent = selectedTags.length;
+				}
+			}
+
+			// Handle filter button clicks - NO auto-submit, allow multiple selections
+			filterButtons.forEach(function(btn) {
+				btn.addEventListener('click', function(e) {
+					e.preventDefault();
+					e.stopPropagation();
+					
+					var tag = this.getAttribute('data-tag');
+					if (!tag) {
+						console.error('No tag attribute found on button');
+						return;
+					}
+					
+					// Toggle tag selection
+					if (this.classList.contains('active')) {
+						// Remove tag
+						this.classList.remove('active');
+						selectedTags = selectedTags.filter(function(t) { return t !== tag; });
+					} else {
+						// Add tag
+						this.classList.add('active');
+						if (selectedTags.indexOf(tag) === -1) {
+							selectedTags.push(tag);
+						}
+					}
+					
+					console.log('Tag toggled:', tag, 'Selected tags now:', selectedTags);
+					
+					// Update hidden inputs immediately (but don't submit)
+					updateTagInputs();
+					
+					// Show/hide Apply Filters button based on selections
+					var applyBtn = document.getElementById('applyFiltersBtn');
+					var filterCount = document.getElementById('filterCount');
+					if (applyBtn) {
+						if (selectedTags.length > 0) {
+							applyBtn.style.display = 'inline-block';
+							if (filterCount) {
+								filterCount.textContent = selectedTags.length;
+							}
+						} else {
+							applyBtn.style.display = 'none';
+							if (filterCount) {
+								filterCount.textContent = '0';
+							}
+						}
+					}
+					
+					// DO NOT auto-submit - let user select multiple filters first
+					// Form will submit only when user clicks "Apply Filters" or "Search"
+				});
+			});
+			
+			// Handle Apply Filters button
+			var applyFiltersBtn = document.getElementById('applyFiltersBtn');
+			if (applyFiltersBtn) {
+				applyFiltersBtn.addEventListener('click', function(e) {
+					e.preventDefault();
+					updateTagInputs();
+					form.submit();
+				});
+			}
+			
+			// Ensure tags are updated before search
+			var searchButton = document.getElementById('searchButton');
+			if (searchButton) {
+				searchButton.addEventListener('click', function(e) {
+					updateTagInputs();
+				});
+			}
+			
+			// Handle search form submission - preserve selected tags
+			if (form) {
+				form.addEventListener('submit', function(e) {
+					// Ensure tags are up to date before submission
+					updateTagInputs();
+					
+					var inputs = tagsContainer.querySelectorAll('input[name="tags"]');
+					console.log('Form submitting with', inputs.length, 'tags');
+				});
+			}
+		});
+	</script>
+</body>
+</html>
+
+

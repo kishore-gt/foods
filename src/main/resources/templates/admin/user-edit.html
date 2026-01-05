@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Tummy Go! - Admin - Edit User</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		
+		body {
+			font-family: 'Poppins', sans-serif;
+			background-color: #0d1117;
+			color: #e0e0e0;
+			min-height: 100vh;
+		}
+		
+		.navbar-custom {
+			background-color: #161b22;
+			padding: 15px 0;
+			border-bottom: 1px solid #30363d;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+		}
+		.navbar-custom .navbar-brand {
+			color: #fff;
+			font-weight: 700;
+			font-size: 24px;
+			letter-spacing: 1px;
+		}
+		.navbar-custom .nav-link {
+			color: #c9d1d9;
+			font-weight: 500;
+			padding: 8px 16px;
+			border-radius: 25px;
+			transition: all 0.3s ease;
+		}
+		.navbar-custom .nav-link:hover {
+			background: rgba(255, 255, 255, 0.1);
+			color: #fff;
+			transform: translateY(-2px);
+		}
+		
+		.form-card {
+			background: #161b22;
+			border: 1px solid #30363d;
+			border-radius: 15px;
+			padding: 30px;
+			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+		}
+		
+		.form-control, .form-select {
+			background-color: #0d1117;
+			border: 1px solid #30363d;
+			color: #e0e0e0;
+			border-radius: 8px;
+			padding: 10px 15px;
+		}
+		.form-control:focus, .form-select:focus {
+			background-color: #0d1117;
+			border-color: #58a6ff;
+			color: #e0e0e0;
+			box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+		}
+		
+		.form-label {
+			color: #c9d1d9;
+			font-weight: 500;
+			margin-bottom: 8px;
+		}
+		
+		.btn-primary {
+			background: linear-gradient(135deg, #58a6ff 0%, #1f6feb 100%);
+			border: none;
+			border-radius: 25px;
+			padding: 10px 25px;
+			font-weight: 600;
+			color: #fff;
+			transition: all 0.3s ease;
+		}
+		.btn-primary:hover {
+			background: linear-gradient(135deg, #1f6feb 0%, #58a6ff 100%);
+			transform: translateY(-2px);
+			box-shadow: 0 4px 15px rgba(31, 111, 235, 0.4);
+		}
+		
+		.btn-secondary {
+			background: linear-gradient(135deg, #6e7681 0%, #484f58 100%);
+			border: none;
+			border-radius: 25px;
+			padding: 10px 25px;
+			font-weight: 600;
+			color: #fff;
+			transition: all 0.3s ease;
+		}
+		.btn-secondary:hover {
+			background: linear-gradient(135deg, #484f58 0%, #6e7681 100%);
+			transform: translateY(-2px);
+		}
+		
+		.alert {
+			border-radius: 10px;
+			border: 1px solid #30363d;
+		}
+		.alert-danger {
+			background-color: #3d1f1f;
+			border-color: #da3633;
+			color: #f85149;
+		}
+		
+		h2 {
+			color: #fff;
+			font-weight: 700;
+		}
+	</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-custom">
+	<div class="container">
+		<a class="navbar-brand" th:href="@{/admin/dashboard}">Tummy Go! - Admin</a>
+		<div class="ml-auto d-flex align-items-center">
+			<a class="nav-link" th:href="@{/admin/dashboard}">Dashboard</a>
+			<a class="nav-link" th:href="@{/admin/users}">Users</a>
+			<a class="nav-link" th:href="@{/admin/restaurants}">Restaurants</a>
+			<a class="nav-link" th:href="@{/admin/orders}">Orders</a>
+			<a class="nav-link" th:href="@{/admin/donations}">Donations</a>
+			<a class="nav-link" th:href="@{/logout}">Logout</a>
+		</div>
+	</div>
+</nav>
+
+<div class="container py-4">
+	<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+	<div class="d-flex justify-content-between align-items-center mb-4">
+		<h2>Edit User</h2>
+		<a th:href="@{|/admin/users/${user.id}|}" class="btn btn-secondary">Cancel</a>
+	</div>
+
+	<div class="form-card">
+		<form th:action="@{|/admin/users/${user.id}/edit|}" method="post">
+			<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+			
+			<div class="mb-3">
+				<label for="fullName" class="form-label">Full Name</label>
+				<input type="text" class="form-control" id="fullName" name="fullName" 
+				       th:value="${user.fullName}" required>
+			</div>
+			
+			<div class="mb-3">
+				<label for="email" class="form-label">Email</label>
+				<input type="email" class="form-control" id="email" name="email" 
+				       th:value="${user.email}" required>
+			</div>
+			
+			<div class="mb-3">
+				<label for="phoneNumber" class="form-label">Phone Number</label>
+				<input type="text" class="form-control" id="phoneNumber" name="phoneNumber" 
+				       th:value="${user.phoneNumber}" 
+				       pattern="[0-9]{10}" maxlength="10" required>
+				<small class="text-muted">10 digits only</small>
+			</div>
+			
+			<div class="mb-3">
+				<label for="role" class="form-label">Role</label>
+				<select class="form-select" id="role" name="role" required>
+					<option th:each="r : ${roles}" 
+					        th:value="${r}" 
+					        th:text="${r}"
+					        th:selected="${user.role == r}"></option>
+				</select>
+			</div>
+			
+			<div class="mb-3">
+				<label for="deliveryLocation" class="form-label">Delivery Location (Optional)</label>
+				<input type="text" class="form-control" id="deliveryLocation" name="deliveryLocation" 
+				       th:value="${user.deliveryLocation}">
+			</div>
+			
+			<div class="d-flex gap-2">
+				<button type="submit" class="btn btn-primary">Update User</button>
+				<a th:href="@{|/admin/users/${user.id}|}" class="btn btn-secondary">Cancel</a>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/bootstrap.js}"></script>
+</body>
+</html>
+

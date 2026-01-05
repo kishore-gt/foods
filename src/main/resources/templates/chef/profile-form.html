@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Chef Profile</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		
+		body {
+			font-family: 'Poppins', sans-serif;
+			background-color: #fffaf3;
+			color: #333;
+		}
+		
+		.navbar-custom {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			padding: 15px 0;
+			box-shadow: 0 4px 20px rgba(220, 53, 69, 0.3);
+		}
+		.navbar-custom .navbar-brand {
+			color: #fff;
+			font-weight: 700;
+			font-size: 24px;
+			letter-spacing: 1px;
+		}
+		.navbar-custom .nav-link {
+			color: #fff;
+			font-weight: 500;
+			padding: 8px 16px;
+			border-radius: 25px;
+			transition: all 0.3s ease;
+		}
+		.navbar-custom .nav-link:hover {
+			background: rgba(255, 255, 255, 0.2);
+			transform: translateY(-2px);
+		}
+		
+		.form-container {
+			background: #fff;
+			border-radius: 20px;
+			padding: 40px;
+			box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+			margin-bottom: 30px;
+		}
+		.form-container h3 {
+			color: #fc8019;
+			font-weight: 700;
+			margin-bottom: 30px;
+		}
+		
+		.form-control {
+			border-radius: 10px;
+			border: 2px solid #e0e0e0;
+			padding: 12px 15px;
+			transition: all 0.3s ease;
+		}
+		.form-control:focus {
+			border-color: #fc8019;
+			box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+		}
+		
+		.btn-primary {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			border: none;
+			border-radius: 50px;
+			padding: 12px 25px;
+			font-weight: 600;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+		}
+		.btn-primary:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+		}
+		.btn-secondary {
+			background: #6c757d;
+			border: none;
+			border-radius: 50px;
+			padding: 12px 25px;
+			font-weight: 600;
+			color: #fff;
+		}
+		.btn-secondary:hover {
+			background: #5a6268;
+			color: #fff;
+		}
+	</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-custom">
+	<div class="container">
+		<a class="navbar-brand" th:href="@{/chef/dashboard}">Tummy Go!</a>
+		<div class="ml-auto d-flex align-items-center">
+			<a class="nav-link" th:href="@{/chef/dashboard}">Dashboard</a>
+			<a class="nav-link" th:href="@{/chef/menus}">Menus</a>
+			<a class="nav-link" th:href="@{/chef/orders}">Orders</a>
+			<a class="nav-link" th:href="@{/logout}">Logout</a>
+		</div>
+	</div>
+</nav>
+
+<div class="container py-4">
+	<div class="form-container">
+		<h3>Update Profile</h3>
+		<form th:action="@{/chef/profile}" th:object="${profileForm}" method="post">
+			<div class="mb-3">
+				<label class="form-label" style="font-weight: 600;">Speciality</label>
+				<input type="text" class="form-control" th:field="*{speciality}">
+				<div class="text-danger" th:if="${#fields.hasErrors('speciality')}" th:errors="*{speciality}"></div>
+			</div>
+			<div class="mb-3">
+				<label class="form-label" style="font-weight: 600;">Location</label>
+				<input type="text" class="form-control" th:field="*{location}">
+				<div class="text-danger" th:if="${#fields.hasErrors('location')}" th:errors="*{location}"></div>
+			</div>
+			<div class="mb-4">
+				<label class="form-label" style="font-weight: 600;">Bio</label>
+				<textarea class="form-control" rows="4" th:field="*{bio}"></textarea>
+				<div class="text-danger" th:if="${#fields.hasErrors('bio')}" th:errors="*{bio}"></div>
+			</div>
+			<div class="d-flex gap-2">
+				<button class="btn btn-primary" type="submit">Save Profile</button>
+				<a class="btn btn-secondary" th:href="@{/chef/dashboard}">Cancel</a>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/bootstrap.js}"></script>
+</body>
+</html>

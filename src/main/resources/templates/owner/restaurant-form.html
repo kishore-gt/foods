@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title th:text="${restaurantId} != null ? 'Edit Restaurant' : 'New Restaurant'">Restaurant</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+		rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Poppins', sans-serif;
+			background-color: #fffaf3;
+			color: #333;
+		}
+
+		.navbar-custom {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			padding: 15px 0;
+			box-shadow: 0 4px 20px rgba(220, 53, 69, 0.3);
+		}
+
+		.navbar-custom .navbar-brand {
+			color: #fff;
+			font-weight: 700;
+			font-size: 24px;
+			letter-spacing: 1px;
+		}
+
+		.navbar-custom .nav-link {
+			color: #fff;
+			font-weight: 500;
+			padding: 8px 16px;
+			border-radius: 25px;
+			transition: all 0.3s ease;
+		}
+
+		.navbar-custom .nav-link:hover {
+			background: rgba(255, 255, 255, 0.2);
+			transform: translateY(-2px);
+		}
+
+		.form-container {
+			background: #fff;
+			border-radius: 20px;
+			padding: 40px;
+			box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+			margin: 30px auto;
+			max-width: 800px;
+		}
+
+		.form-container h3 {
+			color: #fc8019;
+			font-weight: 700;
+			margin-bottom: 30px;
+		}
+
+		.form-label {
+			font-weight: 600;
+			color: #333;
+			margin-bottom: 8px;
+		}
+
+		.form-control {
+			border-radius: 10px;
+			border: 2px solid #e0e0e0;
+			padding: 12px 15px;
+			transition: all 0.3s ease;
+		}
+
+		.form-control:focus {
+			border-color: #fc8019;
+			box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+		}
+
+		.business-type-group {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 15px;
+		}
+
+		.business-option {
+			flex: 1 1 200px;
+			border: 2px solid #f1d1b0;
+			border-radius: 15px;
+			padding: 16px;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			background: #fff;
+		}
+
+		.business-option input {
+			display: none;
+		}
+
+		.business-option.active {
+			border-color: #fc8019;
+			background: #fff6ef;
+			box-shadow: 0 8px 20px rgba(252, 128, 25, 0.15);
+		}
+
+		.business-option h6 {
+			margin: 0;
+			font-weight: 700;
+		}
+
+		.business-option p {
+			margin: 0;
+			font-size: 0.85rem;
+			color: #666;
+		}
+
+		.btn-primary {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			border: none;
+			border-radius: 50px;
+			padding: 12px 30px;
+			font-weight: 600;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+		}
+
+		.btn-primary:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+		}
+
+		.btn-secondary {
+			border-radius: 50px;
+			padding: 12px 30px;
+			font-weight: 600;
+		}
+
+		.text-danger {
+			color: #fc8019;
+			font-size: 0.875rem;
+		}
+	</style>
+</head>
+
+<body>
+	<nav class="navbar navbar-expand-lg navbar-custom">
+		<div class="container">
+			<a class="navbar-brand" th:href="@{/owner/dashboard}">Tummy Go!</a>
+			<div class="ml-auto d-flex align-items-center">
+				<a class="nav-link" th:href="@{/owner/dashboard}">Dashboard</a>
+				<a class="nav-link" th:href="@{/logout}">Logout</a>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container py-4" th:with="isEdit=${restaurantId} != null">
+		<div class="form-container">
+			<h3 th:text="${isEdit} ? 'Edit Restaurant' : 'Create Restaurant'">Restaurant</h3>
+			<form th:action="${isEdit} ? @{'/owner/restaurants/' + ${restaurantId} + '/edit'} : @{/owner/restaurants}"
+				th:object="${restaurantForm}" method="post">
+				<div class="mb-3">
+					<label class="form-label">Name</label>
+					<input type="text" class="form-control" th:field="*{name}">
+					<div class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Description</label>
+					<textarea class="form-control" rows="3" th:field="*{description}"></textarea>
+					<div class="text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">
+					</div>
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Address</label>
+					<input type="text" class="form-control" th:field="*{address}">
+					<div class="text-danger" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></div>
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Contact Number</label>
+					<input type="text" class="form-control" th:field="*{contactNumber}">
+					<div class="text-danger" th:if="${#fields.hasErrors('contactNumber')}" th:errors="*{contactNumber}">
+					</div>
+				</div>
+				<div class="mb-4">
+					<label class="form-label d-block">Business Type</label>
+					<div class="business-type-group">
+						<div class="business-option" data-value="RESTAURANT">
+							<input type="radio" th:field="*{businessType}" value="RESTAURANT">
+							<div>
+								<h6>Restaurant</h6>
+								<p>Full-service dining with deliveries, reservations, and preorders.</p>
+							</div>
+						</div>
+						<div class="business-option" data-value="CAFE">
+							<input type="radio" th:field="*{businessType}" value="CAFE">
+							<div>
+								<h6>Cafe</h6>
+								<p>Perfect for coffee shops, bakeries, quick bites, and beverage hubs.</p>
+							</div>
+						</div>
+					</div>
+					<div class="text-danger" th:if="${#fields.hasErrors('businessType')}" th:errors="*{businessType}">
+					</div>
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Image URL</label>
+					<input type="url" class="form-control" id="imageUrlInput" th:field="*{imageUrl}"
+						placeholder="https://example.com/image.jpg" oninput="updateImagePreview()">
+					<small class="form-text text-muted">
+						Enter a direct image URL (e.g., https://example.com/image.jpg).
+						<strong>Note:</strong> Google Images share links won't work. Use direct image URLs ending in
+						.jpg, .png, .gif, etc.
+					</small>
+					<div id="urlWarning" class="alert alert-warning mt-2"
+						style="display: none; padding: 8px 12px; font-size: 0.875rem;">
+						<i class="fa fa-exclamation-triangle"></i> This appears to be a Google Images share link. Please
+						use a direct image URL instead.
+					</div>
+					<div class="text-danger" th:if="${#fields.hasErrors('imageUrl')}" th:errors="*{imageUrl}"></div>
+					<div id="imagePreview" class="mt-3" style="display: none;">
+						<label class="form-label">Preview:</label>
+						<div
+							style="max-width: 300px; border-radius: 10px; overflow: hidden; border: 2px solid #fc8019;">
+							<img id="previewImg" src="" alt="Restaurant Image Preview"
+								style="width: 100%; height: auto; display: block;" onerror="handleImageError();">
+						</div>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<div class="col-md-6">
+						<label class="form-label">Opening Time</label>
+						<input type="time" class="form-control" th:field="*{openingTime}" placeholder="09:00">
+						<small class="form-text text-muted">e.g., 09:00</small>
+					</div>
+					<div class="col-md-6">
+						<label class="form-label">Closing Time</label>
+						<input type="time" class="form-control" th:field="*{closingTime}" placeholder="22:00">
+						<small class="form-text text-muted">e.g., 22:00</small>
+					</div>
+				</div>
+
+				<!-- Dine-In & Table Configuration Section -->
+				<div class="mb-4 p-3" style="background: #f8f9fa; border-radius: 10px; border-left: 4px solid #fc8019;">
+					<h5 class="mb-3" style="color: #fc8019;">
+						<i class="fa fa-table"></i> Dine-In &amp; Table Configuration
+					</h5>
+
+					<div class="mb-3">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="hasDineIn" th:field="*{hasDineIn}"
+								onchange="toggleTableFields()">
+							<label class="form-check-label" for="hasDineIn">
+								<strong>Enable Dine-In Service</strong>
+								<small class="d-block text-muted">Allow customers to reserve tables and preorder
+									food</small>
+							</label>
+						</div>
+					</div>
+
+					<div id="tableConfigSection" style="display: none;">
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label class="form-label">Number of Tables</label>
+								<input type="number" class="form-control" th:field="*{numberOfTables}" min="1" max="100"
+									placeholder="e.g., 10">
+								<small class="form-text text-muted">Total number of tables in your restaurant</small>
+							</div>
+							<div class="col-md-6">
+								<label class="form-label">Default Seating Capacity</label>
+								<select class="form-control" th:field="*{defaultTableCapacity}">
+									<option value="2">2 Seats</option>
+									<option value="4" selected>4 Seats</option>
+									<option value="6">6 Seats</option>
+									<option value="8">8 Seats</option>
+								</select>
+								<small class="form-text text-muted">Default seating per table</small>
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label class="form-label">Table Layout</label>
+								<select class="form-control" th:field="*{tableLayout}" id="tableLayout">
+									<option value="GRID" selected>Grid Layout</option>
+									<option value="SIMPLE">Simple Linear</option>
+								</select>
+								<small class="form-text text-muted">How tables are arranged</small>
+							</div>
+							<div class="col-md-6" id="tablesPerRowDiv">
+								<label class="form-label">Tables Per Row</label>
+								<input type="number" class="form-control" th:field="*{tablesPerRow}" min="2" max="10"
+									value="3" placeholder="3">
+								<small class="form-text text-muted">For grid layout only</small>
+							</div>
+						</div>
+
+						<div class="alert alert-info mb-0">
+							<i class="fa fa-info-circle"></i>
+							<strong>Note:</strong> Tables will be automatically created when you save this restaurant.
+							You can manage individual tables later from the dashboard.
+						</div>
+					</div>
+				</div>
+
+				<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}"
+					th:value="${_csrf.token}">
+				<div class="d-flex gap-2">
+					<button class="btn btn-primary" type="submit"
+						th:text="${isEdit} ? 'Update' : 'Create'">Save</button>
+					<a class="btn btn-secondary" th:href="@{/owner/dashboard}">Cancel</a>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+	<script th:src="@{/js/bootstrap.js}"></script>
+	<script>
+		function updateImagePreview() {
+			const input = document.getElementById('imageUrlInput');
+			const preview = document.getElementById('imagePreview');
+			const img = document.getElementById('previewImg');
+			const warning = document.getElementById('urlWarning');
+
+			if (input.value && input.value.trim() !== '') {
+				const url = input.value.trim();
+
+				// Check if it's a Google Images share link
+				if (url.includes('share.google/images/') || url.includes('google.com/images/')) {
+					warning.style.display = 'block';
+					preview.style.display = 'none';
+					return;
+				} else {
+					warning.style.display = 'none';
+				}
+
+				img.src = url;
+				img.onload = function () {
+					preview.style.display = 'block';
+				};
+				img.onerror = function () {
+					handleImageError();
+				};
+			} else {
+				warning.style.display = 'none';
+				preview.style.display = 'none';
+			}
+		}
+
+		function handleImageError() {
+			const preview = document.getElementById('imagePreview');
+			const warning = document.getElementById('urlWarning');
+			preview.style.display = 'none';
+			// Don't show warning for generic errors, only for Google Images links
+		}
+
+		// Initialize preview on page load if there's an existing image URL
+		document.addEventListener('DOMContentLoaded', function () {
+			const input = document.getElementById('imageUrlInput');
+			if (input && input.value) {
+				updateImagePreview();
+			}
+			initializeBusinessTypeOptions();
+			toggleTableFields(); // Initialize table fields visibility
+		});
+
+		function initializeBusinessTypeOptions() {
+			const options = document.querySelectorAll('.business-option');
+			options.forEach(option => {
+				const input = option.querySelector('input');
+				if (input.checked) {
+					option.classList.add('active');
+				}
+				option.addEventListener('click', function () {
+					options.forEach(o => o.classList.remove('active'));
+					input.checked = true;
+					option.classList.add('active');
+				});
+			});
+		}
+
+		function toggleTableFields() {
+			const hasDineIn = document.getElementById('hasDineIn');
+			const tableConfigSection = document.getElementById('tableConfigSection');
+			const tableLayout = document.getElementById('tableLayout');
+			const tablesPerRowDiv = document.getElementById('tablesPerRowDiv');
+
+			if (hasDineIn && hasDineIn.checked) {
+				tableConfigSection.style.display = 'block';
+			} else {
+				tableConfigSection.style.display = 'none';
+			}
+
+			// Show/hide tables per row based on layout
+			if (tableLayout) {
+				tableLayout.addEventListener('change', function () {
+					if (this.value === 'GRID') {
+						tablesPerRowDiv.style.display = 'block';
+					} else {
+						tablesPerRowDiv.style.display = 'none';
+					}
+				});
+
+				// Initialize on load
+				if (tableLayout.value === 'GRID') {
+					tablesPerRowDiv.style.display = 'block';
+				} else {
+					tablesPerRowDiv.style.display = 'none';
+				}
+			}
+		}
+	</script>
+</body>
+
+</html>

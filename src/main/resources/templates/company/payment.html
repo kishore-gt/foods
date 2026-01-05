@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Payment - Tummy Go!</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .navbar-custom {
+            background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+            padding: 15px 0;
+        }
+
+        .navbar-custom .navbar-brand,
+        .navbar-custom .nav-link {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .payment-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+        }
+
+        .amount-display {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .payment-option-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .payment-option-card:hover {
+            border-color: #fc8019;
+            background: #fff5eb;
+        }
+
+        .payment-option-card.active {
+            border-color: #fc8019;
+            background: #fff5eb;
+            position: relative;
+        }
+
+        .payment-option-card.active::after {
+            content: '\f00c';
+            font-family: 'FontAwesome';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #fc8019;
+        }
+
+        .payment-details {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #ddd;
+        }
+
+        .btn-pay {
+            background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+            border: none;
+            color: white;
+            padding: 12px;
+            font-weight: 600;
+            width: 100%;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+
+        .btn-pay:hover {
+            opacity: 0.9;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/company/dashboard}">Tummy Go! - Secure Payment</a>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="payment-card">
+                    <h4 class="mb-4 text-center">Complete Your Subscription</h4>
+
+                    <div class="amount-display">
+                        Total Payable: ₹<span
+                            th:text="${#numbers.formatDecimal(subscription.totalAmount, 0, 2)}">0.00</span>
+                    </div>
+
+                    <div class="mb-4">
+                        <small class="text-muted d-block">Package</small>
+                        <strong th:text="${subscription.subscriptionPackage.name}">Package Name</strong>
+                        <br>
+                        <small class="text-muted d-block mt-2">Duration</small>
+                        <span><span th:text="${subscription.durationMonths}">1</span> Month(s)</span>
+                    </div>
+
+                    <form th:action="@{|/company/subscriptions/${subscription.id}/pay|}" method="post" id="paymentForm">
+                        <h5 class="mb-3">Select Payment Method</h5>
+
+                        <!-- Credit/Debit Card -->
+                        <div class="payment-option-card" onclick="selectPayment('CARD')">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-credit-card fa-lg mr-3 text-secondary"></i>
+                                <div>
+                                    <h6 class="mb-0">Credit / Debit Card</h6>
+                                </div>
+                            </div>
+                            <div class="payment-details" id="details-CARD">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" placeholder="Card Number" maxlength="16">
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <input type="text" class="form-control" placeholder="MM/YY" maxlength="5">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="password" class="form-control" placeholder="CVV" maxlength="3">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- UPI -->
+                        <div class="payment-option-card" onclick="selectPayment('UPI')">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-mobile fa-lg mr-3 text-secondary"
+                                    style="width: 24px; text-align: center;"></i>
+                                <div>
+                                    <h6 class="mb-0">UPI (Google Pay, PhonePe)</h6>
+                                </div>
+                            </div>
+                            <div class="payment-details" id="details-UPI">
+                                <div class="form-group mb-0">
+                                    <input type="text" class="form-control"
+                                        placeholder="Enter UPI ID (e.g. name@okhdfcbank)">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Net Banking -->
+                        <div class="payment-option-card" onclick="selectPayment('NET_BANKING')">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-bank fa-lg mr-3 text-secondary"></i>
+                                <div>
+                                    <h6 class="mb-0">Net Banking</h6>
+                                </div>
+                            </div>
+                            <div class="payment-details" id="details-NET_BANKING">
+                                <select class="form-control">
+                                    <option>Select Bank</option>
+                                    <option>HDFC Bank</option>
+                                    <option>ICICI Bank</option>
+                                    <option>SBI</option>
+                                    <option>Axis Bank</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-4">
+                            <label>Delivery Address for Orders</label>
+                            <input type="text" name="deliveryAddress" class="form-control"
+                                th:value="${subscription.company.companyAddress}" required>
+                        </div>
+
+                        <input type="hidden" name="paymentMethod" id="selectedPaymentMethod" value="CARD">
+
+                        <button type="submit" class="btn-pay" id="payBtn">
+                            Pay ₹<span th:text="${#numbers.formatDecimal(subscription.totalAmount, 0, 2)}">0.00</span>
+                        </button>
+
+                        <div class="text-center mt-3">
+                            <a th:href="@{/company/subscriptions}" class="text-muted small">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectPayment(method) {
+            // Update hidden input
+            document.getElementById('selectedPaymentMethod').value = method;
+
+            // Update UI styles
+            document.querySelectorAll('.payment-option-card').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // Show/Hide details
+            document.querySelectorAll('.payment-details').forEach(el => el.style.display = 'none');
+            const details = document.getElementById('details-' + method);
+            if (details) details.style.display = 'block';
+        }
+
+        // Initialize first option
+        document.querySelector('.payment-option-card').click();
+    </script>
+</body>
+
+</html>

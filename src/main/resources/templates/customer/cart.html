@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Your Cart - Tummy Go!</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<style>
+		:root {
+			--primary-color: #fc8019;
+			--primary-dark: #e66a00;
+			--secondary-color: #e66a00;
+			--text-dark: #1a1a1a;
+			--text-light: #4a4a4a;
+			--text-muted: #6b7280;
+			--bg-light: #fffaf3;
+			--bg-secondary: #f8f9fa;
+			--white: #fff;
+			--border-color: #e5e7eb;
+			--shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+			--shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+			--shadow-lg: 0 10px 25px rgba(0,0,0,0.12);
+			--shadow: rgba(0, 0, 0, 0.1);
+		}
+
+		body.cafe-mode {
+			--primary-color: #d28b4b;
+			--primary-dark: #8b4513;
+			--secondary-color: #8b4513;
+			--text-dark: #f5e6d3;
+			--text-light: #d4b896;
+			--text-muted: #b8956a;
+			--bg-light: #3e2723;
+			--bg-secondary: #2c1810;
+			--border-color: rgba(255,255,255,0.15);
+			--white: rgba(79, 55, 45, 0.85);
+			--shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+			--shadow-md: 0 4px 15px rgba(0,0,0,0.4);
+			--shadow-lg: 0 10px 30px rgba(0,0,0,0.5);
+			--shadow: rgba(0, 0, 0, 0.4);
+			background: linear-gradient(180deg, #2c1810 0%, #3e2723 50%, #5d4037 100%) fixed;
+			color: var(--text-dark);
+		}
+
+		* {
+			font-family: 'Poppins', sans-serif;
+		}
+
+		body {
+			background-color: var(--bg-light);
+			color: var(--text-dark);
+			line-height: 1.6;
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
+		}
+
+		.navbar-custom {
+			background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+			padding: 15px 0;
+			box-shadow: 0 2px 10px var(--shadow);
+		}
+
+		.navbar-custom .navbar-brand,
+		.navbar-custom .nav-link {
+			color: white;
+			font-weight: 500;
+		}
+
+		.navbar-custom .nav-link:hover {
+			background: rgba(255, 255, 255, 0.2);
+			border-radius: 20px;
+		}
+
+		.page-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 30px;
+		}
+
+		.page-header h2 {
+			font-size: 36px;
+			font-weight: 700;
+			color: var(--text-dark);
+			letter-spacing: -0.5px;
+			line-height: 1.2;
+		}
+
+		body.cafe-mode .page-header h2 {
+			text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+		}
+
+		.cart-card {
+			background: var(--white);
+			border-radius: 16px;
+			padding: 28px;
+			margin-bottom: 24px;
+			box-shadow: var(--shadow-md);
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			border: 1px solid var(--border-color);
+		}
+
+		.cart-card:hover {
+			box-shadow: var(--shadow-lg);
+			transform: translateY(-2px);
+		}
+
+		.cart-item-title {
+			font-size: 22px;
+			font-weight: 700;
+			color: var(--text-dark);
+			margin-bottom: 10px;
+			line-height: 1.3;
+		}
+
+		.cart-item-desc {
+			color: var(--text-muted);
+			font-size: 14px;
+			margin-bottom: 12px;
+			line-height: 1.5;
+		}
+
+		.cart-item-price {
+			font-size: 22px;
+			font-weight: 700;
+			color: var(--primary-color);
+		}
+
+		body.cafe-mode .cart-item-price {
+			color: #f4ba73;
+		}
+
+		.cart-summary {
+			background: var(--white);
+			border-radius: 16px;
+			padding: 32px;
+			box-shadow: var(--shadow-md);
+			position: sticky;
+			top: 100px;
+			border: 1px solid var(--border-color);
+		}
+
+		.cart-summary h4 {
+			font-size: 26px;
+			font-weight: 700;
+			color: var(--text-dark);
+			margin-bottom: 24px;
+			letter-spacing: -0.5px;
+		}
+
+		.summary-row {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 14px 0;
+			border-bottom: 1px solid var(--border-color);
+			font-size: 15px;
+			color: var(--text-light);
+		}
+
+		.summary-row.total {
+			border-bottom: 2px solid var(--primary-color);
+			border-top: 2px solid var(--primary-color);
+			margin: 20px 0;
+			padding: 18px 0;
+			font-size: 24px;
+			font-weight: 700;
+			color: var(--text-dark);
+		}
+
+		.badge-restaurant {
+			background: linear-gradient(135deg, #fff4e6 0%, #ffe8d6 100%);
+			color: var(--primary-color);
+			font-weight: 600;
+			padding: 8px 16px;
+			border-radius: 20px;
+			display: inline-block;
+			margin-bottom: 20px;
+		}
+
+		.btn-primary {
+			background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+			border: none;
+			border-radius: 25px;
+			padding: 14px 32px;
+			font-weight: 600;
+			font-size: 16px;
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			width: 100%;
+			box-shadow: var(--shadow-sm);
+			color: white;
+		}
+
+		.btn-primary:hover {
+			transform: translateY(-2px);
+			box-shadow: var(--shadow-md);
+			color: white;
+		}
+
+		.btn-primary:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+		}
+
+		.btn-outline-danger {
+			border: 2px solid #fc8019;
+			color: #fc8019;
+			border-radius: 25px;
+			padding: 8px 20px;
+			font-weight: 500;
+			transition: all 0.3s ease;
+		}
+
+		.btn-outline-danger:hover {
+			background: #fc8019;
+			color: white;
+		}
+
+		.btn-outline-primary {
+			border: 2px solid var(--primary-color);
+			color: var(--primary-color);
+			border-radius: 25px;
+			padding: 8px 20px;
+			font-weight: 500;
+			transition: all 0.3s ease;
+		}
+
+		.btn-outline-primary:hover {
+			background: var(--primary-color);
+			color: white;
+		}
+
+		.form-control {
+			border-radius: 10px;
+			border: 2px solid #e0e0e0;
+			padding: 12px 15px;
+			transition: all 0.3s ease;
+		}
+
+		.form-control:focus {
+			border-color: var(--primary-color);
+			box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+		}
+
+		.quantity-control {
+			display: flex;
+			align-items: center;
+			gap: 15px;
+		}
+
+		.quantity-input {
+			width: 80px;
+			text-align: center;
+			border: 2px solid #e0e0e0;
+			border-radius: 10px;
+			padding: 8px;
+		}
+
+		.empty-cart {
+			text-align: center;
+			padding: 60px 20px;
+			background: var(--white);
+			border-radius: 15px;
+			box-shadow: 0 4px 15px var(--shadow);
+		}
+
+		.empty-cart i {
+			font-size: 80px;
+			color: var(--primary-color);
+			margin-bottom: 20px;
+		}
+
+		.empty-cart h3 {
+			font-size: 28px;
+			font-weight: 600;
+			color: var(--text-dark);
+			margin-bottom: 15px;
+		}
+
+		.empty-cart p {
+			color: var(--text-light);
+			font-size: 16px;
+			margin-bottom: 30px;
+		}
+
+		.location-selector {
+			background: var(--white);
+			border-radius: 15px;
+			padding: 20px;
+			margin-bottom: 20px;
+			box-shadow: 0 4px 15px var(--shadow);
+		}
+
+		.location-selector h5 {
+			font-weight: 600;
+			color: var(--text-dark);
+			margin-bottom: 15px;
+		}
+
+		.offers-section {
+			background: linear-gradient(135deg, #fff4e6 0%, #ffe8d6 100%);
+			border-radius: 15px;
+			padding: 20px;
+			margin-bottom: 20px;
+			box-shadow: 0 4px 15px var(--shadow);
+		}
+
+		.offers-section h5 {
+			font-weight: 600;
+			color: var(--primary-color);
+			margin-bottom: 15px;
+		}
+
+		.offer-card {
+			background: var(--white);
+			border: 2px solid var(--primary-color);
+			border-radius: 10px;
+			padding: 15px;
+			margin-bottom: 10px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+		}
+
+		.offer-card:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+		}
+
+		.offer-card.selected {
+			background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+			color: white;
+		}
+
+		.offer-code {
+			font-weight: 700;
+			font-size: 16px;
+			color: var(--primary-color);
+		}
+
+		.offer-card.selected .offer-code {
+			color: white;
+		}
+
+		.offer-desc {
+			font-size: 14px;
+			color: var(--text-light);
+			margin-top: 5px;
+		}
+
+		.offer-card.selected .offer-desc {
+			color: rgba(255, 255, 255, 0.9);
+		}
+
+		.discount-row {
+			color: #28a745;
+			font-weight: 600;
+		}
+
+		#map {
+			border: 2px solid #e0e0e0;
+		}
+
+		.location-info {
+			background: #fff4e6;
+			border-left: 4px solid var(--primary-color);
+			padding: 10px 15px;
+			border-radius: 5px;
+			margin-top: 10px;
+			font-size: 14px;
+		}
+	</style>
+	<!-- OpenStreetMap / Leaflet.js - Free, no API key required -->
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+	      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+	      crossorigin=""/>
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+	        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+	        crossorigin=""></script>
+</head>
+<body th:classappend="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE} ? 'cafe-mode' : ''">
+<nav class="navbar navbar-expand-lg navbar-custom">
+	<div class="container">
+		<a class="navbar-brand" th:href="@{/customer/restaurants}">Tummy Go!</a>
+		<div class="ml-auto d-flex align-items-center">
+			<a class="nav-link" th:href="@{/customer/restaurants}">
+				<i class="fa fa-arrow-left"></i> Continue Shopping
+			</a>
+			<a class="nav-link d-flex align-items-center" th:href="@{/customer/cart}">
+				<i class="fa fa-shopping-cart"></i>
+				Cart
+				<span class="badge badge-light ml-1" th:text="${cartItemCount}">0</span>
+			</a>
+			<a sec:authorize="isAuthenticated()" class="nav-link" th:href="@{/logout}">Logout</a>
+		</div>
+	</div>
+</nav>
+
+<div class="container py-4">
+	<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+	<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+	<div th:if="${#lists.isEmpty(items)}" class="empty-cart">
+		<i class="fa fa-shopping-cart"></i>
+		<h3>Your cart is empty</h3>
+		<p>Browse menus and add some delicious dishes to get started!</p>
+		<a th:href="@{/customer/restaurants}" class="btn btn-primary">Browse Restaurants</a>
+	</div>
+
+	<div th:if="${!#lists.isEmpty(items)}" class="row">
+		<div class="col-lg-8">
+			<div class="page-header">
+				<h2>Your Cart</h2>
+			</div>
+
+			<!-- Location Selector with Google Maps -->
+			<div class="location-selector">
+				<h5><i class="fa fa-map-marker"></i> Delivery Location</h5>
+				<div class="mb-3" style="position: relative;">
+					<div style="position: relative; display: flex; gap: 6px; align-items: stretch;">
+						<input type="text" id="locationSearch" class="form-control form-control-lg" 
+						       placeholder="Search for your location or click on the map"
+						       style="flex: 1; padding: 14px 18px; font-size: 16px; border-radius: 8px;">
+						<button type="button" id="locationSearchBtn" class="btn btn-primary" 
+						        style="min-width: 40px; max-width: 40px; padding: 0; align-self: center; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+							<i class="fa fa-search" style="font-size: 14px;"></i>
+						</button>
+					</div>
+					<small class="text-muted">Search for your location or click on the map to set delivery location</small>
+				</div>
+				<div id="map" style="width: 100%; height: 300px; border-radius: 10px; margin-bottom: 15px;"></div>
+				<input type="text" id="deliveryLocation" class="form-control" 
+				       th:value="${user.deliveryLocation}" 
+				       placeholder="Selected location will appear here" readonly>
+				<input type="hidden" id="locationLat" value="">
+				<input type="hidden" id="locationLng" value="">
+			</div>
+
+			<!-- Offers Section -->
+			<div class="offers-section" th:if="${offers != null and !#lists.isEmpty(offers)}">
+				<h5><i class="fa fa-tag"></i> Available Offers</h5>
+				<div th:each="offer : ${offers}" 
+				     th:if="${offer != null and offer.title != null}"
+				     class="offer-card" 
+				     th:data-title="${offer.title}"
+				     th:data-discount="${offer.discountValue != null ? offer.discountValue : 0}"
+				     th:data-min-cart="${offer.minOrderAmount != null ? offer.minOrderAmount : 0}">
+					<div class="offer-code" th:text="${offer.title}">OFFER</div>
+					<div class="offer-desc" th:text="${offer.description != null ? offer.description : offer.title}">Description</div>
+				</div>
+			</div>
+
+			<!-- Multi-restaurant indicator -->
+			<div th:if="${cart.restaurant == null and cart.chefProfile == null and !#lists.isEmpty(items)}" class="mb-4">
+				<div class="alert alert-info" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: none; border-radius: 10px; padding: 15px;">
+					<i class="fa fa-info-circle"></i> 
+					<strong>Multi-Restaurant Order:</strong> Your cart contains items from multiple restaurants. 
+					Each restaurant will receive a separate order.
+				</div>
+			</div>
+
+			<!-- Single restaurant/chef indicator -->
+			<div th:if="${cart.restaurant != null}" class="mb-4">
+				<span class="badge-restaurant">
+					<i class="fa fa-cutlery"></i> From: <span th:text="${cart.restaurant.name}">Restaurant</span>
+				</span>
+			</div>
+
+			<div th:if="${cart.chefProfile != null and cart.chefProfile.chef != null}" class="mb-4">
+				<span class="badge-restaurant">
+					<i class="fa fa-user"></i> From: <span th:text="${cart.chefProfile.chef.fullName}">Chef</span>
+				</span>
+			</div>
+
+			<!-- Group items by restaurant/chef -->
+			<div th:each="groupEntry : ${groupedItems}" class="restaurant-group">
+				<!-- Restaurant/Chef Header -->
+				<div class="restaurant-group-header mb-3 mt-4" 
+				     style="background: linear-gradient(135deg, #fff4e6 0%, #ffe8d6 100%); padding: 15px; border-radius: 10px; border-left: 4px solid var(--primary-color);">
+					<h5 style="margin: 0; color: var(--primary-color); font-weight: 600;">
+						<i class="fa" th:classappend="${#strings.startsWith(groupEntry.key, 'restaurant_')} ? 'fa-cutlery' : 'fa-user'"></i> 
+						<span th:text="${groupEntry.value[0].menuItem.menu.restaurant != null ? groupEntry.value[0].menuItem.menu.restaurant.name : (groupEntry.value[0].menuItem.menu.chefProfile != null and groupEntry.value[0].menuItem.menu.chefProfile.chef != null ? groupEntry.value[0].menuItem.menu.chefProfile.chef.fullName : 'Unknown')}">Restaurant/Chef Name</span>
+					</h5>
+					<small class="text-muted" 
+					       th:text="'Items from ' + (${groupEntry.value[0].menuItem.menu.restaurant != null ? groupEntry.value[0].menuItem.menu.restaurant.name : (groupEntry.value[0].menuItem.menu.chefProfile != null and groupEntry.value[0].menuItem.menu.chefProfile.chef != null ? groupEntry.value[0].menuItem.menu.chefProfile.chef.fullName : 'Unknown')})">
+						Restaurant/Chef items
+					</small>
+				</div>
+				
+				<!-- Items in this group -->
+				<div th:each="item : ${groupEntry.value}" class="cart-card">
+					<div class="d-flex justify-content-between align-items-start">
+						<div style="flex: 1;">
+							<div class="cart-item-title" th:text="${item.menuItem != null ? item.menuItem.name : 'Item'}">Item Name</div>
+							<div class="cart-item-desc" th:text="${item.menuItem != null && item.menuItem.description != null ? item.menuItem.description : ''}"></div>
+							<div class="cart-item-price mt-2">
+								₹<span th:text="${#numbers.formatDecimal(item.unitPrice,1,2)}">0.00</span> per item
+							</div>
+						</div>
+						<div>
+							<form class="d-inline" method="post" th:action="@{/customer/cart/remove}">
+								<input type="hidden" name="cartItemId" th:value="${item.id}">
+								<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+								<input type="hidden" name="returnUrl" value="/customer/cart">
+								<button type="submit" class="btn btn-outline-danger btn-sm" title="Remove item">
+									<i class="fa fa-trash"></i>
+								</button>
+							</form>
+						</div>
+					</div>
+					<div class="mt-4 d-flex justify-content-between align-items-center">
+						<form class="quantity-control" method="post" th:action="@{/customer/cart/update}">
+							<input type="hidden" name="cartItemId" th:value="${item.id}">
+							<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+							<input type="hidden" name="returnUrl" value="/customer/cart">
+							<label class="mb-0 mr-2" style="font-weight: 500;">Quantity:</label>
+							<input type="number" name="quantity" min="1" class="form-control quantity-input" th:value="${item.quantity}">
+							<button type="submit" class="btn btn-outline-primary btn-sm">Update</button>
+						</form>
+						<div>
+							<strong style="font-size: 20px; color: var(--primary-color);">
+								Total: ₹<span th:text="${#numbers.formatDecimal(item.lineTotal,1,2)}">0.00</span>
+							</strong>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Fallback: Display items without grouping (if groupedItems is empty) -->
+			<div th:if="${groupedItems == null or groupedItems.isEmpty()}" 
+			     th:each="item : ${items}" class="cart-card">
+				<div class="d-flex justify-content-between align-items-start">
+					<div style="flex: 1;">
+						<div class="cart-item-title" th:text="${item.menuItem != null ? item.menuItem.name : 'Item'}">Item Name</div>
+						<div class="cart-item-desc" th:text="${item.menuItem != null && item.menuItem.description != null ? item.menuItem.description : ''}"></div>
+						<div class="cart-item-price mt-2">
+							₹<span th:text="${#numbers.formatDecimal(item.unitPrice,1,2)}">0.00</span> per item
+						</div>
+					</div>
+					<div>
+						<form class="d-inline" method="post" th:action="@{/customer/cart/remove}">
+							<input type="hidden" name="cartItemId" th:value="${item.id}">
+							<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+							<input type="hidden" name="returnUrl" value="/customer/cart">
+							<button type="submit" class="btn btn-outline-danger btn-sm" title="Remove item">
+								<i class="fa fa-trash"></i>
+							</button>
+						</form>
+					</div>
+				</div>
+				<div class="mt-4 d-flex justify-content-between align-items-center">
+					<form class="quantity-control" method="post" th:action="@{/customer/cart/update}">
+						<input type="hidden" name="cartItemId" th:value="${item.id}">
+						<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+						<input type="hidden" name="returnUrl" value="/customer/cart">
+						<label class="mb-0 mr-2" style="font-weight: 500;">Quantity:</label>
+						<input type="number" name="quantity" min="1" class="form-control quantity-input" th:value="${item.quantity}">
+						<button type="submit" class="btn btn-outline-primary btn-sm">Update</button>
+					</form>
+					<div>
+						<strong style="font-size: 20px; color: var(--primary-color);">
+							Total: ₹<span th:text="${#numbers.formatDecimal(item.lineTotal,1,2)}">0.00</span>
+						</strong>
+					</div>
+				</div>
+			</div>
+
+			<form method="post" th:action="@{/customer/cart/clear}" class="mt-4">
+				<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+				<button type="submit" class="btn btn-outline-danger"
+				        onclick="return confirm('Clear all items from your cart?');">
+					<i class="fa fa-trash"></i> Clear Cart
+				</button>
+			</form>
+		</div>
+
+		<div class="col-lg-4">
+			<div class="cart-summary">
+				<h4>Order Summary</h4>
+				<div class="summary-row">
+					<span>Items</span>
+					<span th:text="${#lists.size(items)}">0</span>
+				</div>
+				<div class="summary-row">
+					<span>Subtotal</span>
+					<span>₹<span id="subtotal" th:text="${#numbers.formatDecimal(cart.totalAmount,1,2)}">0.00</span></span>
+				</div>
+				<div class="summary-row discount-row" id="discountRow" style="display: none;">
+					<span>Discount</span>
+					<span>-₹<span id="discountAmount">0.00</span></span>
+				</div>
+				<div class="summary-row total">
+					<span>Total Amount</span>
+					<span style="color: var(--primary-color);">₹<span id="finalTotal" th:text="${#numbers.formatDecimal(cart.totalAmount,1,2)}">0.00</span></span>
+				</div>
+				<form method="post" th:action="@{/customer/cart/checkout}" id="checkoutForm">
+					<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+					<input type="hidden" id="couponCodeInput" name="couponCode" value="">
+					<input type="hidden" id="deliveryLocationInput" name="deliveryLocation" value="">
+					<div class="form-group">
+						<label for="deliveryAddress" style="font-weight: 600; margin-bottom: 8px;">Delivery Address *</label>
+						<textarea id="deliveryAddress" name="deliveryAddress" class="form-control" rows="3" 
+						          placeholder="Enter your delivery address" required></textarea>
+					</div>
+					<div class="form-group">
+						<label for="specialInstructions" style="font-weight: 600; margin-bottom: 8px;">Special Instructions</label>
+						<textarea id="specialInstructions" name="specialInstructions" class="form-control" rows="2" 
+						          placeholder="Any notes for the restaurant or rider?"></textarea>
+					</div>
+					<button type="submit" class="btn btn-primary btn-lg mt-3">
+						<i class="fa fa-check"></i> Place Order
+					</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/bootstrap.js}"></script>
+<script>
+	var selectedCoupon = null;
+	var discountAmount = 0;
+	var subtotal = 0;
+	
+	// Store offers with their discount amounts
+	var offersMap = {};
+	
+	// Initialize on page load
+	document.addEventListener('DOMContentLoaded', function() {
+		// Get subtotal from the page
+		var subtotalElement = document.getElementById('subtotal');
+		if (subtotalElement) {
+			var subtotalText = subtotalElement.textContent.trim().replace(/[₹,\s]/g, '');
+			subtotal = parseFloat(subtotalText) || 0;
+			console.log('Initialized subtotal:', subtotal);
+		}
+		
+		// Build offers map from DOM elements
+		var offerCards = document.querySelectorAll('.offer-card');
+		offerCards.forEach(function(card) {
+			var code = card.getAttribute('data-title');
+			var desc = card.querySelector('.offer-desc');
+			var discount = card.getAttribute('data-discount');
+			var minCart = card.getAttribute('data-min-cart');
+			if (code) {
+				var discountVal = parseFloat(discount) || 0;
+				var minCartVal = parseFloat(minCart) || 0;
+				offersMap[code] = {
+					code: code,
+					description: desc ? desc.textContent : '',
+					discountValue: discountVal,
+					minOrderAmount: minCartVal
+				};
+				console.log('Added offer:', code, 'discount:', discountVal);
+			}
+			// Add click handler
+			card.addEventListener('click', function() {
+				selectOffer(this, code);
+			});
+		});
+		
+		// Initialize totals display
+		updateTotals();
+	});
+
+	function selectOffer(element, code) {
+		// Remove previous selection
+		document.querySelectorAll('.offer-card').forEach(card => {
+			card.classList.remove('selected');
+		});
+		
+		// Toggle selection
+		if (selectedCoupon === code) {
+			selectedCoupon = null;
+			discountAmount = 0;
+		} else {
+			element.classList.add('selected');
+			selectedCoupon = code;
+			
+			// Find discount amount for this coupon
+			var offer = offersMap[code];
+			if (offer) {
+				discountAmount = offer.discountValue || 0;
+				console.log('Selected offer:', code, 'discount:', discountAmount, 'subtotal:', subtotal);
+			} else {
+				console.error('Offer not found in map:', code);
+				discountAmount = 0;
+			}
+		}
+		
+		updateTotals();
+	}
+
+	function updateTotals() {
+		// Update coupon code input
+		var couponInput = document.getElementById('couponCodeInput');
+		if (couponInput) {
+			couponInput.value = selectedCoupon || '';
+		}
+		
+		var discountRow = document.getElementById('discountRow');
+		var discountAmountSpan = document.getElementById('discountAmount');
+		var finalTotalSpan = document.getElementById('finalTotal');
+		
+		if (!discountRow || !discountAmountSpan || !finalTotalSpan) {
+			console.error('Required elements not found for totals update');
+			return;
+		}
+		
+		// Ensure subtotal is valid
+		if (isNaN(subtotal) || subtotal < 0) {
+			subtotal = 0;
+		}
+		
+		// Ensure discountAmount is valid
+		if (isNaN(discountAmount) || discountAmount < 0) {
+			discountAmount = 0;
+		}
+		
+		if (selectedCoupon && discountAmount > 0) {
+			discountRow.style.display = 'flex';
+			discountAmountSpan.textContent = discountAmount.toFixed(2);
+			
+			var finalTotal = Math.max(0, subtotal - discountAmount);
+			finalTotalSpan.textContent = finalTotal.toFixed(2);
+			console.log('Updated totals - subtotal:', subtotal, 'discount:', discountAmount, 'final:', finalTotal);
+		} else {
+			discountRow.style.display = 'none';
+			finalTotalSpan.textContent = subtotal.toFixed(2);
+			console.log('No discount - final total:', subtotal);
+		}
+	}
+
+	var map;
+	var marker;
+	var selectedLocation = '';
+	var searchTimeout;
+
+	// Initialize OpenStreetMap using Leaflet
+	function initMap() {
+		// Default location (Bangalore, India)
+		var defaultLocation = [12.9716, 77.5946];
+		
+		// Initialize map
+		map = L.map('map').setView(defaultLocation, 13);
+		
+		// Add OpenStreetMap tile layer
+		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			attribution: '© OpenStreetMap contributors',
+			maxZoom: 19
+		}).addTo(map);
+
+		var locationSearchInput = document.getElementById('locationSearch');
+		var locationSearchBtn = document.getElementById('locationSearchBtn');
+		
+		// Search location function (needs to be accessible)
+		var searchLocation = function(query) {
+			if (!query || query.trim() === '') {
+				alert('Please enter a location to search');
+				return;
+			}
+			
+			// Show loading indicator
+			var mapDiv = document.getElementById('map');
+			var loadingDiv = document.getElementById('mapLoading');
+			if (!loadingDiv && mapDiv) {
+				loadingDiv = document.createElement('div');
+				loadingDiv.id = 'mapLoading';
+				loadingDiv.style.cssText = 'position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(255,255,255,0.95); padding: 10px 20px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); font-weight: 600;';
+				loadingDiv.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Searching...';
+				mapDiv.appendChild(loadingDiv);
+			}
+			
+			// Disable search button during search
+			if (locationSearchBtn) {
+				locationSearchBtn.disabled = true;
+				locationSearchBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+			}
+			
+			// Use Nominatim API (free, no key required)
+			var url = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(query) + '&limit=1&countrycodes=in';
+			
+			fetch(url)
+				.then(function(response) { 
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					}
+					return response.json(); 
+				})
+				.then(function(data) {
+					// Remove loading indicator
+					var loadingDiv = document.getElementById('mapLoading');
+					if (loadingDiv) loadingDiv.remove();
+					
+					// Re-enable search button
+					if (locationSearchBtn) {
+						locationSearchBtn.disabled = false;
+						locationSearchBtn.innerHTML = '<i class="fa fa-search"></i>';
+					}
+					
+					if (data && data.length > 0) {
+						var result = data[0];
+						var lat = parseFloat(result.lat);
+						var lon = parseFloat(result.lon);
+						var address = result.display_name;
+						
+						// Update map
+						map.setView([lat, lon], 15);
+						
+						// Update or create marker
+						if (marker) {
+							marker.setLatLng([lat, lon]);
+						} else {
+							marker = L.marker([lat, lon], { draggable: true }).addTo(map);
+							marker.on('dragend', function(e) {
+								var pos = marker.getLatLng();
+								reverseGeocode(pos.lat, pos.lng);
+							});
+						}
+						
+						updateLocationInput(address, { lat: function() { return lat; }, lng: function() { return lon; } });
+						locationSearchInput.value = address;
+					} else {
+						alert('Location not found. Please try a different search term.');
+					}
+				})
+				.catch(function(error) {
+					console.error('Geocoding error:', error);
+					var loadingDiv = document.getElementById('mapLoading');
+					if (loadingDiv) loadingDiv.remove();
+					
+					// Re-enable search button
+					if (locationSearchBtn) {
+						locationSearchBtn.disabled = false;
+						locationSearchBtn.innerHTML = '<i class="fa fa-search"></i>';
+					}
+					
+					alert('Error searching location. Please try again.');
+				});
+		};
+		
+		// Attach search button click handler
+		if (locationSearchBtn) {
+			locationSearchBtn.addEventListener('click', function(e) {
+				e.preventDefault();
+				var query = locationSearchInput.value.trim();
+				if (query) {
+					searchLocation(query);
+				} else {
+					alert('Please enter a location to search');
+					locationSearchInput.focus();
+				}
+			});
+		}
+		
+		// Also allow Enter key to trigger search
+		if (locationSearchInput) {
+			locationSearchInput.addEventListener('keypress', function(e) {
+				if (e.key === 'Enter') {
+					e.preventDefault();
+					var query = this.value.trim();
+					if (query) {
+						searchLocation(query);
+					}
+				}
+			});
+		}
+
+		// Note: searchLocation function is already defined above
+
+		// Reverse geocode (coordinates to address)
+		function reverseGeocode(lat, lng) {
+			var url = 'https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng + '&zoom=18&addressdetails=1';
+			
+			fetch(url)
+				.then(function(response) { return response.json(); })
+				.then(function(data) {
+					if (data && data.display_name) {
+						var address = data.display_name;
+						updateLocationInput(address, { lat: function() { return lat; }, lng: function() { return lng; } });
+						document.getElementById('locationSearch').value = address;
+					} else {
+						updateLocationInput('Location: ' + lat + ', ' + lng, { lat: function() { return lat; }, lng: function() { return lng; } });
+					}
+				})
+				.catch(function(error) {
+					console.error('Reverse geocoding error:', error);
+					updateLocationInput('Location: ' + lat + ', ' + lng, { lat: function() { return lat; }, lng: function() { return lng; } });
+				});
+		}
+
+		// Handle search input with debounce (optional - can be removed if you prefer manual search only)
+		// Uncomment below if you want auto-search as user types
+		/*
+		locationSearchInput.addEventListener('input', function() {
+			clearTimeout(searchTimeout);
+			var query = this.value;
+			if (query && query.length > 3) {
+				searchTimeout = setTimeout(function() {
+					searchLocation(query);
+				}, 1000);
+			}
+		});
+		*/
+
+		// When map is clicked
+		map.on('click', function(e) {
+			var lat = e.latlng.lat;
+			var lng = e.latlng.lng;
+			
+			if (marker) {
+				marker.setLatLng([lat, lng]);
+			} else {
+				marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+				marker.on('dragend', function(e) {
+					var pos = marker.getLatLng();
+					reverseGeocode(pos.lat, pos.lng);
+				});
+			}
+			
+			reverseGeocode(lat, lng);
+		});
+
+		// Try to get user's current location
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(function(position) {
+				var lat = position.coords.latitude;
+				var lng = position.coords.longitude;
+				
+				map.setView([lat, lng], 15);
+				
+				if (!marker) {
+					marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+					marker.on('dragend', function(e) {
+						var pos = marker.getLatLng();
+						reverseGeocode(pos.lat, pos.lng);
+					});
+				} else {
+					marker.setLatLng([lat, lng]);
+				}
+				
+				reverseGeocode(lat, lng);
+			}, function() {
+				console.log('Geolocation not available');
+			});
+		}
+
+		// Load saved location if exists
+		var savedLocation = document.getElementById('deliveryLocation').value;
+		if (savedLocation) {
+			locationSearchInput.value = savedLocation;
+			searchLocation(savedLocation);
+		}
+	}
+
+	// Initialize map when page loads
+	document.addEventListener('DOMContentLoaded', function() {
+		// Wait a bit for Leaflet to be fully loaded
+		setTimeout(function() {
+			if (typeof L !== 'undefined') {
+				initMap();
+			} else {
+				console.error('Leaflet library not loaded');
+			}
+		}, 100);
+	});
+
+	function updateLocationInput(address, location) {
+		selectedLocation = address;
+		document.getElementById('deliveryLocation').value = address;
+		document.getElementById('deliveryLocationInput').value = address;
+		
+		// Auto-fill the delivery address textarea
+		var deliveryAddressField = document.getElementById('deliveryAddress');
+		if (deliveryAddressField) {
+			deliveryAddressField.value = address;
+		}
+		
+		if (location) {
+			var lat = typeof location.lat === 'function' ? location.lat() : location.lat;
+			var lng = typeof location.lng === 'function' ? location.lng() : location.lng;
+			document.getElementById('locationLat').value = lat;
+			document.getElementById('locationLng').value = lng;
+		}
+	}
+
+	// Update location input when typing
+	document.addEventListener('DOMContentLoaded', function() {
+		var locationInput = document.getElementById('deliveryLocation');
+		var locationHidden = document.getElementById('deliveryLocationInput');
+		
+		if (locationInput && locationHidden) {
+			locationHidden.value = locationInput.value;
+		}
+
+		// Check if Leaflet loaded
+		setTimeout(function() {
+			if (typeof L === 'undefined') {
+				console.warn('Leaflet library not loaded');
+				var mapDiv = document.getElementById('map');
+				if (mapDiv && mapDiv.innerHTML.trim() === '') {
+					mapDiv.innerHTML = '<div style="padding: 40px; text-align: center; color: #666; background: #f5f5f5; border-radius: 10px; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">' +
+						'<i class="fa fa-map-marker fa-3x mb-3" style="color: #fc8019;"></i><br>' +
+						'<h5>Map not available</h5>' +
+						'<p style="font-size: 14px; margin-bottom: 20px;">Please enter your location manually in the search box above</p>' +
+						'</div>';
+				}
+			} else {
+				console.log('OpenStreetMap (Leaflet) loaded successfully');
+			}
+		}, 2000);
+	});
+</script>
+</body>
+</html>

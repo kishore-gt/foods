@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Tummy Go! - Admin - Restaurant Details</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		
+		body {
+			font-family: 'Poppins', sans-serif;
+			background-color: #0d1117;
+			color: #e0e0e0;
+			min-height: 100vh;
+		}
+		
+		.navbar-custom {
+			background-color: #161b22;
+			padding: 15px 0;
+			border-bottom: 1px solid #30363d;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+		}
+		.navbar-custom .navbar-brand {
+			color: #fff;
+			font-weight: 700;
+			font-size: 24px;
+			letter-spacing: 1px;
+		}
+		.navbar-custom .nav-link {
+			color: #c9d1d9;
+			font-weight: 500;
+			padding: 8px 16px;
+			border-radius: 25px;
+			transition: all 0.3s ease;
+		}
+		.navbar-custom .nav-link:hover {
+			background: rgba(255, 255, 255, 0.1);
+			color: #fff;
+			transform: translateY(-2px);
+		}
+		
+		.detail-card {
+			background: #161b22;
+			border: 1px solid #30363d;
+			border-radius: 15px;
+			padding: 30px;
+			margin-bottom: 25px;
+			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+		}
+		
+		.detail-card h3 {
+			color: #58a6ff;
+			font-weight: 700;
+			margin-bottom: 20px;
+		}
+		
+		.detail-item {
+			margin-bottom: 15px;
+			padding-bottom: 15px;
+			border-bottom: 1px solid #30363d;
+		}
+		.detail-item:last-child {
+			border-bottom: none;
+		}
+		
+		.detail-item strong {
+			color: #58a6ff;
+			display: inline-block;
+			min-width: 200px;
+		}
+		
+		.badge-success {
+			background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
+			color: #fff;
+			padding: 6px 12px;
+			border-radius: 20px;
+			font-weight: 600;
+		}
+		.badge-danger {
+			background: linear-gradient(135deg, #da3633 0%, #b62324 100%);
+			color: #fff;
+			padding: 6px 12px;
+			border-radius: 20px;
+			font-weight: 600;
+		}
+		.badge-info {
+			background: linear-gradient(135deg, #58a6ff 0%, #1f6feb 100%);
+			color: #fff;
+			padding: 6px 12px;
+			border-radius: 20px;
+			font-weight: 600;
+		}
+		
+		.btn-primary {
+			background: linear-gradient(135deg, #58a6ff 0%, #1f6feb 100%);
+			border: none;
+			border-radius: 25px;
+			padding: 10px 25px;
+			font-weight: 600;
+			color: #fff;
+			transition: all 0.3s ease;
+		}
+		.btn-primary:hover {
+			background: linear-gradient(135deg, #1f6feb 0%, #58a6ff 100%);
+			transform: translateY(-2px);
+			box-shadow: 0 4px 15px rgba(31, 111, 235, 0.4);
+		}
+		
+		.btn-danger {
+			background: linear-gradient(135deg, #da3633 0%, #b62324 100%);
+			border: none;
+			border-radius: 25px;
+			padding: 10px 25px;
+			font-weight: 600;
+			color: #fff;
+			transition: all 0.3s ease;
+		}
+		.btn-danger:hover {
+			background: linear-gradient(135deg, #b62324 0%, #da3633 100%);
+			transform: translateY(-2px);
+			box-shadow: 0 4px 15px rgba(218, 54, 51, 0.4);
+		}
+		
+		.btn-success {
+			background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
+			border: none;
+			border-radius: 25px;
+			padding: 10px 25px;
+			font-weight: 600;
+			color: #fff;
+			transition: all 0.3s ease;
+		}
+		.btn-success:hover {
+			background: linear-gradient(135deg, #2ea043 0%, #238636 100%);
+			transform: translateY(-2px);
+		}
+		
+		.alert {
+			border-radius: 10px;
+			border: 1px solid #30363d;
+		}
+		.alert-success {
+			background-color: #1a472a;
+			border-color: #238636;
+			color: #3fb950;
+		}
+		.alert-danger {
+			background-color: #3d1f1f;
+			border-color: #da3633;
+			color: #f85149;
+		}
+		
+		.text-muted {
+			color: #8b949e !important;
+		}
+	</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-custom">
+	<div class="container">
+		<a class="navbar-brand" th:href="@{/admin/dashboard}">Tummy Go! - Admin</a>
+		<div class="ml-auto d-flex align-items-center">
+			<a class="nav-link" th:href="@{/admin/dashboard}">Dashboard</a>
+			<a class="nav-link" th:href="@{/admin/users}">Users</a>
+			<a class="nav-link" th:href="@{/admin/restaurants}">Restaurants</a>
+			<a class="nav-link" th:href="@{/admin/orders}">Orders</a>
+			<a class="nav-link" th:href="@{/admin/donations}">Donations</a>
+			<a class="nav-link" th:href="@{/logout}">Logout</a>
+		</div>
+	</div>
+</nav>
+
+<div class="container py-4">
+	<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+	<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+	<div class="d-flex justify-content-between align-items-center mb-4">
+		<h2>Restaurant Details</h2>
+		<div>
+			<a th:href="@{/admin/restaurants}" class="btn btn-primary">Back to Restaurants</a>
+		</div>
+	</div>
+
+	<div class="detail-card">
+		<h3>Restaurant Information</h3>
+		<div class="detail-item">
+			<strong>ID:</strong> <span th:text="${restaurant.id}">-</span>
+		</div>
+		<div class="detail-item">
+			<strong>Name:</strong> <span th:text="${restaurant.name}">-</span>
+		</div>
+		<div class="detail-item" th:if="${restaurant.description}">
+			<strong>Description:</strong> <span th:text="${restaurant.description}">-</span>
+		</div>
+		<div class="detail-item" th:if="${restaurant.address}">
+			<strong>Address:</strong> <span th:text="${restaurant.address}">-</span>
+		</div>
+		<div class="detail-item" th:if="${restaurant.contactNumber}">
+			<strong>Contact Number:</strong> <span th:text="${restaurant.contactNumber}">-</span>
+		</div>
+		<div class="detail-item">
+			<strong>Owner:</strong> 
+			<a th:href="@{|/admin/users/${restaurant.owner.id}|}" style="color: #58a6ff;">
+				<span th:text="${restaurant.owner.fullName + ' (' + restaurant.owner.email + ')'}">-</span>
+			</a>
+		</div>
+		<div class="detail-item" th:if="${restaurant.cuisineType}">
+			<strong>Cuisine Type:</strong> <span th:text="${restaurant.cuisineType}">-</span>
+		</div>
+		<div class="detail-item">
+			<strong>Status:</strong> 
+			<span th:if="${restaurant.active}" class="badge badge-success">Active</span>
+			<span th:if="${!restaurant.active}" class="badge badge-danger">Inactive</span>
+		</div>
+		<div class="detail-item">
+			<strong>Features:</strong>
+			<span th:if="${restaurant.pureVeg}" class="badge badge-success me-1">Pure Veg</span>
+			<span th:if="${restaurant.cloudKitchen}" class="badge badge-info me-1">Cloud Kitchen</span>
+			<span th:if="${restaurant.familyRestaurant}" class="badge badge-info me-1">Family Restaurant</span>
+			<span th:if="${restaurant.cafeLounge}" class="badge badge-info me-1">Cafe Lounge</span>
+		</div>
+		<div class="detail-item" th:if="${restaurant.openingTime and restaurant.closingTime}">
+			<strong>Hours:</strong> 
+			<span th:text="${restaurant.openingTime + ' - ' + restaurant.closingTime}">-</span>
+		</div>
+		<div class="detail-item" th:if="${restaurant.averageRating != null}">
+			<strong>Rating:</strong> 
+			<span th:text="${restaurant.averageRating}">-</span>
+			<span class="text-muted">(<span th:text="${restaurant.totalRatings}">0</span> ratings)</span>
+		</div>
+		<div class="detail-item">
+			<strong>Created At:</strong> 
+			<span th:text="${#temporals.format(restaurant.createdAt, 'MMM dd, yyyy HH:mm')}">-</span>
+		</div>
+		<div class="detail-item">
+			<strong>Last Updated:</strong> 
+			<span th:text="${#temporals.format(restaurant.updatedAt, 'MMM dd, yyyy HH:mm')}">-</span>
+		</div>
+	</div>
+
+	<div class="detail-card">
+		<h3>Actions</h3>
+		<div class="d-flex gap-2 flex-wrap">
+			<a th:href="@{|/admin/restaurants/${restaurant.id}/edit|}" class="btn btn-primary">
+				<i class="fa fa-edit mr-1"></i>Edit Restaurant
+			</a>
+			<form th:action="@{|/admin/restaurants/${restaurant.id}/delete|}" method="post" onsubmit="return confirm('Are you sure you want to delete this restaurant? This action cannot be undone.')" class="d-inline">
+				<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+				<button type="submit" class="btn btn-danger">
+					<i class="fa fa-trash mr-1"></i>Delete Restaurant
+				</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/bootstrap.js}"></script>
+</body>
+</html>
+

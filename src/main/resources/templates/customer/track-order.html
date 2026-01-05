@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Order Details</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+			min-height: 100vh;
+			padding: 20px;
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		}
+
+		body.cafe-mode {
+			--primary-color: #d28b4b;
+			--primary-dark: #8b4513;
+			--text-dark: #f5e6d3;
+			--text-light: #d4b896;
+			--bg-light: #3e2723;
+			--card-bg: rgba(79, 55, 45, 0.7);
+			background: linear-gradient(180deg, #2c1810 0%, #3e2723 50%, #5d4037 100%) fixed;
+			color: var(--text-dark);
+		}
+
+		body.cafe-mode .order-header,
+		body.cafe-mode .order-card {
+			background: var(--card-bg) !important;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		.order-container {
+			max-width: 900px;
+			margin: 0 auto;
+		}
+
+		.order-header {
+			background: white;
+			border-radius: 20px;
+			padding: 30px;
+			margin-bottom: 20px;
+			box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+		}
+
+		.order-id {
+			font-size: 24px;
+			font-weight: 700;
+			color: #333;
+			margin-bottom: 10px;
+		}
+
+		.order-info {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: 20px;
+		}
+
+		.info-item {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.info-item i {
+			color: #fc8019;
+			font-size: 18px;
+		}
+
+		/* Order Details */
+		.order-details {
+			background: white;
+			border-radius: 20px;
+			padding: 30px;
+			box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+		}
+
+		.details-section {
+			margin-bottom: 30px;
+		}
+
+		.details-section h5 {
+			font-size: 18px;
+			font-weight: 600;
+			color: #333;
+			margin-bottom: 15px;
+			padding-bottom: 10px;
+			border-bottom: 2px solid #fc8019;
+		}
+
+		.detail-row {
+			display: flex;
+			justify-content: space-between;
+			padding: 12px 0;
+			border-bottom: 1px solid #eee;
+		}
+
+		.detail-row:last-child {
+			border-bottom: none;
+		}
+
+		.detail-label {
+			font-weight: 500;
+			color: #666;
+		}
+
+		.detail-value {
+			color: #333;
+			font-weight: 600;
+		}
+
+		.items-table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		.items-table th {
+			background: #fc8019;
+			color: white;
+			padding: 12px;
+			text-align: left;
+			font-weight: 600;
+		}
+
+		.items-table td {
+			padding: 12px;
+			border-bottom: 1px solid #eee;
+		}
+
+		.items-table tr:hover {
+			background: #f8f9fa;
+		}
+
+		.btn-back {
+			background: #fc8019;
+			color: white;
+			padding: 12px 30px;
+			border: none;
+			border-radius: 25px;
+			font-weight: 600;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			text-decoration: none;
+			display: inline-block;
+		}
+
+		.btn-back:hover {
+			background: #e66a00;
+			transform: translateY(-2px);
+			box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+		}
+
+		.status-badge {
+			padding: 8px 16px;
+			border-radius: 20px;
+			font-size: 14px;
+			font-weight: 600;
+			display: inline-block;
+		}
+
+		.status-pending {
+			background: #ffc107;
+			color: #333;
+		}
+
+		.status-confirmed {
+			background: #17a2b8;
+			color: white;
+		}
+
+		.status-preparing {
+			background: #ff9800;
+			color: white;
+		}
+
+		.status-out-for-delivery {
+			background: #007bff;
+			color: white;
+		}
+
+		.status-delivered {
+			background: #28a745;
+			color: white;
+		}
+
+		.status-cancelled {
+			background: #dc3545;
+			color: white;
+		}
+	</style>
+</head>
+<body th:classappend="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE} ? 'cafe-mode' : ''">
+	<div class="order-container">
+		<!-- Preorder/Dine-In Message -->
+		<div th:if="${isMultiOrder and #lists.size(multiOrder.subOrders.?[reservationId != null or tableId != null or orderType == 'DINE_IN']) > 0}"
+		     class="alert alert-info text-center" style="margin: 20px 0; padding: 30px; border-radius: 15px;">
+			<i class="fa fa-cutlery fa-3x mb-3 d-block" style="color: #fc8019;"></i>
+			<h4 style="color: #fc8019; font-weight: 600;">Dine-In / Preorder Order</h4>
+			<p class="mb-2">This is a dine-in order.</p>
+			<p class="mb-0 text-muted">Please visit the restaurant at your reserved time to enjoy your meal.</p>
+			<div class="mt-3">
+				<a th:href="@{/customer/orders}" class="btn btn-primary">
+					<i class="fa fa-arrow-left"></i> Back to Orders
+				</a>
+			</div>
+		</div>
+
+		<!-- Header for Legacy Order -->
+		<div class="order-header" th:if="${!isMultiOrder}">
+			<div class="order-id">Order #<span th:text="${order.id}">123</span></div>
+			<div class="order-info">
+				<div class="info-item">
+					<i class="fa fa-rupee"></i>
+					<span><strong>₹<span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)}">0.00</span></strong></span>
+				</div>
+				<div class="info-item" th:if="${order.restaurant != null}">
+					<i class="fa fa-cutlery"></i>
+					<span th:text="${order.restaurant.name}">Restaurant</span>
+				</div>
+				<div class="info-item" th:if="${order.chefProfile != null and order.chefProfile.chef != null}">
+					<i class="fa fa-user"></i>
+					<span th:text="${order.chefProfile.chef.fullName}">Chef</span>
+				</div>
+				<div class="info-item">
+					<span class="status-badge" 
+						  th:classappend="${order.status == 'PENDING' ? 'status-pending' : 
+						                  (order.status == 'CONFIRMED' ? 'status-confirmed' : 
+						                  (order.status == 'PREPARING' ? 'status-preparing' : 
+						                  (order.status == 'OUT_FOR_DELIVERY' ? 'status-out-for-delivery' : 
+						                  (order.status == 'DELIVERED' ? 'status-delivered' : 
+						                  (order.status == 'CANCELLED' ? 'status-cancelled' : '')))))}"
+						  th:text="${order.status}">PENDING</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- Header for MultiOrder -->
+		<div class="order-header" th:if="${isMultiOrder}">
+			<div class="order-id">Multi-Order #<span th:text="${multiOrder.id}">123</span></div>
+			<div class="order-info">
+				<div class="info-item">
+					<i class="fa fa-rupee"></i>
+					<span><strong>₹<span th:text="${#numbers.formatDecimal(multiOrder.totalAmount, 1, 2)}">0.00</span></strong></span>
+				</div>
+				<div class="info-item">
+					<i class="fa fa-shopping-bag"></i>
+					<span><span th:text="${#lists.size(multiOrder.subOrders)}">0</span> Restaurant<span th:text="${#lists.size(multiOrder.subOrders) > 1 ? 's' : ''}">s</span></span>
+				</div>
+				<div class="info-item">
+					<span class="status-badge" 
+						  th:classappend="${multiOrder.status == 'PENDING' ? 'status-pending' : 
+						                  (multiOrder.status == 'CONFIRMED' ? 'status-confirmed' : 
+						                  (multiOrder.status == 'PREPARING' ? 'status-preparing' : 
+						                  (multiOrder.status == 'OUT_FOR_DELIVERY' ? 'status-out-for-delivery' : 
+						                  (multiOrder.status == 'DELIVERED' ? 'status-delivered' : 
+						                  (multiOrder.status == 'CANCELLED' ? 'status-cancelled' : '')))))}"
+						  th:text="${multiOrder.status}">PENDING</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- Order Details for Legacy Order -->
+		<div class="order-details" th:if="${!isMultiOrder}">
+			<div class="details-section" th:if="${order.deliveryAddress}">
+				<h5><i class="fa fa-map-marker"></i> Delivery Address</h5>
+				<div class="detail-row">
+					<span class="detail-value" th:text="${order.deliveryAddress}">Address</span>
+				</div>
+				<div class="detail-row" th:if="${order.specialInstructions}">
+					<span class="detail-label">Special Instructions:</span>
+					<span class="detail-value" th:text="${order.specialInstructions}">Notes</span>
+				</div>
+			</div>
+
+			<div class="details-section" th:if="${order.trackingInfo}">
+				<h5><i class="fa fa-info-circle"></i> Tracking Info</h5>
+				<div class="detail-row">
+					<span class="detail-value" th:text="${order.trackingInfo}">Info</span>
+				</div>
+			</div>
+
+			<div class="details-section" th:if="${order.deliveryPerson != null}">
+				<h5><i class="fa fa-user"></i> Delivery Person</h5>
+				<div class="detail-row">
+					<span class="detail-label">Name:</span>
+					<span class="detail-value" th:text="${order.deliveryPerson.user.fullName}">Name</span>
+				</div>
+				<div class="detail-row" th:if="${order.deliveryPerson.contactNumber}">
+					<span class="detail-label">Contact:</span>
+					<span class="detail-value" th:text="${order.deliveryPerson.contactNumber}">Contact</span>
+				</div>
+			</div>
+
+			<div class="details-section">
+				<h5><i class="fa fa-shopping-cart"></i> Order Items</h5>
+				<table class="items-table">
+					<thead>
+						<tr>
+							<th>Item</th>
+							<th>Quantity</th>
+							<th>Price</th>
+							<th>Total</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="item : ${order.items}">
+							<td th:text="${item.itemName}">Item</td>
+							<td th:text="${item.quantity}">1</td>
+							<td th:text="'₹' + ${#numbers.formatDecimal(item.unitPrice, 1, 2)}">₹0.00</td>
+							<td><strong th:text="'₹' + ${#numbers.formatDecimal(item.lineTotal, 1, 2)}">₹0.00</strong></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="text-center mt-4">
+				<a th:href="@{/customer/orders}" class="btn-back">
+					<i class="fa fa-arrow-left"></i> Back to Orders
+				</a>
+			</div>
+		</div>
+
+		<!-- Order Details for MultiOrder -->
+		<div class="order-details" th:if="${isMultiOrder}">
+			<div th:each="subOrder : ${multiOrder.subOrders}" style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #eee;">
+				<div class="details-section">
+					<h5>
+						<i class="fa fa-cutlery"></i> <span th:text="${subOrder.restaurantName}">Restaurant</span>
+						<span class="status-badge" style="float: right;"
+							  th:classappend="${subOrder.status == 'PENDING' ? 'status-pending' : 
+							                  (subOrder.status == 'CONFIRMED' ? 'status-confirmed' : 
+							                  (subOrder.status == 'PREPARING' ? 'status-preparing' : 
+							                  (subOrder.status == 'OUT_FOR_DELIVERY' ? 'status-out-for-delivery' : 
+							                  (subOrder.status == 'DELIVERED' ? 'status-delivered' : 
+							                  (subOrder.status == 'CANCELLED' ? 'status-cancelled' : '')))))}"
+							  th:text="${subOrder.status}">PENDING</span>
+					</h5>
+				</div>
+
+				<div class="details-section" th:if="${subOrder.deliveryAddress}">
+					<h5><i class="fa fa-map-marker"></i> Delivery Address</h5>
+					<div class="detail-row">
+						<span class="detail-value" th:text="${subOrder.deliveryAddress}">Address</span>
+					</div>
+				</div>
+
+				<div class="details-section" th:if="${subOrder.riderName}">
+					<h5><i class="fa fa-user"></i> Rider Information</h5>
+					<div class="detail-row">
+						<span class="detail-label">Rider Name:</span>
+						<span class="detail-value" th:text="${subOrder.riderName}">Rider</span>
+					</div>
+					<div class="detail-row" th:if="${subOrder.riderPhone}">
+						<span class="detail-label">Contact:</span>
+						<span class="detail-value" th:text="${subOrder.riderPhone}">Phone</span>
+					</div>
+				</div>
+
+				<div class="details-section" th:if="${subOrder.items != null and !subOrder.items.isEmpty()}">
+					<h5><i class="fa fa-shopping-cart"></i> Order Items</h5>
+					<table class="items-table">
+						<thead>
+							<tr>
+								<th>Item</th>
+								<th>Quantity</th>
+								<th>Price</th>
+								<th>Total</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="item : ${subOrder.items}">
+								<td th:text="${item.name}">Item</td>
+								<td th:text="${item.quantity}">1</td>
+								<td th:text="'₹' + ${#numbers.formatDecimal(item.price, 1, 2)}">₹0.00</td>
+								<td><strong th:text="'₹' + ${#numbers.formatDecimal(item.price * item.quantity, 1, 2)}">₹0.00</strong></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<div class="detail-row" style="margin-top: 15px;">
+					<span class="detail-label"><strong>Subtotal:</strong></span>
+					<span class="detail-value"><strong th:text="'₹' + ${#numbers.formatDecimal(subOrder.totalAmount, 1, 2)}">₹0.00</strong></span>
+				</div>
+			</div>
+
+			<div class="text-center mt-4">
+				<a th:href="@{/customer/orders}" class="btn-back">
+					<i class="fa fa-arrow-left"></i> Back to Orders
+				</a>
+			</div>
+		</div>
+	</div>
+
+	<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+	<script th:src="@{/js/bootstrap.js}"></script>
+</body>
+</html>

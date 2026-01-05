@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit Subscription Items - Tummy Go!</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #fffaf3;
+        }
+
+        .navbar-custom {
+            background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+            padding: 15px 0;
+        }
+
+        .navbar-custom .navbar-brand,
+        .navbar-custom .nav-link {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .menu-item-card {
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .menu-item-card.selected {
+            border-color: #fc8019;
+            background: #fff5eb;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/company/dashboard}">Tummy Go! - Company</a>
+            <div class="ml-auto">
+                <a class="nav-link" th:href="@{/company/dashboard}">Dashboard</a>
+                <a class="nav-link" th:href="@{/company/orders}">Orders</a>
+                <a class="nav-link" th:href="@{/company/subscriptions}">Subscriptions</a>
+                <a class="nav-link" th:href="@{/logout}">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h4 class="card-title mb-1" th:text="${package.name}">Package Name</h4>
+                <p class="mb-1"><strong>Restaurant:</strong> <span th:text="${restaurant.name}">Restaurant</span></p>
+                <p class="mb-1"><strong>People:</strong> <span th:text="${package.numberOfPeople}">0</span></p>
+                <p class="mb-0"><strong>Price per Day:</strong> ₹<span
+                        th:text="${#numbers.formatDecimal(package.price,0,2)}">0.00</span></p>
+            </div>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+        <p class="text-muted">Select the items you want in this subscription (must be within the package’s allowed
+            items).</p>
+
+        <form th:action="@{|/company/subscriptions/${subscription.id}/edit-items|}" method="post" id="editItemsForm">
+            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+            <div class="row">
+                <div class="col-md-6" th:each="item : ${allowedItems}">
+                    <div class="menu-item-card" th:data-item-id="${item.id}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1" th:text="${item.name}">Item</h6>
+                                <p class="text-muted mb-1" th:text="${item.description ?: 'No description'}">Desc</p>
+                                <p class="mb-0"><strong>₹<span
+                                            th:text="${#numbers.formatDecimal(item.price,0,2)}">0.00</span></strong></p>
+                            </div>
+                            <div>
+                                <input type="checkbox" name="menuItemIds" th:value="${item.id}"
+                                    th:checked="${selectedIds != null && selectedIds.contains(item.id)}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3 text-danger" id="errorMessage" style="display:none;">Please select at least one item.</div>
+
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-save mr-1"></i>Save Items
+                </button>
+                <a class="btn btn-secondary ml-2" th:href="@{/company/subscriptions}">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <script th:inline="javascript">
+        (function () {
+            const form = document.getElementById('editItemsForm');
+            const errorEl = document.getElementById('errorMessage');
+
+            // Card click toggles checkbox
+            document.querySelectorAll('.menu-item-card').forEach(card => {
+                card.addEventListener('click', function (e) {
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL') return;
+                    const checkbox = card.querySelector('input[type="checkbox"]');
+                    if (checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                        card.classList.toggle('selected', checkbox.checked);
+                    }
+                });
+                const checkbox = card.querySelector('input[type="checkbox"]');
+                card.classList.toggle('selected', checkbox && checkbox.checked);
+            });
+
+            form.addEventListener('submit', function (e) {
+                const checked = document.querySelectorAll('input[name="menuItemIds"]:checked').length;
+                if (checked === 0) {
+                    e.preventDefault();
+                    errorEl.style.display = 'block';
+                } else {
+                    errorEl.style.display = 'none';
+                }
+            });
+        })();
+    </script>
+
+    <script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+    <script th:src="@{/js/bootstrap.js}"></script>
+</body>
+
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Package Subscribers - Tummy Go!</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #fffaf3;
+        }
+
+        .navbar-custom {
+            background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+            padding: 15px 0;
+        }
+
+        .navbar-custom .navbar-brand,
+        .navbar-custom .nav-link {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .badge-status {
+            border-radius: 12px;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/owner/dashboard}">Tummy Go!</a>
+            <div class="ml-auto d-flex align-items-center">
+                <a class="nav-link" th:href="@{/owner/dashboard}">Dashboard</a>
+                <a class="nav-link" th:href="@{/logout}">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h3 class="mb-1" th:text="${pkg.name}">Package Name</h3>
+                <p class="text-muted mb-0">
+                    Restaurant: <strong th:text="${restaurant.name}">Restaurant</strong> |
+                    People: <strong th:text="${pkg.numberOfPeople}">0</strong> |
+                    Price: ₹<strong th:text="${#numbers.formatDecimal(pkg.price,0,2)}">0.00</strong>/day
+                </p>
+            </div>
+            <a th:href="@{|/owner/restaurants/${restaurant.id}/subscription-packages|}" class="btn btn-secondary">
+                <i class="fa fa-arrow-left mr-2"></i>Back to Packages
+            </a>
+        </div>
+
+        <div class="mb-3" th:if="${allowedItems != null && !allowedItems.isEmpty()}">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3"><i class="fa fa-utensils mr-2"></i>Allowed Items</h5>
+                    <div>
+                        <span class="badge badge-light border mr-1 mb-1" th:each="item : ${allowedItems}">
+                            <span th:text="${item.name}">Item</span>
+                            <span class="text-muted"> (₹<span
+                                    th:text="${#numbers.formatDecimal(item.price,0,2)}">0.00</span>)</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${subscribers == null || subscribers.isEmpty()}" class="alert alert-info">
+            <i class="fa fa-info-circle mr-2"></i>No subscribers yet for this package.
+        </div>
+
+        <div class="card" th:if="${subscribers != null && !subscribers.isEmpty()}">
+            <div class="card-body">
+                <h5 class="card-title mb-3"><i class="fa fa-users mr-2"></i>Subscribers</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Status</th>
+                                <th>Payment</th>
+                                <th>Method</th>
+                                <th>Tx ID</th>
+                                <th>Start</th>
+                                <th>End</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="sub : ${subscribers}">
+                                <td th:text="${sub.company != null ? sub.company.companyName : 'N/A'}">Company</td>
+                                <td>
+                                    <span class="badge-status badge"
+                                        th:classappend="${sub.status == 'ACTIVE'} ? 'badge-success' : 'badge-secondary'"
+                                        th:text="${sub.status}">ACTIVE</span>
+                                </td>
+                                <td>
+                                    <span class="badge-status badge"
+                                        th:classappend="${sub.paymentStatus == 'PAID'} ? 'badge-success' : 'badge-warning'"
+                                        th:text="${sub.paymentStatus}">PAID</span>
+                                    <div>₹<span th:text="${#numbers.formatDecimal(sub.paymentAmount,0,2)}">0.00</span>
+                                    </div>
+                                </td>
+                                <td th:text="${sub.paymentMethod ?: 'N/A'}">Method</td>
+                                <td th:text="${sub.transactionId ?: '-'}">TX</td>
+                                <td th:text="${#temporals.format(sub.startDate, 'dd MMM yyyy')}">Start</td>
+                                <td th:text="${#temporals.format(sub.endDate, 'dd MMM yyyy')}">End</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+    <script th:src="@{/js/bootstrap.js}"></script>
+</body>
+
+</html>

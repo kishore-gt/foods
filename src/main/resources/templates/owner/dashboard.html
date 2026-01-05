@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Owner Dashboard</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		
+		body {
+			font-family: 'Poppins', sans-serif;
+			background-color: #fffaf3;
+			color: #333;
+		}
+		
+		.navbar-custom {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			padding: 15px 0;
+			box-shadow: 0 4px 20px rgba(220, 53, 69, 0.3);
+		}
+		.navbar-custom .navbar-brand {
+			color: #fff;
+			font-weight: 700;
+			font-size: 24px;
+			letter-spacing: 1px;
+		}
+		.navbar-custom .nav-link {
+			color: #fff;
+			font-weight: 500;
+			padding: 8px 16px;
+			border-radius: 25px;
+			transition: all 0.3s ease;
+		}
+		.navbar-custom .nav-link:hover {
+			background: rgba(255, 255, 255, 0.2);
+			transform: translateY(-2px);
+		}
+		.dashboard-header {
+			background: #fff;
+			border-radius: 20px;
+			padding: 30px;
+			box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+			margin-bottom: 30px;
+		}
+		.dashboard-header h2 {
+			color: #fc8019;
+			font-weight: 700;
+		}
+		.stat-card {
+			background: #fff;
+			border-radius: 15px;
+			padding: 25px;
+			border: 2px solid transparent;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+			transition: all 0.3s ease;
+		}
+		.stat-card:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 8px 25px rgba(220, 53, 69, 0.2);
+			border-color: #fc8019;
+		}
+		.stat-title {
+			font-size: 0.85rem;
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+			color: #e66a00;
+			margin-bottom: 8px;
+			font-weight: 600;
+		}
+		.stat-value {
+			font-size: 2rem;
+			font-weight: 700;
+			color: #fc8019;
+		}
+		.restaurant-card {
+			border: 2px solid transparent;
+			border-radius: 15px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+			transition: all 0.3s ease;
+			overflow: hidden;
+		}
+		.restaurant-card:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 8px 25px rgba(220, 53, 69, 0.2);
+			border-color: #fc8019;
+		}
+		.card-badge {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			color: #fff;
+			font-weight: 600;
+			padding: 6px 12px;
+			border-radius: 20px;
+			font-size: 0.75rem;
+		}
+		.card-actions .btn {
+			border-radius: 25px;
+			font-weight: 500;
+			padding: 6px 15px;
+			transition: all 0.3s ease;
+		}
+		.card-actions .btn {
+			margin: 2px;
+		}
+		.card-actions .btn-outline-primary {
+			border-color: #fc8019;
+			color: #fc8019;
+		}
+		.card-actions .btn-outline-primary:hover {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			border-color: #fc8019;
+			color: #fff;
+		}
+		.card-actions .btn-outline-info {
+			border-color: #17a2b8;
+			color: #17a2b8;
+		}
+		.card-actions .btn-outline-info:hover {
+			background: #17a2b8;
+			color: #fff;
+		}
+		.card-actions .btn-outline-success {
+			border-color: #28a745;
+			color: #28a745;
+		}
+		.card-actions .btn-outline-success:hover {
+			background: #28a745;
+			color: #fff;
+		}
+		.card-actions .btn-outline-secondary {
+			border-color: #6c757d;
+			color: #6c757d;
+		}
+		.card-actions .btn-outline-secondary:hover {
+			background: #6c757d;
+			color: #fff;
+		}
+		.card-actions .btn-outline-danger {
+			border-color: #fc8019;
+			color: #fc8019;
+		}
+		.card-actions .btn-outline-danger:hover {
+			background: #fc8019;
+			color: #fff;
+		}
+		.type-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			border-radius: 999px;
+			padding: 4px 12px;
+			font-size: 0.75rem;
+			font-weight: 600;
+			color: #fff;
+			background: linear-gradient(135deg, #6c5ce7 0%, #341f97 100%);
+		}
+		.type-badge.cafe {
+			background: linear-gradient(135deg, #7b3f00 0%, #4e2500 100%);
+		}
+		.btn-primary {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			border: none;
+			border-radius: 50px;
+			padding: 12px 25px;
+			font-weight: 600;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+		}
+		.btn-primary:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+		}
+		.empty-state {
+			background: #fff;
+			border: 2px dashed #ffd0a3;
+			padding: 40px;
+			border-radius: 15px;
+			text-align: center;
+			color: #fc8019;
+			font-weight: 500;
+		}
+		.empty-state i {
+			font-size: 3rem;
+			margin-bottom: 15px;
+			color: #e66a00;
+		}
+	</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-custom">
+	<div class="container">
+		<a class="navbar-brand" th:href="@{/owner/dashboard}">Tummy Go!</a>
+		<div class="ml-auto d-flex align-items-center">
+			<a class="nav-link" th:href="@{/logout}">Logout</a>
+		</div>
+	</div>
+</nav>
+
+<div class="container py-4">
+	<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+	<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+	<div class="dashboard-header d-lg-flex justify-content-between align-items-center">
+		<div>
+			<h2 class="mb-2">Hello, <span th:text="${owner.fullName}">Owner</span> 👋</h2>
+			<p class="text-muted mb-0">Manage your restaurants or cafes, curate menus, and keep your guests delighted.</p>
+		</div>
+		<div class="mt-3 mt-lg-0">
+			<a class="btn btn-primary btn-lg" th:href="@{/owner/restaurants/new}"><i class="fa fa-plus mr-2"></i>Add Restaurant / Cafe</a>
+		</div>
+	</div>
+
+	<div class="row mb-4">
+		<div class="col-md-4 mb-3">
+			<div class="stat-card">
+				<div class="stat-title">Locations</div>
+				<div class="stat-value" th:text="${#lists.size(restaurants)}">0</div>
+			</div>
+		</div>
+		<div class="col-md-4 mb-3">
+			<div class="stat-card">
+				<div class="stat-title">Active Menus</div>
+				<div class="stat-value" th:text="${menuCount}">0</div>
+			</div>
+		</div>
+		<div class="col-md-4 mb-3">
+			<div class="stat-card">
+				<div class="stat-title">Last Updated</div>
+				<div class="stat-value" style="font-size:1.1rem;" th:text="${owner.updatedAt != null ? #temporals.format(owner.updatedAt, 'dd MMM yyyy HH:mm') : '—'}">—</div>
+			</div>
+		</div>
+	</div>
+
+		<h4 class="mb-3">Your Restaurants &amp; Cafes</h4>
+	<div th:if="${#lists.isEmpty(restaurants)}" class="empty-state">
+		<i class="fa fa-cutlery fa-lg mb-2 d-block"></i>
+			You haven't created any restaurants or cafes yet. Click "Add Restaurant / Cafe" to get started.
+	</div>
+
+	<div class="row" th:if="${!#lists.isEmpty(restaurants)}">
+		<div class="col-xl-4 col-lg-6 mb-4" th:each="r : ${restaurants}">
+			<div class="card restaurant-card h-100">
+				<div class="card-body d-flex flex-column">
+					<div class="d-flex justify-content-between align-items-start mb-3">
+						<div>
+							<h5 class="card-title mb-1" th:text="${r.name}">Restaurant Name</h5>
+							<span class="type-badge" th:classappend="${r.cafeLounge} ? ' cafe' : ''">
+								<i class="fa fa-coffee" th:if="${r.cafeLounge}"></i>
+								<i class="fa fa-cutlery" th:if="${!r.cafeLounge}"></i>
+								<span th:text="${r.cafeLounge} ? 'Cafe' : 'Restaurant'">Restaurant</span>
+							</span>
+						</div>
+						<span class="card-badge" th:text="${r.menus != null ? r.menus.size() + ' menus' : 'No menus'}">0 menus</span>
+					</div>
+					<p class="text-muted" th:text="${r.description ?: 'No description provided yet.'}">Description</p>
+					<div class="mt-auto">
+						<div class="restaurant-info mb-3">
+							<p class="small text-muted mb-1" th:if="${r.address}">
+								<i class="fa fa-map-marker mr-1" style="color: #fc8019;"></i>
+								<span th:text="${r.address}">Address</span>
+							</p>
+							<p class="small text-muted mb-0" th:if="${r.contactNumber}">
+								<i class="fa fa-phone mr-1" style="color: #fc8019;"></i>
+								<span th:text="${r.contactNumber}">Contact</span>
+							</p>
+						</div>
+						<div class="card-actions d-flex flex-wrap">
+							<a class="btn btn-outline-primary btn-sm" th:href="@{|/owner/restaurants/${r.id}/menus|}">
+								<i class="fa fa-list mr-1"></i>Menus
+							</a>
+							<a class="btn btn-outline-info btn-sm" th:href="@{|/owner/restaurants/${r.id}/orders|}">
+								<i class="fa fa-shopping-cart mr-1"></i>Orders
+							</a>
+							<a class="btn btn-outline-warning btn-sm" th:href="@{|/owner/restaurants/${r.id}/tables|}">
+								<i class="fa fa-table mr-1"></i>Tables
+							</a>
+							<a class="btn btn-outline-success btn-sm" th:href="@{|/owner/restaurants/${r.id}/subscription-packages|}">
+								<i class="fa fa-box mr-1"></i>Packages
+							</a>
+							<a class="btn btn-outline-success btn-sm" th:href="@{|/owner/restaurants/${r.id}/donations|}">
+								<i class="fa fa-gift mr-1"></i>Donations
+							</a>
+							<a class="btn btn-outline-secondary btn-sm" th:href="@{|/owner/restaurants/${r.id}/edit|}">
+								<i class="fa fa-pencil mr-1"></i>Edit
+							</a>
+							<form th:action="@{|/owner/restaurants/${r.id}/delete|}" method="post" class="d-inline" onsubmit="return confirm('Delete this restaurant?')">
+								<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+								<button class="btn btn-outline-danger btn-sm" type="submit">
+									<i class="fa fa-trash mr-1"></i>Delete
+								</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/bootstrap.js}"></script>
+</body>
+</html>
+
+

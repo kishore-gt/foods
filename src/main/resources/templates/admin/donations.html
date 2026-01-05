@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Tummy Go! - Admin - Donations</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		
+		body {
+			font-family: 'Poppins', sans-serif;
+			background-color: #0d1117;
+			color: #e0e0e0;
+			min-height: 100vh;
+		}
+		
+		.navbar-custom {
+			background-color: #161b22;
+			padding: 15px 0;
+			border-bottom: 1px solid #30363d;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+		}
+		.navbar-custom .navbar-brand {
+			color: #fff;
+			font-weight: 700;
+			font-size: 24px;
+			letter-spacing: 1px;
+		}
+		.navbar-custom .nav-link {
+			color: #c9d1d9;
+			font-weight: 500;
+			padding: 8px 16px;
+			border-radius: 25px;
+			transition: all 0.3s ease;
+		}
+		.navbar-custom .nav-link:hover {
+			background: rgba(255, 255, 255, 0.1);
+			color: #fff;
+			transform: translateY(-2px);
+		}
+		
+		.donation-card {
+			background: #161b22;
+			border: 1px solid #30363d;
+			border-radius: 15px;
+			padding: 25px;
+			margin-bottom: 20px;
+			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+			transition: all 0.3s ease;
+		}
+		.donation-card:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+			border-color: #58a6ff;
+		}
+		.donation-card h5 {
+			color: #58a6ff;
+			font-weight: 700;
+			margin-bottom: 15px;
+		}
+		.donation-card strong {
+			color: #fff;
+		}
+		
+		h2 {
+			color: #fff;
+			font-weight: 700;
+		}
+		
+		.badge {
+			padding: 6px 12px;
+			border-radius: 20px;
+			font-weight: 600;
+		}
+		.badge-success {
+			background: linear-gradient(135deg, #238636 0%, #3fb950 100%);
+			color: #fff;
+		}
+		.badge-warning {
+			background: linear-gradient(135deg, #9e6a03 0%, #d29922 100%);
+			color: #fff;
+		}
+		.badge-info {
+			background: linear-gradient(135deg, #58a6ff 0%, #1f6feb 100%);
+			color: #fff;
+		}
+		.badge-secondary {
+			background: #6e7681;
+			color: #fff;
+		}
+		
+		.alert {
+			border-radius: 10px;
+			border: 1px solid #30363d;
+		}
+		.alert-success {
+			background-color: #1a472a;
+			border-color: #238636;
+			color: #3fb950;
+		}
+		.alert-danger {
+			background-color: #3d1f1f;
+			border-color: #da3633;
+			color: #f85149;
+		}
+		.alert-info {
+			background-color: #1c2b41;
+			border-color: #1f6feb;
+			color: #58a6ff;
+		}
+		
+		.text-muted {
+			color: #8b949e !important;
+		}
+	</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-custom">
+	<div class="container">
+		<a class="navbar-brand" th:href="@{/admin/dashboard}">Tummy Go! - Admin</a>
+		<div class="ml-auto d-flex align-items-center">
+			<a class="nav-link" th:href="@{/admin/dashboard}">Dashboard</a>
+			<a class="nav-link" th:href="@{/admin/users}">Users</a>
+			<a class="nav-link" th:href="@{/admin/restaurants}">Restaurants</a>
+			<a class="nav-link" th:href="@{/admin/orders}">Orders</a>
+			<a class="nav-link" th:href="@{/admin/donations}">Donations</a>
+			<a class="nav-link" th:href="@{/logout}">Logout</a>
+		</div>
+	</div>
+</nav>
+
+<div class="container py-4">
+	<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+	<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+	<h2 class="mb-4">Available Donations</h2>
+
+	<div th:if="${#lists.isEmpty(donations)}" class="alert alert-info text-center" style="padding: 40px; border-radius: 15px;">
+		<i class="fa fa-gift fa-3x mb-3 d-block" style="color: #58a6ff;"></i>
+		<h5 style="color: #58a6ff; font-weight: 600;">No donations available</h5>
+		<p class="text-muted mb-0">Donations will appear here when restaurants post them.</p>
+	</div>
+
+	<div th:each="donation : ${donations}" class="donation-card">
+		<div class="d-flex justify-content-between align-items-start flex-wrap">
+			<div class="flex-grow-1" style="min-width: 250px;">
+				<h5 th:text="${donation.foodName}">Food Name</h5>
+				<p class="mb-1"><strong>Restaurant:</strong> <span th:text="${donation.restaurant.name}">Restaurant</span></p>
+				<p class="mb-1"><strong>Quantity:</strong> <span th:text="${donation.quantity}">1</span></p>
+				<p class="mb-1" th:if="${donation.description}"><strong>Description:</strong> <span th:text="${donation.description}">Description</span></p>
+				<p class="mb-1">
+					<strong>Condition:</strong> 
+					<span class="badge badge-success" th:if="${donation.inGoodCondition}">Good Condition</span>
+					<span class="badge badge-warning" th:if="${!donation.inGoodCondition}">Fair Condition</span>
+				</p>
+				<p class="mb-1">
+					<strong>Status:</strong> 
+					<span class="badge" th:classappend="${donation.isClaimed} ? 'badge-info' : 'badge-secondary'" 
+					      th:text="${donation.isClaimed} ? 'Claimed' : 'Available'">Available</span>
+				</p>
+				<p class="mb-0 text-muted"><small th:text="${#temporals.format(donation.createdAt, 'MMM dd, yyyy HH:mm')}">Date</small></p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/bootstrap.js}"></script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Write Review</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Poppins', sans-serif;
+			background: linear-gradient(to bottom, #fffaf3 0%, #fff5eb 100%);
+			min-height: 100vh;
+			padding: 40px 20px;
+		}
+
+		body.cafe-mode {
+			--primary-color: #d28b4b;
+			--primary-dark: #8b4513;
+			--text-dark: #f5e6d3;
+			--text-light: #d4b896;
+			--bg-light: #3e2723;
+			--card-bg: rgba(79, 55, 45, 0.7);
+			background: linear-gradient(180deg, #2c1810 0%, #3e2723 50%, #5d4037 100%) fixed;
+			color: var(--text-dark);
+		}
+
+		body.cafe-mode .form-container {
+			background: var(--card-bg) !important;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		.form-container {
+			background: white;
+			border-radius: 20px;
+			padding: 40px;
+			box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+			max-width: 600px;
+			margin: 0 auto;
+		}
+
+		.form-container h3 {
+			font-size: 1.8rem;
+			font-weight: 700;
+			color: #222;
+			margin-bottom: 25px;
+		}
+
+		.rating-container {
+			display: flex;
+			flex-direction: column;
+			gap: 15px;
+		}
+
+		.rating-stars {
+			display: flex;
+			gap: 5px;
+		}
+
+		.rating-input {
+			display: none;
+		}
+
+		.rating-label {
+			font-size: 2.5rem;
+			color: #ddd;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			user-select: none;
+		}
+
+		.rating-label:hover,
+		.rating-label:hover ~ .rating-label {
+			color: #ffc107;
+		}
+
+		.rating-label.active {
+			color: #ffc107;
+		}
+
+		.rating-description {
+			font-size: 16px;
+			color: #666;
+			font-weight: 500;
+			margin-top: 10px;
+			min-height: 25px;
+		}
+
+		.rating-description.active {
+			color: #fc8019;
+		}
+
+		.form-label {
+			font-weight: 600;
+			color: #333;
+			margin-bottom: 10px;
+			font-size: 14px;
+		}
+
+		.form-control {
+			border: 2px solid #e0e0e0;
+			border-radius: 10px;
+			padding: 12px 15px;
+			font-size: 14px;
+			transition: all 0.3s ease;
+		}
+
+		.form-control:focus {
+			border-color: #fc8019;
+			box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+			outline: none;
+		}
+
+		.btn-primary {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			border: none;
+			border-radius: 50px;
+			padding: 12px 30px;
+			font-weight: 600;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+		}
+
+		.btn-primary:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+		}
+
+		.btn-secondary {
+			background: #666;
+			border: none;
+			border-radius: 50px;
+			padding: 12px 30px;
+			font-weight: 500;
+			color: white;
+			transition: all 0.3s ease;
+		}
+
+		.btn-secondary:hover {
+			background: #555;
+			transform: translateY(-2px);
+		}
+	</style>
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const ratingInputs = document.querySelectorAll('.rating-input');
+			const ratingLabels = document.querySelectorAll('.rating-label');
+			const ratingDescription = document.getElementById('ratingDescription');
+			
+			const descriptions = {
+				1: 'Poor',
+				2: 'Fair',
+				3: 'Average',
+				4: 'Good',
+				5: 'Excellent'
+			};
+
+			function updateStars(selectedRating) {
+				ratingLabels.forEach(function(label, index) {
+					if (index < selectedRating) {
+						label.classList.add('active');
+					} else {
+						label.classList.remove('active');
+					}
+				});
+				
+				if (ratingDescription) {
+					ratingDescription.textContent = descriptions[selectedRating] || '';
+					ratingDescription.classList.add('active');
+				}
+			}
+
+			ratingInputs.forEach(function(input) {
+				input.addEventListener('change', function() {
+					const rating = parseInt(this.value);
+					updateStars(rating);
+				});
+				
+				// Update on page load if a rating is already selected
+				if (input.checked) {
+					updateStars(parseInt(input.value));
+				}
+			});
+		});
+	</script>
+</head>
+<body th:classappend="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE} ? 'cafe-mode' : ''">
+<div class="container">
+	<div class="form-container">
+		<h3 class="mb-4">Write a Review for <span th:text="${restaurant.name}">Restaurant</span></h3>
+		<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+		
+		<form th:action="@{|/customer/restaurants/${restaurant.id}/review|}" th:object="${reviewForm}" method="post">
+			<div class="mb-3">
+				<label class="form-label">Rating *</label>
+				<div class="rating-container">
+					<div class="rating-stars">
+						<input type="radio" class="rating-input" th:field="*{rating}" th:value="1" id="rating1">
+						<label class="rating-label" for="rating1">★</label>
+						<input type="radio" class="rating-input" th:field="*{rating}" th:value="2" id="rating2">
+						<label class="rating-label" for="rating2">★</label>
+						<input type="radio" class="rating-input" th:field="*{rating}" th:value="3" id="rating3">
+						<label class="rating-label" for="rating3">★</label>
+						<input type="radio" class="rating-input" th:field="*{rating}" th:value="4" id="rating4">
+						<label class="rating-label" for="rating4">★</label>
+						<input type="radio" class="rating-input" th:field="*{rating}" th:value="5" id="rating5">
+						<label class="rating-label" for="rating5">★</label>
+					</div>
+					<div id="ratingDescription" class="rating-description"></div>
+				</div>
+				<div class="text-danger" th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}"></div>
+			</div>
+			<div class="mb-3">
+				<label class="form-label">Comment</label>
+				<textarea class="form-control" rows="5" th:field="*{comment}" placeholder="Share your experience..."></textarea>
+				<div class="text-danger" th:if="${#fields.hasErrors('comment')}" th:errors="*{comment}"></div>
+			</div>
+			<div class="d-flex gap-2">
+				<button class="btn btn-primary" type="submit">Submit Review</button>
+				<a class="btn btn-secondary" th:href="@{|/customer/restaurants/${restaurant.id}/reviews|}">Cancel</a>
+			</div>
+		</form>
+	</div>
+</div>
+</body>
+</html>
+

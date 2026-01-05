@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Orders - Tummy Go!</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<style>
+		body {
+			font-family: 'Poppins', sans-serif;
+			background-color: #fffaf3;
+		}
+		.navbar-custom {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			padding: 15px 0;
+		}
+		.navbar-custom .navbar-brand, .navbar-custom .nav-link {
+			color: #fff;
+			font-weight: 500;
+		}
+		.order-card {
+			background: #fff;
+			border-radius: 15px;
+			padding: 20px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+			margin-bottom: 15px;
+		}
+		.status-badge {
+			display: inline-block;
+			padding: 6px 12px;
+			border-radius: 20px;
+			font-size: 0.75rem;
+			font-weight: 600;
+		}
+		.status-pending { background: #ffc107; color: #000; }
+		.status-confirmed { background: #17a2b8; color: #fff; }
+		.status-preparing { background: #007bff; color: #fff; }
+		.status-delivered { background: #28a745; color: #fff; }
+		.status-cancelled { background: #dc3545; color: #fff; }
+		.btn-primary {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			border: none;
+			border-radius: 50px;
+			padding: 12px 25px;
+			font-weight: 600;
+		}
+	</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-custom">
+	<div class="container">
+		<a class="navbar-brand" th:href="@{/company/dashboard}">Tummy Go! - Company</a>
+		<div class="ml-auto">
+			<a class="nav-link" th:href="@{/company/dashboard}">Dashboard</a>
+			<a class="nav-link" th:href="@{/company/subscriptions}">Subscriptions</a>
+			<a class="nav-link" th:href="@{/logout}">Logout</a>
+		</div>
+	</div>
+</nav>
+
+<div class="container py-4">
+	<div class="d-flex justify-content-between align-items-center mb-4">
+		<h2>My Orders</h2>
+		<a class="btn btn-primary" th:href="@{/company/orders/new}" th:if="${activeSubscription != null}">
+			<i class="fa fa-plus mr-2"></i>Place New Order
+		</a>
+	</div>
+
+	<div th:if="${#lists.isEmpty(orders)}" class="alert alert-info">
+		<i class="fa fa-info-circle mr-2"></i>No orders yet. Place your first order to get started!
+	</div>
+
+	<div th:if="${!#lists.isEmpty(orders)}">
+		<div class="order-card" th:each="order : ${orders}">
+			<div class="row">
+				<div class="col-md-8">
+					<h5 th:text="${order.menuItem.name}">Menu Item</h5>
+					<p class="text-muted mb-2" th:text="${order.menuItem.menu.restaurant.name}">Restaurant</p>
+					<p class="mb-1"><strong>Quantity:</strong> <span th:text="${order.quantity}">10</span> servings</p>
+					<p class="mb-1"><strong>Order Date:</strong> <span th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy')}">Date</span></p>
+					<p class="mb-1"><strong>Delivery Address:</strong> <span th:text="${order.deliveryAddress}">Address</span></p>
+					<p class="mb-1" th:if="${order.specialInstructions}">
+						<strong>Special Instructions:</strong> <span th:text="${order.specialInstructions}"></span>
+					</p>
+					<p class="mb-0"><strong>Total Amount:</strong> ₹<span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 2)}">0.00</span></p>
+				</div>
+				<div class="col-md-4 text-right">
+					<span class="status-badge" 
+						  th:classappend="'status-' + ${order.status.toLowerCase()}"
+						  th:text="${order.status}">PENDING</span>
+					<p class="text-muted mt-2 mb-0" th:if="${order.deliveryTime}">
+						Delivered: <span th:text="${#temporals.format(order.deliveryTime, 'dd MMM yyyy HH:mm')}"></span>
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/bootstrap.js}"></script>
+</body>
+</html>
+

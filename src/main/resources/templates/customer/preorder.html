@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title th:text="${restaurant.name} + ' - Preorder'">Preorder</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Poppins', sans-serif;
+			background-color: #fffaf3;
+			color: #333;
+		}
+
+		body.cafe-mode {
+			--primary-color: #d28b4b;
+			--primary-dark: #8b4513;
+			--text-dark: #f5e6d3;
+			--text-light: #d4b896;
+			--bg-light: #3e2723;
+			--card-bg: rgba(79, 55, 45, 0.7);
+			background: linear-gradient(180deg, #2c1810 0%, #3e2723 50%, #5d4037 100%) fixed;
+			color: var(--text-dark);
+		}
+
+		body.cafe-mode .restaurant-header,
+		body.cafe-mode .step-content,
+		body.cafe-mode .table-card,
+		body.cafe-mode .slot-card {
+			background: var(--card-bg) !important;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		.navbar-custom {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			padding: 15px 0;
+			box-shadow: 0 4px 20px rgba(220, 53, 69, 0.3);
+		}
+		.navbar-custom .navbar-brand {
+			color: white;
+			font-weight: 700;
+			font-size: 24px;
+		}
+		.navbar-custom .nav-link {
+			color: white;
+			font-weight: 500;
+			padding: 8px 16px;
+			border-radius: 20px;
+			transition: all 0.3s ease;
+		}
+		.navbar-custom .nav-link:hover {
+			background: rgba(255, 255, 255, 0.2);
+		}
+
+		.restaurant-header {
+			background: white;
+			padding: 30px;
+			border-radius: 20px;
+			box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+			margin-bottom: 30px;
+		}
+
+		.restaurant-name {
+			font-size: 2rem;
+			font-weight: 700;
+			color: white;
+			margin-bottom: 15px;
+		}
+		
+		body.cafe-mode .restaurant-name {
+			color: white;
+		}
+
+		.step-indicator {
+			display: flex;
+			justify-content: center;
+			margin-bottom: 30px;
+			padding: 20px;
+			background: white;
+			border-radius: 15px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+		}
+
+		.step {
+			flex: 1;
+			text-align: center;
+			position: relative;
+		}
+
+		.step-number {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			background: #e0e0e0;
+			color: #666;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: 600;
+			margin-bottom: 10px;
+			transition: all 0.3s ease;
+		}
+
+		.step.active .step-number {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			color: white;
+		}
+
+		.step.completed .step-number {
+			background: #28a745;
+			color: white;
+		}
+
+		.step-title {
+			font-size: 12px;
+			color: #666;
+			font-weight: 500;
+		}
+
+		.step.active .step-title {
+			color: #fc8019;
+			font-weight: 600;
+		}
+
+		.step-content {
+			display: none;
+			background: white;
+			padding: 30px;
+			border-radius: 20px;
+			box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+			margin-bottom: 20px;
+		}
+
+		.step-content.active {
+			display: block;
+		}
+
+		.section-title {
+			font-size: 24px;
+			font-weight: 700;
+			color: white;
+			margin-bottom: 20px;
+		}
+		
+		body.cafe-mode .section-title {
+			color: white;
+		}
+
+		.date-time-selector {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 20px;
+			margin-bottom: 20px;
+		}
+
+		.form-group label {
+			font-weight: 600;
+			color: white;
+			margin-bottom: 8px;
+			display: block;
+		}
+		
+		body.cafe-mode .form-group label {
+			color: white;
+		}
+
+		.form-control {
+			padding: 12px;
+			border: 2px solid #e0e0e0;
+			border-radius: 10px;
+			font-size: 16px;
+			transition: all 0.3s ease;
+		}
+
+		.form-control:focus {
+			border-color: #fc8019;
+			outline: none;
+			box-shadow: 0 0 0 3px rgba(252, 128, 25, 0.1);
+		}
+
+		.table-filter-buttons {
+			display: flex;
+			gap: 10px;
+			margin-bottom: 20px;
+			flex-wrap: wrap;
+		}
+
+		.filter-btn {
+			padding: 8px 20px;
+			border: 2px solid #e0e0e0;
+			background: white;
+			border-radius: 25px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			font-weight: 500;
+		}
+
+		.filter-btn:hover {
+			border-color: #fc8019;
+		}
+
+		.filter-btn.active {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			color: white;
+			border-color: #fc8019;
+		}
+
+		.floor-plan-container {
+			background: #f8f9fa;
+			border-radius: 15px;
+			padding: 30px;
+			min-height: 500px;
+			position: relative;
+			margin-bottom: 20px;
+			overflow: visible;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+		}
+
+		.floor-plan {
+			width: 100%;
+			min-height: 500px;
+			position: relative;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 25px;
+			justify-content: flex-start;
+			align-items: flex-start;
+		}
+
+		.table-item {
+			position: relative;
+			width: 180px;
+			height: 140px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			background: white;
+			border-radius: 12px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			border: 3px solid #e0e0e0;
+		}
+
+		/* Adjust table size based on capacity */
+		.table-item[data-table-capacity="2"] {
+			width: 150px;
+			height: 120px;
+		}
+		.table-item[data-table-capacity="4"] {
+			width: 180px;
+			height: 140px;
+		}
+		.table-item[data-table-capacity="6"],
+		.table-item[data-table-capacity="8"] {
+			width: 220px;
+			height: 160px;
+		}
+
+		.table-top {
+			width: 100%;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			position: relative;
+		}
+
+		/* Table top surface (simple 2D) */
+		.table-top-surface {
+			width: 85%;
+			height: 70%;
+			background: 
+				repeating-linear-gradient(
+					0deg,
+					rgba(139, 115, 85, 0.3) 0px,
+					transparent 2px,
+					transparent 4px,
+					rgba(107, 91, 71, 0.2) 5px
+				),
+				linear-gradient(
+					135deg,
+					#f5e6d3 0%,
+					#e8d4b8 25%,
+					#d4c0a0 50%,
+					#c4a882 75%,
+					#a68b6d 100%
+				);
+			border: 3px solid #6B5B47;
+			border-radius: 8px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			box-shadow: 
+				0 4px 12px rgba(0,0,0,0.2),
+				inset 0 2px 4px rgba(255,255,255,0.4),
+				inset 0 -2px 4px rgba(0,0,0,0.2);
+		}
+
+
+		.table-item:hover {
+			transform: translateY(-5px) scale(1.05);
+			box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+		}
+
+		.table-item:hover .table-top-surface {
+			box-shadow: 
+				0 6px 18px rgba(0,0,0,0.3),
+				inset 0 2px 4px rgba(255,255,255,0.5),
+				inset 0 -2px 4px rgba(0,0,0,0.3);
+		}
+
+
+		.table-item.available .table-top-surface {
+			border-color: #28a745;
+			background: 
+				repeating-linear-gradient(
+					0deg,
+					rgba(40, 167, 69, 0.2) 0px,
+					transparent 2px,
+					transparent 4px,
+					rgba(34, 139, 58, 0.2) 5px
+				),
+				radial-gradient(circle at 30% 30%, #d4edda 0%, #c3e6cb 50%, #b1dfbb 100%);
+		}
+
+		.table-item.selected .table-top-surface {
+			border-color: #fc8019;
+			background: 
+				repeating-linear-gradient(
+					0deg,
+					rgba(252, 128, 25, 0.2) 0px,
+					transparent 2px,
+					transparent 4px,
+					rgba(230, 106, 0, 0.2) 5px
+				),
+				radial-gradient(circle at 30% 30%, #fff5eb 0%, #ffe0cc 50%, #ffd4a3 100%);
+			box-shadow: 
+				0 0 0 5px rgba(252, 128, 25, 0.6),
+				0 15px 40px rgba(252, 128, 25, 0.5),
+				inset 0 2px 5px rgba(255,255,255,0.6);
+		}
+
+		.table-item.selected {
+			transform: translateY(-8px) scale(1.08);
+			border-color: #fc8019;
+			box-shadow: 
+				0 0 0 4px rgba(252, 128, 25, 0.3),
+				0 10px 30px rgba(252, 128, 25, 0.4);
+		}
+		
+		.table-item.selected .table-top-surface {
+			border-color: #fc8019;
+			box-shadow: 
+				0 8px 20px rgba(252, 128, 25, 0.5),
+				inset 0 2px 4px rgba(255,255,255,0.5),
+				inset 0 -2px 4px rgba(0,0,0,0.3);
+		}
+
+
+		.table-item.occupied .table-top-surface {
+			border-color: #dc3545;
+			background: 
+				repeating-linear-gradient(
+					0deg,
+					rgba(220, 53, 69, 0.2) 0px,
+					transparent 2px,
+					transparent 4px,
+					rgba(185, 28, 28, 0.2) 5px
+				),
+				radial-gradient(circle at 30% 30%, #ffe6e6 0%, #ffcccc 50%, #ffb3b3 100%);
+			opacity: 0.7;
+		}
+
+		.table-item.occupied {
+			cursor: not-allowed;
+		}
+
+
+		.table-number {
+			font-size: 18px;
+			font-weight: 700;
+			color: #2c3e50;
+			text-shadow: 0 1px 3px rgba(255,255,255,0.9);
+			margin-bottom: 2px;
+		}
+
+		.table-capacity {
+			font-size: 11px;
+			color: #555;
+			font-weight: 600;
+		}
+
+
+		.slot-card {
+			background: white;
+			border: 2px solid #e0e0e0;
+			border-radius: 15px;
+			padding: 20px;
+			margin-bottom: 15px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+		}
+
+		.slot-card:hover {
+			border-color: #28a745;
+			transform: translateY(-3px);
+			box-shadow: 0 6px 20px rgba(40, 167, 69, 0.2);
+		}
+
+		.slot-card.selected {
+			border-color: #28a745;
+			background: #f0fff4;
+			box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+		}
+
+		.slot-card.disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+			background: #f5f5f5;
+		}
+
+		.menu-item-card {
+			background: #f9f9f9;
+			border-radius: 10px;
+			padding: 15px;
+			margin-bottom: 15px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.menu-item-info {
+			flex: 1;
+		}
+
+		.menu-item-name {
+			font-weight: 600;
+			color: #222;
+			margin-bottom: 5px;
+		}
+
+		.menu-item-price {
+			color: #fc8019;
+			font-weight: 600;
+		}
+
+		.quantity-controls {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.quantity-btn {
+			width: 30px;
+			height: 30px;
+			border: 1px solid #ddd;
+			background: white;
+			border-radius: 5px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.quantity-btn:hover {
+			background: #fc8019;
+			color: white;
+			border-color: #fc8019;
+		}
+
+		.quantity-display {
+			min-width: 40px;
+			text-align: center;
+			font-weight: 600;
+		}
+
+		.payment-option {
+			background: white;
+			border: 2px solid #e0e0e0;
+			border-radius: 15px;
+			padding: 20px;
+			margin-bottom: 15px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+		}
+
+		.payment-option:hover {
+			border-color: #fc8019;
+		}
+
+		.payment-option.selected {
+			border-color: #fc8019;
+			background: #fff5eb;
+		}
+
+		.btn-primary {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			border: none;
+			border-radius: 25px;
+			padding: 12px 30px;
+			font-weight: 600;
+			transition: all 0.3s ease;
+		}
+
+		.btn-primary:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+		}
+
+		.btn-primary:disabled {
+			opacity: 0.6;
+			cursor: not-allowed;
+		}
+
+		.info-banner {
+			background: transparent;
+			border: none;
+			border-radius: 10px;
+			padding: 15px;
+			margin-bottom: 20px;
+			color: white;
+		}
+		
+		.info-banner i,
+		.info-banner strong {
+			color: white;
+		}
+
+		.total-section {
+			background: white;
+			padding: 20px;
+			border-radius: 15px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+			margin-top: 20px;
+		}
+
+		.total-row {
+			display: flex;
+			justify-content: space-between;
+			margin-bottom: 10px;
+			font-size: 16px;
+		}
+
+		.total-row.final {
+			font-size: 20px;
+			font-weight: 700;
+			color: #fc8019;
+			padding-top: 10px;
+			border-top: 2px solid #e0e0e0;
+		}
+
+		.navigation-buttons {
+			display: flex;
+			justify-content: space-between;
+			margin-top: 30px;
+		}
+	</style>
+</head>
+<body th:classappend="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE} ? 'cafe-mode' : ''">
+	<!-- Navigation -->
+	<nav class="navbar navbar-expand-lg navbar-custom">
+		<div class="container">
+			<a class="navbar-brand" th:href="@{/customer/restaurants}">Tummy Go!</a>
+			<div class="ml-auto d-flex align-items-center">
+				<a class="nav-link d-flex align-items-center" th:href="@{/customer/cart}">
+					<i class="fa fa-shopping-cart"></i>
+					<span class="ml-1">Cart</span>
+					<span class="badge badge-light ml-2" th:text="${cartItemCount}">0</span>
+				</a>
+				<span sec:authorize="isAuthenticated()" class="text-white mr-3">
+					Welcome, <span sec:authentication="name"></span>
+				</span>
+				<a sec:authorize="isAuthenticated()" class="nav-link" th:href="@{/logout}">Logout</a>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container py-4">
+		<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+		<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+		<!-- Restaurant Header -->
+		<div class="restaurant-header">
+			<h2 class="restaurant-name" th:text="${restaurant.name}">Restaurant Name</h2>
+			<div class="info-banner">
+				<i class="fa fa-info-circle"></i>
+				<strong>Preorder with Table Selection:</strong> Choose your date, time, table, and menu items. Your food will be ready when you arrive!
+			</div>
+		</div>
+
+		<!-- Step Indicator -->
+		<div class="step-indicator">
+			<div class="step" id="step1" data-step="1">
+				<div class="step-number">1</div>
+				<div class="step-title">Date &amp; Time</div>
+			</div>
+			<div class="step" id="step2" data-step="2">
+				<div class="step-number">2</div>
+				<div class="step-title">Select Table</div>
+			</div>
+			<div class="step" id="step3" data-step="3">
+				<div class="step-number">3</div>
+				<div class="step-title">Menu Items</div>
+			</div>
+			<div class="step" id="step4" data-step="4">
+				<div class="step-number">4</div>
+				<div class="step-title">Payment</div>
+			</div>
+		</div>
+
+		<!-- Step 1: Date & Time Selection -->
+		<div class="step-content active" id="content-step1">
+			<h3 class="section-title">
+				<i class="fa fa-calendar"></i> Select Date &amp; Time
+			</h3>
+			<div class="date-time-selector">
+				<div class="form-group">
+					<label>Reservation Date</label>
+					<input type="date" class="form-control" id="reservationDate" 
+					       th:value="${selectedDate}" 
+					       min="" required>
+				</div>
+				<div class="form-group">
+					<label>Reservation Time</label>
+					<input type="time" class="form-control" id="reservationTime" 
+					       th:value="${selectedTime}" required>
+				</div>
+			</div>
+			<div class="form-group">
+				<label>Number of Guests</label>
+				<select class="form-control" id="numberOfGuests" th:value="${numberOfGuests}">
+					<option value="1">1 Guest</option>
+					<option value="2" selected>2 Guests</option>
+					<option value="3">3 Guests</option>
+					<option value="4">4 Guests</option>
+					<option value="5">5 Guests</option>
+					<option value="6">6 Guests</option>
+					<option value="7">7 Guests</option>
+					<option value="8">8+ Guests</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label>Duration (hours)</label>
+				<select class="form-control" id="durationHours">
+					<option value="1" selected>1 Hour</option>
+					<option value="2">2 Hours</option>
+					<option value="3">3 Hours</option>
+				</select>
+			</div>
+			<div class="navigation-buttons">
+				<a th:href="@{|/customer/restaurants/${restaurant.id}|}" class="btn btn-outline-secondary">
+					<i class="fa fa-arrow-left"></i> Back
+				</a>
+				<button type="button" class="btn btn-primary" onclick="goToStep(2)">
+					Next: Select Table <i class="fa fa-arrow-right"></i>
+				</button>
+			</div>
+		</div>
+
+		<!-- Step 2: Table Selection -->
+		<div class="step-content" id="content-step2">
+			<h3 class="section-title">
+				<i class="fa fa-table"></i> Select Table
+			</h3>
+			
+			<!-- Table Type Filter -->
+			<div class="table-filter-buttons" th:if="${tableTypes != null and !tableTypes.isEmpty()}">
+				<button type="button" class="filter-btn active" data-filter="all" onclick="filterTables('all')">All</button>
+				<button type="button" class="filter-btn" th:each="type : ${tableTypes}" 
+				        th:data-filter="${type}" 
+				        th:text="${#strings.replace(type, '_', ' ')}"
+				        th:attr="onclick='filterTables(this.getAttribute(\'data-filter\'))'">Type</button>
+			</div>
+
+			<!-- Section Filter -->
+			<div class="table-filter-buttons" th:if="${sections != null and !sections.isEmpty()}">
+				<button type="button" class="filter-btn active" data-section="all" onclick="filterBySection('all')">All Sections</button>
+				<button type="button" class="filter-btn" th:each="section : ${sections}" 
+				        th:data-section="${section}" 
+				        th:text="${section}"
+				        th:attr="onclick='filterBySection(this.getAttribute(\'data-section\'))'">Section</button>
+			</div>
+
+			<!-- 3D Floor Plan -->
+			<div class="floor-plan-container" id="floorPlanContainer">
+
+				<div class="floor-plan" id="floorPlan">
+					<!-- Tables -->
+					<div th:if="${tables == null or tables.isEmpty()}" 
+					     class="alert alert-warning" 
+					     style="width: 100%; text-align: center; padding: 40px;">
+						<i class="fa fa-exclamation-triangle"></i> No tables available for this restaurant.
+					</div>
+					
+				<div th:each="table : ${tables}" 
+				     th:if="${table != null}"
+				     class="table-item available" 
+				     th:data-table-id="${table.id}"
+				     th:data-table-capacity="${table.capacity}"
+				     th:data-table-type="${table.tableType}"
+				     th:data-section="${table.sectionName}"
+				     th:attr="onclick='selectTable(parseInt(this.getAttribute(\'data-table-id\')), parseInt(this.getAttribute(\'data-table-capacity\')))'">
+						<!-- Table Top -->
+						<div class="table-top">
+							<div class="table-top-surface">
+								<div class="table-number" th:text="${table.tableNumber}">1</div>
+								<div class="table-capacity" th:text="'Seats: ' + ${table.capacity}">2</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="alert alert-info" id="selectedTableInfo" style="display: none;">
+				<i class="fa fa-check-circle"></i> 
+				<strong>Selected:</strong> <span id="selectedTableNumber"></span> 
+				(<span id="selectedTableCapacity"></span> seats)
+			</div>
+
+			<div class="navigation-buttons">
+				<button type="button" class="btn btn-outline-secondary" onclick="goToStep(1)">
+					<i class="fa fa-arrow-left"></i> Previous
+				</button>
+				<button type="button" class="btn btn-primary" id="nextToMenuBtn" onclick="goToStep(3)" disabled>
+					Next: Select Menu <i class="fa fa-arrow-right"></i>
+				</button>
+			</div>
+		</div>
+
+		<!-- Step 3: Menu Items Selection -->
+		<div class="step-content" id="content-step3">
+			<h3 class="section-title">
+				<i class="fa fa-cutlery"></i> Select Menu Items
+			</h3>
+			<div th:if="${menuItems == null or menuItems.isEmpty()}" class="alert alert-info">
+				<i class="fa fa-info-circle"></i> No menu items available for this restaurant.
+			</div>
+			<div th:each="item : ${menuItems}" 
+			     th:if="${item != null}" 
+			     class="menu-item-card" 
+			     th:data-item-id="${item.id}" 
+			     th:data-item-price="${item.price}">
+				<div class="menu-item-info">
+					<div class="menu-item-name" th:text="${item.name}">Item Name</div>
+					<div class="menu-item-price" th:text="'₹' + ${#numbers.formatDecimal(item.price,1,2)}">₹0.00</div>
+				</div>
+				<div class="quantity-controls">
+					<button type="button" class="quantity-btn" th:attr="onclick='decreaseQuantity(parseInt(this.closest(\'.menu-item-card\').getAttribute(\'data-item-id\')))'">
+						<i class="fa fa-minus"></i>
+					</button>
+					<span class="quantity-display" th:id="'qty-' + ${item.id}">0</span>
+					<button type="button" class="quantity-btn" th:attr="onclick='increaseQuantity(parseInt(this.closest(\'.menu-item-card\').getAttribute(\'data-item-id\')))'" th:disabled="${!item.available}">
+						<i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+
+			<!-- Total Section -->
+			<div class="total-section">
+				<div class="total-row">
+					<span>Subtotal:</span>
+					<span id="subtotal">₹0.00</span>
+				</div>
+				<div class="total-row final">
+					<span>Total:</span>
+					<span id="total">₹0.00</span>
+				</div>
+			</div>
+
+			<div class="navigation-buttons">
+				<button type="button" class="btn btn-outline-secondary" onclick="goToStep(2)">
+					<i class="fa fa-arrow-left"></i> Previous
+				</button>
+				<button type="button" class="btn btn-primary" id="nextToPaymentBtn" onclick="goToStep(4)" disabled>
+					Next: Payment <i class="fa fa-arrow-right"></i>
+				</button>
+			</div>
+		</div>
+
+		<!-- Step 4: Review and Proceed to Payment -->
+		<div class="step-content" id="content-step4">
+			<h3 class="section-title">
+				<i class="fa fa-check-circle"></i> Review Your Preorder
+			</h3>
+			<div class="alert alert-info">
+				<i class="fa fa-info-circle"></i> Please review your preorder details below. You will select your payment method on the next page.
+			</div>
+
+			<!-- Order Summary -->
+			<div class="total-section mt-4">
+				<h5 class="mb-3">Order Summary</h5>
+				<div class="total-row">
+					<span>Selected Table:</span>
+					<span id="summaryTable">-</span>
+				</div>
+				<div class="total-row">
+					<span>Date &amp; Time:</span>
+					<span id="summaryDateTime">-</span>
+				</div>
+				<div class="total-row">
+					<span>Guests:</span>
+					<span id="summaryGuests">-</span>
+				</div>
+				<div class="total-row">
+					<span>Items:</span>
+					<span id="summaryItems">0</span>
+				</div>
+				<div class="total-row final">
+					<span>Total:</span>
+					<span id="summaryTotal">₹0.00</span>
+				</div>
+			</div>
+
+			<div class="navigation-buttons">
+				<button type="button" class="btn btn-outline-secondary" onclick="goToStep(3)">
+					<i class="fa fa-arrow-left"></i> Previous
+				</button>
+				<button type="button" class="btn btn-primary" id="addToCartBtn" onclick="addToCart()" disabled>
+					<i class="fa fa-shopping-cart"></i> Add to Cart &amp; Complete
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+	<script th:src="@{/js/bootstrap.js}"></script>
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		const restaurantId = /*[[${restaurant.id}]]*/ null;
+		const csrfParameterName = /*[[${_csrf != null ? _csrf.parameterName : '_csrf'}]]*/ '_csrf';
+		const csrfToken = /*[[${_csrf != null ? _csrf.token : ''}]]*/ '';
+		/*]]>*/
+	</script>
+	<script>
+		let currentStep = 1;
+		let selectedTableId = null;
+		let selectedTableNumber = null;
+		let selectedTableCapacity = null;
+		let selectedDate = '';
+		let selectedTime = '';
+		let numberOfGuests = 2;
+		let durationHours = 1;
+		// Payment method will be selected on payment page, not here
+		let itemQuantities = {};
+		let itemPrices = {};
+
+		// Set minimum date to today
+		document.addEventListener('DOMContentLoaded', function() {
+			const today = new Date().toISOString().split('T')[0];
+			document.getElementById('reservationDate').setAttribute('min', today);
+			
+			// Initialize item prices from data attributes
+			document.querySelectorAll('.menu-item-card[data-item-id]').forEach(function(card) {
+				const itemId = card.getAttribute('data-item-id');
+				const itemPrice = parseFloat(card.getAttribute('data-item-price')) || 0;
+				if (itemId) {
+					itemPrices[itemId] = itemPrice;
+				}
+			});
+
+			// Initialize from URL parameters if present
+			const urlParams = new URLSearchParams(window.location.search);
+			if (urlParams.get('date')) {
+				selectedDate = urlParams.get('date');
+				document.getElementById('reservationDate').value = selectedDate;
+			}
+			if (urlParams.get('time')) {
+				selectedTime = urlParams.get('time');
+				document.getElementById('reservationTime').value = selectedTime;
+			}
+			if (urlParams.get('guests')) {
+				numberOfGuests = parseInt(urlParams.get('guests'));
+				document.getElementById('numberOfGuests').value = numberOfGuests;
+			}
+		});
+
+
+		function goToStep(step) {
+			// Validate current step before proceeding
+			if (currentStep === 1) {
+				selectedDate = document.getElementById('reservationDate').value;
+				selectedTime = document.getElementById('reservationTime').value;
+				numberOfGuests = parseInt(document.getElementById('numberOfGuests').value);
+				durationHours = parseInt(document.getElementById('durationHours').value);
+				
+				if (!selectedDate || !selectedTime) {
+					alert('Please select both date and time');
+					return;
+				}
+			}
+
+			if (currentStep === 2 && step === 3) {
+				if (!selectedTableId) {
+					alert('Please select a table');
+					return;
+				}
+			}
+
+			if (currentStep === 3 && step === 4) {
+				const hasItems = Object.values(itemQuantities).some(qty => qty > 0);
+				if (!hasItems) {
+					alert('Please select at least one menu item');
+					return;
+				}
+				updateOrderSummary();
+			}
+
+			// Update button states when navigating to step 3
+			if (step === 3) {
+				updateNextToPaymentButton();
+			}
+
+			// Hide current step
+			document.getElementById('content-step' + currentStep).classList.remove('active');
+			document.getElementById('step' + currentStep).classList.remove('active');
+			
+			// Mark current step as completed
+			if (step > currentStep) {
+				document.getElementById('step' + currentStep).classList.add('completed');
+			}
+
+			// Show new step
+			currentStep = step;
+			document.getElementById('content-step' + currentStep).classList.add('active');
+			document.getElementById('step' + currentStep).classList.add('active');
+			
+			// Update button states based on current step
+			if (currentStep === 3) {
+				updateNextToPaymentButton();
+			}
+		}
+
+		function selectTable(tableId, capacity) {
+			selectedTableId = tableId;
+			selectedTableCapacity = capacity;
+			
+			// Update UI
+			document.querySelectorAll('.table-item').forEach(item => {
+				item.classList.remove('selected');
+			});
+			const selectedElement = document.querySelector(`[data-table-id="${tableId}"]`);
+			if (selectedElement) {
+				selectedElement.classList.add('selected');
+				selectedTableNumber = selectedElement.querySelector('.table-number').textContent;
+			}
+
+			// Show selected table info
+			document.getElementById('selectedTableInfo').style.display = 'block';
+			document.getElementById('selectedTableNumber').textContent = 'Table ' + selectedTableNumber;
+			document.getElementById('selectedTableCapacity').textContent = capacity;
+			
+			// Enable next button
+			document.getElementById('nextToMenuBtn').disabled = false;
+		}
+
+		function filterTables(type) {
+			document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
+				btn.classList.remove('active');
+			});
+			document.querySelector(`[data-filter="${type}"]`).classList.add('active');
+
+			document.querySelectorAll('.table-item').forEach(item => {
+				const itemType = item.getAttribute('data-table-type');
+				if (type === 'all' || itemType === type) {
+					item.style.display = 'block';
+					item.style.opacity = '1';
+					item.style.visibility = 'visible';
+				} else {
+					item.style.display = 'none';
+					item.style.opacity = '0';
+					item.style.visibility = 'hidden';
+				}
+			});
+		}
+
+		function filterBySection(section) {
+			document.querySelectorAll('.filter-btn[data-section]').forEach(btn => {
+				btn.classList.remove('active');
+			});
+			document.querySelector(`[data-section="${section}"]`).classList.add('active');
+
+			document.querySelectorAll('.table-item').forEach(item => {
+				const itemSection = item.getAttribute('data-section');
+				if (section === 'all' || itemSection === section) {
+					item.style.display = 'block';
+					item.style.opacity = '1';
+					item.style.visibility = 'visible';
+				} else {
+					item.style.display = 'none';
+					item.style.opacity = '0';
+					item.style.visibility = 'hidden';
+				}
+			});
+		}
+
+		function increaseQuantity(itemId) {
+			if (!itemQuantities[itemId]) {
+				itemQuantities[itemId] = 0;
+			}
+			itemQuantities[itemId]++;
+			updateQuantityDisplay(itemId);
+			updateTotal();
+			updateAddToCartButton();
+			updateNextToPaymentButton();
+		}
+
+		function decreaseQuantity(itemId) {
+			if (!itemQuantities[itemId] || itemQuantities[itemId] <= 0) {
+				return;
+			}
+			itemQuantities[itemId]--;
+			updateQuantityDisplay(itemId);
+			updateTotal();
+			updateAddToCartButton();
+			updateNextToPaymentButton();
+		}
+
+		function updateQuantityDisplay(itemId) {
+			const display = document.getElementById('qty-' + itemId);
+			if (display) {
+				display.textContent = itemQuantities[itemId] || 0;
+			}
+		}
+
+		function updateTotal() {
+			let subtotal = 0;
+			for (let itemId in itemQuantities) {
+				if (itemQuantities[itemId] > 0 && itemPrices[itemId]) {
+					subtotal += itemPrices[itemId] * itemQuantities[itemId];
+				}
+			}
+			
+			document.getElementById('subtotal').textContent = '₹' + subtotal.toFixed(2);
+			document.getElementById('total').textContent = '₹' + subtotal.toFixed(2);
+		}
+
+		function updateOrderSummary() {
+			document.getElementById('summaryTable').textContent = selectedTableNumber ? 'Table ' + selectedTableNumber : '-';
+			document.getElementById('summaryDateTime').textContent = selectedDate && selectedTime ? 
+				new Date(selectedDate + 'T' + selectedTime).toLocaleString() : '-';
+			document.getElementById('summaryGuests').textContent = numberOfGuests;
+			
+			const itemCount = Object.values(itemQuantities).reduce((sum, qty) => sum + (qty > 0 ? 1 : 0), 0);
+			document.getElementById('summaryItems').textContent = itemCount;
+			
+			let total = 0;
+			for (let itemId in itemQuantities) {
+				if (itemQuantities[itemId] > 0 && itemPrices[itemId]) {
+					total += itemPrices[itemId] * itemQuantities[itemId];
+				}
+			}
+			document.getElementById('summaryTotal').textContent = '₹' + total.toFixed(2);
+		}
+
+		// Payment method selection removed - will be selected on payment page
+
+		function updateAddToCartButton() {
+			const hasItems = Object.values(itemQuantities).some(qty => qty > 0);
+			const btn = document.getElementById('addToCartBtn');
+			if (hasItems && selectedTableId && selectedDate && selectedTime) {
+				btn.disabled = false;
+			} else {
+				btn.disabled = true;
+			}
+		}
+
+		function updateNextToPaymentButton() {
+			const hasItems = Object.values(itemQuantities).some(qty => qty > 0);
+			const btn = document.getElementById('nextToPaymentBtn');
+			if (hasItems) {
+				btn.disabled = false;
+			} else {
+				btn.disabled = true;
+			}
+		}
+
+		function addToCart() {
+			if (!selectedTableId) {
+				alert('Please select a table');
+				return;
+			}
+
+			if (!selectedDate || !selectedTime) {
+				alert('Please select date and time');
+				return;
+			}
+
+			const items = [];
+			for (let itemId in itemQuantities) {
+				if (itemQuantities.hasOwnProperty(itemId) && itemQuantities[itemId] > 0) {
+					const menuItemId = parseInt(itemId);
+					const quantity = parseInt(itemQuantities[itemId]);
+					if (!isNaN(menuItemId) && !isNaN(quantity) && quantity > 0) {
+						items.push({
+							menuItemId: menuItemId,
+							quantity: quantity
+						});
+					}
+				}
+			}
+
+			if (items.length === 0) {
+				alert('Please select at least one item');
+				return;
+			}
+			
+			console.log('Items to submit:', items); // Debug log
+
+			// Create form and submit
+			const form = document.createElement('form');
+			form.method = 'POST';
+			form.action = '/customer/preorder/add-to-cart';
+			form.enctype = 'application/x-www-form-urlencoded';
+			
+			// Add CSRF token
+			const csrfInput = document.createElement('input');
+			csrfInput.type = 'hidden';
+			csrfInput.name = csrfParameterName;
+			csrfInput.value = csrfToken;
+			form.appendChild(csrfInput);
+
+			// Add restaurant ID
+			const restaurantInput = document.createElement('input');
+			restaurantInput.type = 'hidden';
+			restaurantInput.name = 'restaurantId';
+			restaurantInput.value = restaurantId;
+			form.appendChild(restaurantInput);
+
+			// Add table ID
+			const tableInput = document.createElement('input');
+			tableInput.type = 'hidden';
+			tableInput.name = 'tableId';
+			tableInput.value = selectedTableId;
+			form.appendChild(tableInput);
+
+			// Add reservation details
+			const dateInput = document.createElement('input');
+			dateInput.type = 'hidden';
+			dateInput.name = 'reservationDate';
+			dateInput.value = selectedDate;
+			form.appendChild(dateInput);
+
+			const timeInput = document.createElement('input');
+			timeInput.type = 'hidden';
+			timeInput.name = 'reservationTime';
+			timeInput.value = selectedTime;
+			form.appendChild(timeInput);
+
+			const durationInput = document.createElement('input');
+			durationInput.type = 'hidden';
+			durationInput.name = 'durationMinutes';
+			durationInput.value = durationHours * 60;
+			form.appendChild(durationInput);
+
+			const guestsInput = document.createElement('input');
+			guestsInput.type = 'hidden';
+			guestsInput.name = 'numberOfGuests';
+			guestsInput.value = numberOfGuests;
+			form.appendChild(guestsInput);
+
+			// Add payment method
+			const paymentInput = document.createElement('input');
+			paymentInput.type = 'hidden';
+			paymentInput.name = 'paymentMethod';
+			paymentInput.value = 'ONLINE'; // Default, will be selected on payment page
+			form.appendChild(paymentInput);
+
+			// Add items as arrays - Spring can bind arrays from @RequestParam
+			items.forEach((item) => {
+				const itemIdInput = document.createElement('input');
+				itemIdInput.type = 'hidden';
+				itemIdInput.name = 'itemIds';
+				itemIdInput.value = item.menuItemId.toString();
+				form.appendChild(itemIdInput);
+
+				const qtyInput = document.createElement('input');
+				qtyInput.type = 'hidden';
+				qtyInput.name = 'quantities';
+				qtyInput.value = item.quantity.toString();
+				form.appendChild(qtyInput);
+			});
+			
+			console.log('Form inputs added. Total items:', items.length); // Debug log
+
+			document.body.appendChild(form);
+			form.submit();
+		}
+	</script>
+</body>
+</html>

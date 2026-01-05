@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Create Donation</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<style>
+		:root {
+			--primary-color: #fc8019;
+			--primary-dark: #e66a00;
+			--secondary-color: #e66a00;
+			--text-dark: #333;
+			--text-light: #666;
+			--bg-light: #fffaf3;
+			--white: #fff;
+			--shadow: rgba(0, 0, 0, 0.1);
+		}
+
+		* {
+			font-family: 'Poppins', sans-serif;
+		}
+
+		body {
+			background-color: var(--bg-light);
+		}
+
+		.form-container {
+			background: var(--white);
+			border-radius: 15px;
+			padding: 40px;
+			box-shadow: 0 4px 20px var(--shadow);
+			max-width: 600px;
+			margin: 40px auto;
+		}
+
+		.form-container h3 {
+			font-size: 28px;
+			font-weight: 700;
+			color: var(--text-dark);
+			margin-bottom: 30px;
+		}
+
+		.form-label {
+			font-weight: 600;
+			color: var(--text-dark);
+			margin-bottom: 8px;
+		}
+
+		.form-control {
+			border-radius: 10px;
+			border: 2px solid #e0e0e0;
+			padding: 12px 15px;
+			transition: all 0.3s ease;
+		}
+
+		.form-control:focus {
+			border-color: var(--primary-color);
+			box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+		}
+
+		.btn-primary {
+			background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+			border: none;
+			border-radius: 25px;
+			padding: 12px 30px;
+			font-weight: 600;
+			transition: all 0.3s ease;
+		}
+
+		.btn-primary:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+		}
+
+		.btn-secondary {
+			border-radius: 25px;
+			padding: 12px 30px;
+			font-weight: 500;
+		}
+
+		.alert {
+			border-radius: 10px;
+		}
+		
+		.navbar-custom {
+			background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+			padding: 15px 0;
+			box-shadow: 0 4px 20px rgba(220, 53, 69, 0.3);
+		}
+		.navbar-custom .navbar-brand {
+			color: #fff;
+			font-weight: 700;
+			font-size: 24px;
+			letter-spacing: 1px;
+		}
+		.navbar-custom .nav-link {
+			color: #fff;
+			font-weight: 500;
+			padding: 8px 16px;
+			border-radius: 25px;
+			transition: all 0.3s ease;
+		}
+		.navbar-custom .nav-link:hover {
+			background: rgba(255, 255, 255, 0.2);
+			transform: translateY(-2px);
+		}
+	</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-custom">
+	<div class="container">
+		<a class="navbar-brand" th:href="@{/owner/dashboard}">Tummy Go!</a>
+		<div class="ml-auto d-flex align-items-center">
+			<a class="nav-link" th:href="@{/owner/dashboard}">Dashboard</a>
+			<a class="nav-link" th:href="@{/logout}">Logout</a>
+		</div>
+	</div>
+</nav>
+
+<div class="container">
+	<div class="form-container">
+		<h3><i class="fa fa-gift"></i> Create Donation</h3>
+		<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+		
+		<form th:action="@{|/owner/restaurants/${restaurant.id}/donations|}" th:object="${donationForm}" method="post">
+			<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+			
+			<div class="mb-4">
+				<label class="form-label">Product Name *</label>
+				<input type="text" class="form-control" th:field="*{foodName}" placeholder="Enter food/product name" required>
+				<div class="text-danger" th:if="${#fields.hasErrors('foodName')}" th:errors="*{foodName}"></div>
+			</div>
+			
+			<div class="mb-4">
+				<label class="form-label">Quantity *</label>
+				<input type="number" min="1" class="form-control" th:field="*{quantity}" placeholder="Enter quantity" required>
+				<div class="text-danger" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></div>
+			</div>
+			
+			<div class="mb-4">
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" th:field="*{inGoodCondition}" id="condition" checked>
+					<label class="form-check-label" for="condition" style="font-weight: 500;">
+						Food is in good condition (leftover food suitable for use)
+					</label>
+				</div>
+			</div>
+			
+			<div class="d-flex gap-2">
+				<button class="btn btn-primary" type="submit">
+					<i class="fa fa-check"></i> Donate
+				</button>
+				<a class="btn btn-secondary" th:href="@{|/owner/restaurants/${restaurant.id}/donations|}">Cancel</a>
+			</div>
+		</form>
+	</div>
+</div>
+</body>
+</html>

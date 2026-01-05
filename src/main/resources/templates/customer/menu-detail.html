@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title th:text="${menu.title} + ' - Menu'">Menu</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+		rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Poppins', sans-serif;
+			background-color: #fffaf3;
+			color: #333;
+		}
+
+		.navbar-custom {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			padding: 15px 0;
+			box-shadow: 0 4px 20px rgba(220, 53, 69, 0.3);
+		}
+
+		.navbar-custom .navbar-brand {
+			color: white;
+			font-weight: 700;
+			font-size: 24px;
+		}
+
+		.navbar-custom .nav-link {
+			color: white;
+			font-weight: 500;
+			padding: 8px 16px;
+			border-radius: 20px;
+			transition: all 0.3s ease;
+		}
+
+		.navbar-custom .nav-link:hover {
+			background: rgba(255, 255, 255, 0.2);
+		}
+
+		.menu-header {
+			background: white;
+			padding: 30px;
+			border-radius: 20px;
+			box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+			margin-bottom: 30px;
+		}
+
+		.menu-header h3 {
+			font-size: 2rem;
+			font-weight: 700;
+			color: #222;
+			margin-bottom: 10px;
+		}
+
+		.menu-header p {
+			color: #666;
+			font-size: 16px;
+			line-height: 1.6;
+		}
+
+		.item-card {
+			background: white;
+			border: 1px solid var(--border-color);
+			border-radius: 16px;
+			padding: 0;
+			margin-bottom: 24px;
+			box-shadow: var(--shadow-md);
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+			min-height: 450px;
+		}
+
+		.item-card:hover {
+			transform: translateY(-8px);
+			box-shadow: var(--shadow-lg);
+			border-color: var(--primary-color);
+		}
+
+		.item-card img {
+			width: 100%;
+			height: 220px;
+			object-fit: cover;
+		}
+
+		.item-card-body {
+			padding: 24px;
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			min-height: 230px;
+		}
+
+		.item-name {
+			font-size: 1.3rem;
+			font-weight: 600;
+			color: #222;
+			margin-bottom: 8px;
+		}
+
+		.item-description {
+			color: #666;
+			font-size: 14px;
+			margin-bottom: 12px;
+			line-height: 1.5;
+		}
+
+		.item-price {
+			font-size: 24px;
+			font-weight: 700;
+			color: #fc8019;
+		}
+
+		.available-badge {
+			display: inline-block;
+			padding: 6px 12px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+		}
+
+		.available-badge.yes {
+			background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+			color: white;
+		}
+
+		.available-badge.no {
+			background-color: #fc8019;
+			color: white;
+		}
+
+		.veg-badge {
+			display: inline-block;
+			padding: 4px 10px;
+			border-radius: 15px;
+			font-size: 11px;
+			font-weight: 600;
+			margin-left: 8px;
+		}
+
+		.veg-badge.veg {
+			background: #28a745;
+			color: white;
+		}
+
+		.veg-badge.nonveg {
+			background: #fc8019;
+			color: white;
+		}
+
+		.item-tags .tag-chip {
+			display: inline-block;
+			padding: 5px 12px;
+			margin: 5px 5px 0 0;
+			background: #fff4e6;
+			border: 1px solid #ffd5a1;
+			border-radius: 15px;
+			font-size: 12px;
+			color: #fc8019;
+			font-weight: 500;
+		}
+
+		.btn-primary {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			border: none;
+			border-radius: 25px;
+			padding: 10px 20px;
+			font-weight: 600;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+		}
+
+		.btn-primary:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+		}
+
+		.btn-primary:disabled {
+			opacity: 0.6;
+			cursor: not-allowed;
+		}
+
+		.btn-outline-secondary {
+			border: 2px solid #666;
+			color: #666;
+			border-radius: 25px;
+			padding: 10px 20px;
+			font-weight: 500;
+			transition: all 0.3s ease;
+		}
+
+		.btn-outline-secondary:hover {
+			background: #666;
+			color: white;
+			transform: translateY(-2px);
+		}
+
+		.section-title {
+			font-size: 28px;
+			font-weight: 700;
+			color: #222;
+			margin-bottom: 25px;
+			position: relative;
+			padding-bottom: 10px;
+		}
+
+		.section-title::after {
+			content: '';
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			width: 60px;
+			height: 4px;
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			border-radius: 2px;
+		}
+
+		body.cafe-mode .menu-header {
+			background: var(--card-bg) !important;
+			border: 1px solid rgba(255, 255, 255, 0.15);
+		}
+
+		body.cafe-mode .item-card {
+			background: var(--card-bg) !important;
+			border: 1px solid rgba(255, 255, 255, 0.15);
+		}
+	</style>
+</head>
+
+<body th:classappend="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE} ? 'cafe-mode' : ''">
+	<!-- Navigation -->
+	<nav class="navbar navbar-expand-lg navbar-custom">
+		<div class="container">
+			<a class="navbar-brand" th:href="@{/customer/restaurants}">Tummy Go!</a>
+			<div class="ml-auto d-flex align-items-center">
+				<a class="nav-link d-flex align-items-center" th:href="@{/customer/cart}">
+					<i class="fa fa-shopping-cart"></i>
+					<span class="ml-1">Cart</span>
+					<span class="badge badge-light ml-2" th:text="${cartItemCount}">0</span>
+				</a>
+				<span sec:authorize="isAuthenticated()" class="text-white mr-3">
+					Welcome, <span sec:authentication="name"></span>
+				</span>
+				<a sec:authorize="isAuthenticated()" class="nav-link" th:href="@{/logout}">Logout</a>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container py-4">
+		<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+		<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+		<!-- Menu Header -->
+		<div class="menu-header">
+			<h3 class="mb-1"
+				th:text="${menu.chefProfile != null && menu.chefProfile.chef != null ? menu.chefProfile.chef.fullName : menu.title}">
+				Menu Title</h3>
+			<p class="text-muted mb-2" th:if="${menu.chefProfile != null && menu.chefProfile.chef != null}"
+				th:text="${menu.title}">Menu Name</p>
+			<p class="text-muted mb-0" th:text="${menu.description ?: 'Delicious food awaits!'}">Menu Description</p>
+		</div>
+
+		<!-- Multi-restaurant info banner -->
+		<div class="alert alert-info"
+			style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: none; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+			<i class="fa fa-info-circle"></i>
+			<strong>Multi-Restaurant Ordering:</strong> You can add items from different restaurants to your cart and
+			order them all together!
+			Each restaurant will receive a separate order.
+		</div>
+
+		<!-- Items Count -->
+		<div class="mb-4">
+			<h2 class="section-title">Menu Items
+				<span class="badge badge-secondary" th:text="${#lists.size(items)}">0</span>
+			</h2>
+		</div>
+
+		<!-- Items List -->
+		<div th:if="${#lists.isEmpty(items)}" class="alert alert-info">
+			<i class="fa fa-info-circle"></i>
+			<span> No items available in this menu yet. Please check back later.</span>
+		</div>
+
+		<div th:if="${!#lists.isEmpty(items)}">
+			<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;">
+				<div th:each="item : ${items}">
+					<div class="item-card">
+						<div style="width: 100%; height: 220px; overflow: hidden; background: #f5f5f5;">
+							<img th:src="${item.imageUrl != null and !item.imageUrl.isEmpty() ? item.imageUrl : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400'}"
+								th:alt="${item.name}"
+								style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; display: block;"
+								onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400'">
+						</div>
+						<div class="item-card-body">
+							<div class="d-flex align-items-center justify-content-between mb-2">
+								<div class="item-name" th:text="${item.name}"
+									style="font-size: 20px; font-weight: 700; color: var(--text-dark); line-height: 1.3; min-height: 52px; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1;">
+									Item Name</div>
+							</div>
+							<div class="item-description" th:text="${item.description ?: 'No description available'}"
+								style="color: var(--text-light); font-size: 14px; margin-bottom: 12px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+								Description</div>
+							<div class="item-meta small text-muted mb-2"
+								th:if="${item.category != null and (item.menu == null or item.menu.restaurant == null or !item.menu.restaurant.isCafeLounge)}">
+								<i class="fa fa-tag"></i> <span th:text="${item.category}">Category</span>
+							</div>
+							<div class="item-tags mb-3"
+								th:if="${item.tags != null and !item.tags.isEmpty() and (item.menu == null or item.menu.restaurant == null or !item.menu.restaurant.isCafeLounge)}">
+								<span class="tag-chip" th:each="tag : ${item.tags}"
+									th:text="${availableTags[tag] != null ? availableTags[tag] : tag}">Breakfast</span>
+							</div>
+							<div style="margin-top: auto;">
+								<div class="d-flex justify-content-between align-items-center mb-3">
+									<div>
+										<span class="item-price"
+											th:text="'₹' + ${#numbers.formatDecimal(item.price,1,2)}"
+											style="font-size: 24px; font-weight: 700; color: var(--primary-color);">₹0.00</span>
+									</div>
+									<div>
+										<span class="available-badge" th:classappend="${item.available} ? 'yes' : 'no'"
+											th:text="${item.available} ? 'Available' : 'Unavailable'">Available</span>
+									</div>
+								</div>
+								<div class="d-flex justify-content-end align-items-center">
+									<sec:authorize access="isAuthenticated()">
+										<form class="d-inline" method="post" th:action="@{/customer/cart/add}">
+											<input type="hidden" name="menuItemId" th:value="${item.id}">
+											<input type="hidden" name="quantity" value="1">
+											<input type="hidden" name="returnUrl"
+												th:value="${#httpServletRequest != null ? #httpServletRequest.requestURI : '/customer/menus/' + menu.id}">
+											<input type="hidden" name="returnQuery"
+												th:if="${#httpServletRequest != null and #httpServletRequest.queryString != null}"
+												th:value="${#httpServletRequest.queryString}">
+											<input type="hidden" th:if="${_csrf != null}"
+												th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+											<button type="submit" class="btn btn-sm btn-primary"
+												th:disabled="${!item.available}">
+												<i class="fa fa-shopping-cart"></i> Add to Cart
+											</button>
+										</form>
+									</sec:authorize>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Back Button -->
+			<div class="mt-4">
+				<a th:href="@{/customer/restaurants}" class="btn btn-outline-secondary">
+					<i class="fa fa-arrow-left"></i> Back to Restaurants
+				</a>
+			</div>
+		</div>
+
+		<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+		<script th:src="@{/js/bootstrap.js}"></script>
+</body>
+
+</html>

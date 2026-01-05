@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Available Donations</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<style>
+		body { background-color: #f8f9fb; }
+		
+		body.cafe-mode {
+			--primary-color: #d28b4b;
+			--primary-dark: #8b4513;
+			--text-dark: #f5e6d3;
+			--text-light: #d4b896;
+			--bg-light: #3e2723;
+			--card-bg: rgba(79, 55, 45, 0.7);
+			background: linear-gradient(180deg, #2c1810 0%, #3e2723 50%, #5d4037 100%) fixed;
+			color: var(--text-dark);
+		}
+
+		body.cafe-mode .donation-card {
+			background: var(--card-bg) !important;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		.donation-card { background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+	</style>
+</head>
+<body th:classappend="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE} ? 'cafe-mode' : ''">
+<div class="container py-4">
+	<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+	<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+	<h2 class="mb-4">Available Donations</h2>
+
+	<div th:if="${#lists.isEmpty(donations)}" class="alert alert-info">No donations available at the moment</div>
+
+	<div th:each="donation : ${donations}" class="donation-card">
+		<div class="d-flex justify-content-between align-items-start">
+			<div>
+				<h5 th:text="${donation.foodName}">Food Name</h5>
+				<p class="mb-1"><strong>Restaurant:</strong> <span th:text="${donation.restaurant.name}">Restaurant</span></p>
+				<p class="mb-1"><strong>Quantity:</strong> <span th:text="${donation.quantity}">1</span></p>
+				<p class="mb-1" th:if="${donation.description}"><strong>Description:</strong> <span th:text="${donation.description}">Description</span></p>
+				<p class="mb-1">
+					<strong>Condition:</strong> 
+					<span class="badge badge-success" th:if="${donation.inGoodCondition}">Good Condition</span>
+					<span class="badge badge-warning" th:if="${!donation.inGoodCondition}">Fair Condition</span>
+				</p>
+				<p class="mb-0 text-muted"><small th:text="${#temporals.format(donation.createdAt, 'MMM dd, yyyy HH:mm')}">Date</small></p>
+			</div>
+			<div>
+				<form th:action="@{|/customer/donations/${donation.id}/claim|}" method="post" onsubmit="return confirm('Claim this donation?')">
+					<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+					<button type="submit" class="btn btn-primary">Claim</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>
+

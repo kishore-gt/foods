@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rider Dashboard - Tummy Go!</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #fc8019;
+            --secondary-color: #e66a00;
+            --success-color: #28a745;
+            --danger-color: #fc8019;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --white: #ffffff;
+            --red-theme: #fc8019;
+            --red-dark: #e66a00;
+            --red-light: #f5c6cb;
+        }
+
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+
+        .navbar-rider {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            padding: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .navbar-rider .navbar-brand {
+            color: white;
+            font-weight: 700;
+            font-size: 22px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status-online {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .status-offline {
+            background: #6c757d;
+            color: white;
+        }
+
+        .stats-card {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .stats-card .icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .stats-card.earnings .icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stats-card.orders .icon {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .stats-card.active .icon {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .stats-card h3 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .stats-card p {
+            color: #6c757d;
+            margin: 5px 0 0 0;
+            font-size: 14px;
+        }
+
+        .order-card {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .order-card:hover {
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+            transform: translateX(5px);
+        }
+
+        .order-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-offered {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-assigned {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-accepted {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-en_route {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-picked_up {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .btn-action {
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-accept {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-accept:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-decline {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-decline:hover {
+            background: #e66a00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+        }
+
+        .btn-toggle {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--white);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .empty-state i {
+            font-size: 80px;
+            color: #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 20px;
+        }
+
+        .notification-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 9999;
+            min-width: 300px;
+            max-width: 400px;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification-popup h5 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .notification-popup .btn-group {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Location Modal for Going Online -->
+    <div id="locationModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+                <div class="modal-header" style="background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%); color: white; border-radius: 15px 15px 0 0;">
+                    <h5 class="modal-title"><i class="fa fa-map-marker"></i> Share Your Location</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center" style="padding: 30px;">
+                    <div id="locationStatus" style="margin-bottom: 20px;">
+                        <i class="fa fa-spinner fa-spin fa-3x" style="color: #fc8019;"></i>
+                        <p class="mt-3">Getting your location...</p>
+                    </div>
+                    <div id="locationError" style="display: none; color: #fc8019;">
+                        <i class="fa fa-exclamation-triangle fa-2x"></i>
+                        <p class="mt-2">Unable to get your location. Please enable location access.</p>
+                    </div>
+                    <div id="locationSuccess" style="display: none;">
+                        <i class="fa fa-check-circle fa-3x" style="color: #28a745;"></i>
+                        <p class="mt-2">Location captured successfully!</p>
+                        <small class="text-muted" id="locationCoords"></small>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: none; padding: 20px 30px;">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <form method="post" th:action="@{/rider/toggle-online}" id="goOnlineForm" style="display: none;">
+                        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <input type="hidden" name="latitude" id="latitudeInput">
+                        <input type="hidden" name="longitude" id="longitudeInput">
+                        <button type="submit" class="btn" style="background: #fc8019; color: white; border: none;">
+                            <i class="fa fa-check"></i> Go Online
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Popup (hidden by default) -->
+    <div id="orderNotification" class="notification-popup" style="display: none; background: #fc8019; border-left: 5px solid #e66a00;">
+        <h5 style="color: white;"><i class="fa fa-bell"></i> New Order Offer!</h5>
+        <p id="notificationText" class="mb-2" style="color: white;">You have a new order offer to deliver.</p>
+        <div class="btn-group w-100">
+            <button onclick="acceptNotificationOrder()" class="btn btn-success btn-sm" style="flex: 1;">
+                <i class="fa fa-check"></i> Accept
+            </button>
+            <button onclick="viewNotificationOrder()" class="btn btn-light btn-sm" style="flex: 1;">
+                <i class="fa fa-eye"></i> View
+            </button>
+            <button onclick="closeNotification()" class="btn btn-secondary btn-sm" style="flex: 1;">
+                <i class="fa fa-times"></i> Close
+            </button>
+        </div>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-rider">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fa fa-motorcycle"></i> Rider Dashboard
+            </a>
+            <div class="ml-auto d-flex align-items-center gap-3">
+                <span class="status-badge" th:classappend="${isOnline} ? 'status-online' : 'status-offline'">
+                    <i class="fa" th:classappend="${isOnline} ? 'fa-circle' : 'fa-circle-o'"></i>
+                    <span th:text="${isOnline} ? 'ONLINE' : 'OFFLINE'">OFFLINE</span>
+                </span>
+                <button type="button" class="btn-toggle" th:onclick="${isOnline} ? 'goOffline()' : 'showLocationModal()'">
+                    <i class="fa" th:classappend="${isOnline} ? 'fa-power-off' : 'fa-play'"></i>
+                    <span th:text="${isOnline} ? 'Go Offline' : 'Go Online'">Go Online</span>
+                </button>
+                <a class="nav-link text-white" th:href="@{/rider/profile}">
+                    <i class="fa fa-user"></i> Profile
+                </a>
+                <a class="nav-link text-white" th:href="@{/logout}">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div th:if="${infoMessage}" class="alert alert-info alert-dismissible fade show" role="alert">
+            <span th:text="${infoMessage}"></span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="stats-card earnings">
+                    <div class="icon">
+                        <i class="fa fa-rupee"></i>
+                    </div>
+                    <h3>₹<span th:text="${#numbers.formatDecimal(todayEarnings, 0, 0)}">0</span></h3>
+                    <p>Today's Earnings</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card orders">
+                    <div class="icon">
+                        <i class="fa fa-check-circle"></i>
+                    </div>
+                    <h3 th:text="${totalCompleted}">0</h3>
+                    <p>Total Deliveries</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card active">
+                    <div class="icon">
+                        <i class="fa fa-bicycle"></i>
+                    </div>
+                    <h3 th:text="${#lists.size(activeOrders)}">0</h3>
+                    <p>Active Orders</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Orders -->
+        <div class="row">
+            <div class="col-12">
+                <h2 class="section-title">
+                    <i class="fa fa-list"></i> Active Orders
+                </h2>
+                
+                <div th:if="${#lists.isEmpty(activeOrders)}" class="empty-state">
+                    <i class="fa fa-inbox"></i>
+                    <h4>No Active Orders</h4>
+                    <p class="text-muted">You don't have any active orders at the moment.</p>
+                </div>
+
+                <div th:if="${!#lists.isEmpty(activeOrders)}">
+                    <div th:each="order : ${activeOrders}" class="order-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div style="flex: 1;">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <h5 class="mb-0" th:text="'Order #' + ${order.id}">Order #123</h5>
+                                    <span class="order-status" 
+                                          th:classappend="'status-' + ${#strings.toLowerCase(#strings.replace(order.status, ' ', '_'))}"
+                                          th:text="${order.status}">ASSIGNED</span>
+                                </div>
+                                <p class="mb-1" th:if="${order.restaurant != null}">
+                                    <i class="fa fa-cutlery"></i> 
+                                    <strong th:text="${order.restaurant.name}">Restaurant Name</strong>
+                                </p>
+                                <p class="mb-1" th:if="${order.multiOrder != null and order.multiOrder.deliveryAddress != null}">
+                                    <i class="fa fa-map-marker"></i> 
+                                    <span th:text="${order.multiOrder.deliveryAddress}">Delivery Address</span>
+                                </p>
+                                <p class="mb-0 text-muted">
+                                    <i class="fa fa-rupee"></i> 
+                                    <span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)}">0.00</span>
+                                </p>
+                            </div>
+                            <div class="ml-3">
+                                <!-- Show Accept/Reject buttons for OFFERED orders (pending offers) -->
+                                <div th:if="${order.status == 'OFFERED' and orderOfferMap != null and orderOfferMap.containsKey(order.id)}" class="d-flex gap-2">
+                                    <form method="post" th:action="@{'/rider/offers/' + ${orderOfferMap.get(order.id)} + '/accept'}" class="d-inline">
+                                        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                        <button type="submit" class="btn-action btn-accept">
+                                            <i class="fa fa-check"></i> Accept
+                                        </button>
+                                    </form>
+                                    <form method="post" th:action="@{'/rider/offers/' + ${orderOfferMap.get(order.id)} + '/reject'}" class="d-inline">
+                                        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                        <button type="submit" class="btn-action btn-decline">
+                                            <i class="fa fa-times"></i> Reject
+                                        </button>
+                                    </form>
+                                </div>
+                                <!-- Show Accept/Reject buttons for ASSIGNED orders (legacy support) -->
+                                <div th:if="${order.status == 'ASSIGNED' and (orderOfferMap == null or !orderOfferMap.containsKey(order.id))}" class="d-flex gap-2">
+                                    <form method="post" th:action="@{'/rider/orders/' + ${order.id} + '/accept'}" class="d-inline">
+                                        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                        <button type="submit" class="btn-action btn-accept">
+                                            <i class="fa fa-check"></i> Accept
+                                        </button>
+                                    </form>
+                                    <form method="post" th:action="@{'/rider/orders/' + ${order.id} + '/decline'}" class="d-inline">
+                                        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                        <button type="submit" class="btn-action btn-decline">
+                                            <i class="fa fa-times"></i> Decline
+                                        </button>
+                                    </form>
+                                </div>
+                                <!-- Show View Details for accepted/active orders -->
+                                <a th:if="${order.status != 'OFFERED' and order.status != 'ASSIGNED'}" 
+                                   th:href="@{'/rider/orders/' + ${order.id}}"
+                                   class="btn btn-primary btn-action">
+                                    <i class="fa fa-eye"></i> View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fa fa-bolt"></i> Quick Actions
+                        </h5>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a th:href="@{/rider/orders}" class="btn btn-outline-primary">
+                                <i class="fa fa-list"></i> All Orders
+                            </a>
+                            <a th:href="@{/rider/earnings}" class="btn btn-outline-success">
+                                <i class="fa fa-rupee"></i> Earnings
+                            </a>
+                            <a th:href="@{/rider/profile}" class="btn btn-outline-info">
+                                <i class="fa fa-user"></i> Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <meta th:if="${_csrf != null}" name="_csrf" th:content="${_csrf.token}">
+    <script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+    <script th:src="@{/js/bootstrap.js}"></script>
+    <script>
+        // GPS Location Tracking for Rider
+        let locationUpdateInterval;
+        const riderId = /*[[${rider.id}]]*/ null;
+        const isOnline = /*[[${isOnline}]]*/ false;
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
+
+        function updateRiderLocation() {
+            if (navigator.geolocation && riderId && isOnline) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        
+                        // Send location update to server
+                        fetch('/api/riders/' + riderId + '/location', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken
+                            },
+                            body: JSON.stringify({
+                                lat: lat,
+                                lon: lon
+                            })
+                        }).then(response => {
+                            if (response.ok) {
+                                console.log('Location updated:', lat, lon);
+                            }
+                        }).catch(err => console.error('Location update failed:', err));
+                    },
+                    function(error) {
+                        console.error('Geolocation error:', error);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 0
+                    }
+                );
+            }
+        }
+
+        // Start location tracking when online
+        document.addEventListener('DOMContentLoaded', function() {
+            if (isOnline && riderId) {
+                // Update location immediately
+                updateRiderLocation();
+                // Update every 30 seconds while online
+                locationUpdateInterval = setInterval(updateRiderLocation, 30000);
+            }
+        });
+
+        // Stop tracking when going offline
+        const toggleForm = document.querySelector('form[action*="toggle-online"]');
+        if (toggleForm) {
+            toggleForm.addEventListener('submit', function() {
+                if (locationUpdateInterval) {
+                    clearInterval(locationUpdateInterval);
+                    locationUpdateInterval = null;
+                }
+            });
+        }
+
+        // WebSocket connection for real-time order notifications
+        let stompClient = null;
+        let notificationOrderId = null;
+
+        function connectWebSocket() {
+            const socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+            
+            stompClient.connect({}, function(frame) {
+                console.log('Connected: ' + frame);
+                
+                // Subscribe to rider-specific topic
+                if (riderId) {
+                    stompClient.subscribe('/topic/rider.' + riderId, function(message) {
+                        const data = JSON.parse(message.body);
+                        handleRiderNotification(data);
+                    });
+                }
+            });
+        }
+
+        function handleRiderNotification(data) {
+            if (data.event === 'ORDER_OFFER' || data.event === 'ORDER_STATUS_UPDATE' || data.event === 'ORDER_ASSIGNED') {
+                const payload = data.payload;
+                if (payload && payload.subOrderId) {
+                    // Show notification popup for offers
+                    if (data.event === 'ORDER_OFFER' || payload.status === 'OFFERED') {
+                        notificationOrderId = payload.offerId || payload.subOrderId;
+                        document.getElementById('notificationText').textContent = 
+                            'New order offer #' + payload.subOrderId + ' - Restaurant: ' + 
+                            (payload.restaurantName || 'Restaurant') + ' - Amount: ₹' + 
+                            (payload.totalAmount || '0');
+                        document.getElementById('orderNotification').style.display = 'block';
+                        
+                        // Auto-refresh dashboard after 2 seconds
+                        setTimeout(function() {
+                            location.reload();
+                        }, 2000);
+                    } else if (payload.status === 'ASSIGNED') {
+                        notificationOrderId = payload.subOrderId;
+                        document.getElementById('notificationText').textContent = 
+                            'New order #' + payload.subOrderId + ' has been assigned to you!';
+                        document.getElementById('orderNotification').style.display = 'block';
+                        
+                        setTimeout(function() {
+                            location.reload();
+                        }, 2000);
+                    }
+                }
+            }
+        }
+
+        function acceptNotificationOrder() {
+            if (notificationOrderId) {
+                window.location.href = '/rider/orders/' + notificationOrderId + '/accept';
+            }
+        }
+
+        function viewNotificationOrder() {
+            if (notificationOrderId) {
+                window.location.href = '/rider/orders/' + notificationOrderId;
+            }
+        }
+
+        function closeNotification() {
+            document.getElementById('orderNotification').style.display = 'none';
+        }
+
+        // Connect WebSocket when online
+        if (isOnline && riderId) {
+            // Load SockJS and Stomp libraries
+            const sockjsScript = document.createElement('script');
+            sockjsScript.src = 'https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js';
+            document.head.appendChild(sockjsScript);
+            
+            const stompScript = document.createElement('script');
+            stompScript.src = 'https://cdn.jsdelivr.net/npm/stompjs@2/lib/stomp.min.js';
+            stompScript.onload = function() {
+                connectWebSocket();
+            };
+            document.head.appendChild(stompScript);
+        }
+
+        // Auto-refresh orders every 10 seconds when online
+        if (isOnline) {
+            setInterval(function() {
+                location.reload();
+            }, 10000);
+        }
+
+        // Location Modal Functions
+        function showLocationModal() {
+            $('#locationModal').modal('show');
+            $('#locationStatus').show();
+            $('#locationError').hide();
+            $('#locationSuccess').hide();
+            $('#goOnlineForm').hide();
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        var lat = position.coords.latitude;
+                        var lon = position.coords.longitude;
+                        
+                        $('#latitudeInput').val(lat);
+                        $('#longitudeInput').val(lon);
+                        $('#locationCoords').text('Lat: ' + lat.toFixed(6) + ', Lon: ' + lon.toFixed(6));
+                        
+                        $('#locationStatus').hide();
+                        $('#locationSuccess').show();
+                        $('#goOnlineForm').show();
+                    },
+                    function(error) {
+                        $('#locationStatus').hide();
+                        $('#locationError').show();
+                        console.error('Geolocation error:', error);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                $('#locationStatus').hide();
+                $('#locationError').show();
+            }
+        }
+
+        function goOffline() {
+            if (confirm('Are you sure you want to go offline?')) {
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/rider/toggle-online';
+                var csrf = document.querySelector('input[name*="csrf"]');
+                if (csrf) {
+                    var csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = csrf.name;
+                    csrfInput.value = csrf.value;
+                    form.appendChild(csrfInput);
+                }
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>
+

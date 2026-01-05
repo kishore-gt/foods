@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Tummy Go! - Admin - Edit Restaurant</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		
+		body {
+			font-family: 'Poppins', sans-serif;
+			background-color: #0d1117;
+			color: #e0e0e0;
+			min-height: 100vh;
+		}
+		
+		.navbar-custom {
+			background-color: #161b22;
+			padding: 15px 0;
+			border-bottom: 1px solid #30363d;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+		}
+		.navbar-custom .navbar-brand {
+			color: #fff;
+			font-weight: 700;
+			font-size: 24px;
+			letter-spacing: 1px;
+		}
+		.navbar-custom .nav-link {
+			color: #c9d1d9;
+			font-weight: 500;
+			padding: 8px 16px;
+			border-radius: 25px;
+			transition: all 0.3s ease;
+		}
+		.navbar-custom .nav-link:hover {
+			background: rgba(255, 255, 255, 0.1);
+			color: #fff;
+			transform: translateY(-2px);
+		}
+		
+		.form-card {
+			background: #161b22;
+			border: 1px solid #30363d;
+			border-radius: 15px;
+			padding: 30px;
+			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+		}
+		
+		.form-control, .form-select {
+			background-color: #0d1117;
+			border: 1px solid #30363d;
+			color: #e0e0e0;
+			border-radius: 8px;
+			padding: 10px 15px;
+		}
+		.form-control:focus, .form-select:focus {
+			background-color: #0d1117;
+			border-color: #58a6ff;
+			color: #e0e0e0;
+			box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+		}
+		
+		.form-label {
+			color: #c9d1d9;
+			font-weight: 500;
+			margin-bottom: 8px;
+		}
+		
+		.form-check-input {
+			background-color: #0d1117;
+			border: 1px solid #30363d;
+		}
+		.form-check-input:checked {
+			background-color: #58a6ff;
+			border-color: #58a6ff;
+		}
+		.form-check-label {
+			color: #e0e0e0;
+		}
+		
+		.btn-primary {
+			background: linear-gradient(135deg, #58a6ff 0%, #1f6feb 100%);
+			border: none;
+			border-radius: 25px;
+			padding: 10px 25px;
+			font-weight: 600;
+			color: #fff;
+			transition: all 0.3s ease;
+		}
+		.btn-primary:hover {
+			background: linear-gradient(135deg, #1f6feb 0%, #58a6ff 100%);
+			transform: translateY(-2px);
+			box-shadow: 0 4px 15px rgba(31, 111, 235, 0.4);
+		}
+		
+		.btn-secondary {
+			background: linear-gradient(135deg, #6e7681 0%, #484f58 100%);
+			border: none;
+			border-radius: 25px;
+			padding: 10px 25px;
+			font-weight: 600;
+			color: #fff;
+			transition: all 0.3s ease;
+		}
+		.btn-secondary:hover {
+			background: linear-gradient(135deg, #484f58 0%, #6e7681 100%);
+			transform: translateY(-2px);
+		}
+		
+		.alert {
+			border-radius: 10px;
+			border: 1px solid #30363d;
+		}
+		.alert-danger {
+			background-color: #3d1f1f;
+			border-color: #da3633;
+			color: #f85149;
+		}
+		
+		h2 {
+			color: #fff;
+			font-weight: 700;
+		}
+		
+		.text-muted {
+			color: #8b949e !important;
+		}
+	</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-custom">
+	<div class="container">
+		<a class="navbar-brand" th:href="@{/admin/dashboard}">Tummy Go! - Admin</a>
+		<div class="ml-auto d-flex align-items-center">
+			<a class="nav-link" th:href="@{/admin/dashboard}">Dashboard</a>
+			<a class="nav-link" th:href="@{/admin/users}">Users</a>
+			<a class="nav-link" th:href="@{/admin/restaurants}">Restaurants</a>
+			<a class="nav-link" th:href="@{/admin/orders}">Orders</a>
+			<a class="nav-link" th:href="@{/admin/donations}">Donations</a>
+			<a class="nav-link" th:href="@{/logout}">Logout</a>
+		</div>
+	</div>
+</nav>
+
+<div class="container py-4">
+	<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+	<div class="d-flex justify-content-between align-items-center mb-4">
+		<h2>Edit Restaurant</h2>
+		<a th:href="@{|/admin/restaurants/${restaurant.id}|}" class="btn btn-secondary">Cancel</a>
+	</div>
+
+	<div class="form-card">
+		<form th:action="@{|/admin/restaurants/${restaurant.id}/edit|}" method="post">
+			<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+			
+			<div class="row">
+				<div class="col-md-6 mb-3">
+					<label for="name" class="form-label">Restaurant Name *</label>
+					<input type="text" class="form-control" id="name" name="name" 
+					       th:value="${restaurant.name}" required>
+				</div>
+				
+				<div class="col-md-6 mb-3">
+					<label for="ownerId" class="form-label">Owner *</label>
+					<select class="form-select" id="ownerId" name="ownerId" required>
+						<optgroup label="Restaurant Owners">
+							<option th:each="owner : ${owners}" 
+							        th:value="${owner.id}" 
+							        th:text="${owner.fullName + ' (' + owner.email + ')'}"
+							        th:selected="${restaurant.owner.id == owner.id}"></option>
+						</optgroup>
+						<optgroup label="Cafe Owners">
+							<option th:each="cafeOwner : ${cafeOwners}" 
+							        th:value="${cafeOwner.id}" 
+							        th:text="${cafeOwner.fullName + ' (' + cafeOwner.email + ')'}"
+							        th:selected="${restaurant.owner.id == cafeOwner.id}"></option>
+						</optgroup>
+					</select>
+				</div>
+			</div>
+			
+			<div class="mb-3">
+				<label for="description" class="form-label">Description</label>
+				<textarea class="form-control" id="description" name="description" rows="3"
+				          th:text="${restaurant.description}"></textarea>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-6 mb-3">
+					<label for="address" class="form-label">Address</label>
+					<input type="text" class="form-control" id="address" name="address" 
+					       th:value="${restaurant.address}">
+				</div>
+				
+				<div class="col-md-6 mb-3">
+					<label for="contactNumber" class="form-label">Contact Number</label>
+					<input type="text" class="form-control" id="contactNumber" name="contactNumber" 
+					       th:value="${restaurant.contactNumber}">
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-4 mb-3">
+					<label for="openingTime" class="form-label">Opening Time</label>
+					<input type="text" class="form-control" id="openingTime" name="openingTime" 
+					       th:value="${restaurant.openingTime}" placeholder="HH:MM">
+				</div>
+				
+				<div class="col-md-4 mb-3">
+					<label for="closingTime" class="form-label">Closing Time</label>
+					<input type="text" class="form-control" id="closingTime" name="closingTime" 
+					       th:value="${restaurant.closingTime}" placeholder="HH:MM">
+				</div>
+				
+				<div class="col-md-4 mb-3">
+					<label for="cuisineType" class="form-label">Cuisine Type</label>
+					<input type="text" class="form-control" id="cuisineType" name="cuisineType" 
+					       th:value="${restaurant.cuisineType}" placeholder="e.g., INDIAN, CHINESE, ITALIAN">
+				</div>
+			</div>
+			
+			<div class="mb-3">
+				<label for="imageUrl" class="form-label">Image URL</label>
+				<input type="url" class="form-control" id="imageUrl" name="imageUrl" 
+				       th:value="${restaurant.imageUrl}">
+			</div>
+			
+			<div class="mb-3">
+				<label class="form-label">Restaurant Features</label>
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" id="isPureVeg" name="isPureVeg" 
+					       th:checked="${restaurant.pureVeg}">
+					<label class="form-check-label" for="isPureVeg">Pure Vegetarian</label>
+				</div>
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" id="isCloudKitchen" name="isCloudKitchen" 
+					       th:checked="${restaurant.cloudKitchen}">
+					<label class="form-check-label" for="isCloudKitchen">Cloud Kitchen</label>
+				</div>
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" id="isFamilyRestaurant" name="isFamilyRestaurant" 
+					       th:checked="${restaurant.familyRestaurant}">
+					<label class="form-check-label" for="isFamilyRestaurant">Family Restaurant</label>
+				</div>
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" id="isCafeLounge" name="isCafeLounge" 
+					       th:checked="${restaurant.cafeLounge}">
+					<label class="form-check-label" for="isCafeLounge">Cafe Lounge</label>
+				</div>
+			</div>
+			
+			<div class="mb-3">
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" id="isActive" name="isActive" 
+					       th:checked="${restaurant.active}">
+					<label class="form-check-label" for="isActive">Active (Restaurant is operational)</label>
+				</div>
+			</div>
+			
+			<div class="d-flex gap-2">
+				<button type="submit" class="btn btn-primary">Update Restaurant</button>
+				<a th:href="@{|/admin/restaurants/${restaurant.id}|}" class="btn btn-secondary">Cancel</a>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/bootstrap.js}"></script>
+</body>
+</html>
+

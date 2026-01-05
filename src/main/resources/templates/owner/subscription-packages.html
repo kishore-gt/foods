@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Subscription Packages - Tummy Go!</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+		rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Poppins', sans-serif;
+			background-color: #fffaf3;
+			color: #333;
+		}
+
+		.navbar-custom {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			padding: 15px 0;
+			box-shadow: 0 4px 20px rgba(220, 53, 69, 0.3);
+		}
+
+		.navbar-custom .navbar-brand {
+			color: #fff;
+			font-weight: 700;
+			font-size: 24px;
+			letter-spacing: 1px;
+		}
+
+		.navbar-custom .nav-link {
+			color: #fff;
+			font-weight: 500;
+			padding: 8px 16px;
+			border-radius: 25px;
+			transition: all 0.3s ease;
+		}
+
+		.navbar-custom .nav-link:hover {
+			background: rgba(255, 255, 255, 0.2);
+			transform: translateY(-2px);
+		}
+
+		.package-card {
+			background: #fff;
+			border-radius: 15px;
+			padding: 25px;
+			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+			margin-bottom: 20px;
+			border: 2px solid transparent;
+			transition: all 0.3s ease;
+		}
+
+		.package-card:hover {
+			border-color: #fc8019;
+			box-shadow: 0 8px 25px rgba(252, 128, 25, 0.2);
+		}
+
+		.btn-primary {
+			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+			border: none;
+			border-radius: 50px;
+			padding: 10px 25px;
+			font-weight: 600;
+		}
+
+		.menu-items-list {
+			background: #f8f9fa;
+			border-radius: 10px;
+			padding: 15px;
+			margin-top: 15px;
+		}
+
+		.menu-item-badge {
+			display: inline-block;
+			background: #fff;
+			border: 1px solid #e0e0e0;
+			border-radius: 20px;
+			padding: 5px 12px;
+			margin: 5px 5px 5px 0;
+			font-size: 0.875rem;
+			color: #333;
+		}
+
+		.empty-state {
+			background: #fff;
+			border: 2px dashed #ffd0a3;
+			padding: 40px;
+			border-radius: 15px;
+			text-align: center;
+			color: #fc8019;
+		}
+	</style>
+</head>
+
+<body>
+	<nav class="navbar navbar-expand-lg navbar-custom">
+		<div class="container">
+			<a class="navbar-brand" th:href="@{/owner/dashboard}">Tummy Go!</a>
+			<div class="ml-auto d-flex align-items-center">
+				<a class="nav-link" th:href="@{/owner/dashboard}">Dashboard</a>
+				<a class="nav-link" th:href="@{/logout}">Logout</a>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container py-4">
+		<div class="d-flex justify-content-between align-items-center mb-4">
+			<div>
+				<h2>Subscription Packages</h2>
+				<p class="text-muted mb-0">Restaurant: <strong th:text="${restaurant.name}">Restaurant Name</strong></p>
+			</div>
+			<div class="d-flex">
+				<a class="btn btn-outline-primary mr-2"
+				   th:href="@{|/owner/restaurants/${restaurant.id}/subscription-requests|}">
+					View Requests
+				</a>
+				<a th:href="@{|/owner/restaurants/${restaurant.id}/subscription-packages/new|}" class="btn btn-primary">
+					<i class="fa fa-plus mr-2"></i>Create New Package
+				</a>
+			</div>
+		</div>
+
+		<div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+			<span th:text="${successMessage}"></span>
+			<button type="button" class="close" data-dismiss="alert">&times;</button>
+		</div>
+
+		<div th:if="${packages == null || packages.isEmpty()}" class="empty-state">
+			<i class="fa fa-box-open fa-3x mb-3" style="color: #e66a00;"></i>
+			<p class="mb-3">No subscription packages created yet.</p>
+			<p class="mb-3">Create your first package to offer monthly subscriptions to companies.</p>
+			<a th:href="@{|/owner/restaurants/${restaurant.id}/subscription-packages/new|}" class="btn btn-primary">
+				<i class="fa fa-plus mr-2"></i>Create Package
+			</a>
+		</div>
+
+		<div class="row" th:if="${packages != null && !packages.isEmpty()}">
+			<div class="col-md-6" th:each="pkg : ${packages}">
+				<div class="package-card">
+					<div class="d-flex justify-content-between align-items-start mb-3">
+						<div>
+							<h4 th:text="${pkg.name}">Package Name</h4>
+							<span class="badge" th:classappend="${pkg.isActive} ? 'badge-success' : 'badge-secondary'">
+								<span th:text="${pkg.isActive} ? 'Active' : 'Inactive'">Status</span>
+							</span>
+						</div>
+						<div>
+							<a th:href="@{|/owner/restaurants/${restaurant.id}/subscription-packages/${pkg.id}/edit|}"
+								class="btn btn-sm btn-outline-primary mr-2">
+								<i class="fa fa-edit"></i> Edit
+							</a>
+						</div>
+					</div>
+
+					<p class="text-muted mb-3" th:text="${pkg.description ?: 'No description'}">Description</p>
+
+					<div class="mb-3">
+						<span class="h4 text-primary">₹<span
+								th:text="${#numbers.formatDecimal(pkg.price, 0, 2)}">0.00</span></span>
+						<span class="text-muted">per person / month</span>
+					</div>
+
+					<p class="mb-1"><strong>For <span th:text="${pkg.numberOfPeople}">10</span> people</strong></p>
+					<p class="mb-3">
+						<span class="badge badge-info">Meal: <span th:text="${pkg.mealType}">LUNCH</span></span>
+					</p>
+
+					<!-- Menu Items Section -->
+					<div class="menu-items-list"
+						th:if="${packageItemsMap != null && packageItemsMap.containsKey(pkg.id) && !packageItemsMap.get(pkg.id).isEmpty()}">
+						<strong class="d-block mb-2">
+							<i class="fa fa-utensils mr-2"></i>Included Items (<span
+								th:text="${#lists.size(packageItemsMap.get(pkg.id))}">0</span>):
+						</strong>
+						<div th:each="item : ${packageItemsMap.get(pkg.id)}">
+							<span class="menu-item-badge">
+								<span th:text="${item.name}">Item Name</span>
+								<span class="text-muted ml-2">(₹<span
+										th:text="${#numbers.formatDecimal(item.price, 0, 2)}">0.00</span>)</span>
+							</span>
+						</div>
+					</div>
+					<div class="alert alert-warning mb-0"
+						th:if="${packageItemsMap == null || !packageItemsMap.containsKey(pkg.id) || packageItemsMap.get(pkg.id).isEmpty()}">
+						<small><i class="fa fa-exclamation-triangle mr-2"></i>No food items added to this package
+							yet.</small>
+					</div>
+
+					<div class="mt-3">
+						<a class="btn btn-sm btn-outline-primary mb-2"
+							th:href="@{|/owner/restaurants/${restaurant.id}/subscription-packages/${pkg.id}/subscribers|}">
+							<i class="fa fa-users mr-1"></i>View Subscribers
+						</a>
+						<form
+							th:action="@{|/owner/restaurants/${restaurant.id}/subscription-packages/${pkg.id}/delete|}"
+							method="post" th:if="${pkg.isActive}"
+							onsubmit="return confirm('Are you sure you want to deactivate this package?');">
+							<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}"
+								th:value="${_csrf.token}">
+							<button type="submit" class="btn btn-danger btn-sm">
+								<i class="fa fa-trash mr-2"></i>Deactivate
+							</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="mt-4">
+			<a th:href="@{|/owner/restaurants/${restaurant.id}/menus|}" class="btn btn-secondary">
+				<i class="fa fa-arrow-left mr-2"></i>Back to Menus
+			</a>
+			<a th:href="@{/owner/dashboard}" class="btn btn-secondary ml-2">
+				<i class="fa fa-home mr-2"></i>Dashboard
+			</a>
+		</div>
+	</div>
+
+	<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+	<script th:src="@{/js/bootstrap.js}"></script>
+</body>
+
+</html>

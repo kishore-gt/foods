@@ -49,6 +49,10 @@ public class Offer {
     @Column(length = 500)
     private String description;
 
+    @Size(max = 50)
+    @Column(name = "coupon_code", length = 50)
+    private String couponCode;
+
     @NotBlank
     @Column(name = "offer_type", nullable = false, length = 50)
     private String offerType;
@@ -67,10 +71,12 @@ public class Offer {
 
     @NotNull
     @Column(name = "start_date", nullable = false)
+    @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime startDate;
 
     @NotNull
     @Column(name = "end_date", nullable = false)
+    @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime endDate;
 
     @Column(name = "is_active", nullable = false)
@@ -128,6 +134,14 @@ public class Offer {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getCouponCode() {
+        return couponCode;
+    }
+
+    public void setCouponCode(String couponCode) {
+        this.couponCode = couponCode;
     }
 
     public String getOfferType() {
@@ -237,5 +251,14 @@ public class Offer {
         }
         return ids;
     }
-}
 
+    public void setApplicableMenuItemIdList(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            this.applicableMenuItemIds = null;
+        } else {
+            this.applicableMenuItemIds = ids.stream()
+                    .map(String::valueOf)
+                    .collect(java.util.stream.Collectors.joining(","));
+        }
+    }
+}

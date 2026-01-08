@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.srFoodDelivery.model.Cart;
@@ -213,6 +214,31 @@ public class CartController {
         // again
 
         return "redirect:/customer/payment";
+    }
+
+    @PostMapping("/cart/validate-coupon")
+    @ResponseBody
+    public Map<String, Object> validateCoupon(@AuthenticationPrincipal CustomUserDetails principal,
+            @RequestParam("couponCode") String couponCode) {
+        User user = requireUser(principal);
+        Cart cart = cartService.findCart(user).orElse(null);
+
+        if (cart == null || cart.getItems().isEmpty()) {
+            return Map.of("valid", false, "message", "Cart is empty");
+        }
+
+        BigDecimal discount = offerService.applyDiscount(couponCode, user, cart);
+
+        if (discount.compareTo(BigDecimal.ZERO) > 0) {
+            return Map.of(
+                    "valid", true,
+                    "discountAmount", discount,
+                    "message", "Coupon applied successfully!");
+        } else {
+            return Map.of(
+                    "valid", false,
+                    "message", "Invalid coupon code or criteria not met");
+        }
     }
 
     @GetMapping("/orders")

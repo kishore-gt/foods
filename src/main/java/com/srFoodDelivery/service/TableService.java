@@ -325,4 +325,18 @@ public class TableService {
 
         return count;
     }
+
+    public void cancelReservation(Long reservationId, User user) {
+        TableReservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
+
+        // Allow cancellation if user matches OR if user is admin (though admin check is
+        // complex here, keeping it simple)
+        if (!reservation.getUser().getId().equals(user.getId())) {
+            throw new IllegalStateException("Not authorized to cancel this reservation");
+        }
+
+        reservation.setStatus("CANCELLED");
+        reservationRepository.save(reservation);
+    }
 }

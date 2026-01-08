@@ -27,24 +27,26 @@ public class DataInitializer {
 
 	@Bean
 	CommandLineRunner initData(UserRepository userRepository,
-	                           PasswordEncoder passwordEncoder,
-	                           RestaurantService restaurantService,
-	                           MenuService menuService,
-	                           MenuItemService menuItemService,
-	                           ChefProfileService chefProfileService) {
-		return args -> seed(userRepository, passwordEncoder, restaurantService, menuService, menuItemService, chefProfileService);
+			PasswordEncoder passwordEncoder,
+			RestaurantService restaurantService,
+			MenuService menuService,
+			MenuItemService menuItemService,
+			ChefProfileService chefProfileService) {
+		return args -> seed(userRepository, passwordEncoder, restaurantService, menuService, menuItemService,
+				chefProfileService);
 	}
 
 	@Transactional
 	void seed(UserRepository userRepository,
-	          PasswordEncoder passwordEncoder,
-	          RestaurantService restaurantService,
-	          MenuService menuService,
-	          MenuItemService menuItemService,
-	          ChefProfileService chefProfileService) {
+			PasswordEncoder passwordEncoder,
+			RestaurantService restaurantService,
+			MenuService menuService,
+			MenuItemService menuItemService,
+			ChefProfileService chefProfileService) {
 		// Seed default users if they don't exist
 		User admin = ensureUser(userRepository, passwordEncoder,
 				"admin@example.com", "Admin User", "password", UserRole.ADMIN, "1234567890");
+
 		User owner = ensureUser(userRepository, passwordEncoder,
 				"owner1@example.com", "Owner One", "password", UserRole.OWNER, "1234567891");
 		User cafeOwner = ensureUser(userRepository, passwordEncoder,
@@ -146,8 +148,8 @@ public class DataInitializer {
 	}
 
 	private User ensureUser(UserRepository userRepository,
-	                        PasswordEncoder passwordEncoder,
-	                        String email, String fullName, String rawPassword, String role, String phoneNumber) {
+			PasswordEncoder passwordEncoder,
+			String email, String fullName, String rawPassword, String role, String phoneNumber) {
 		return userRepository.findByEmail(email.toLowerCase())
 				.orElseGet(() -> {
 					User u = new User();
@@ -160,5 +162,3 @@ public class DataInitializer {
 				});
 	}
 }
-
-

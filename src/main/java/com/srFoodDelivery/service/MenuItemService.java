@@ -22,11 +22,14 @@ public class MenuItemService {
     private final MenuItemRepository menuItemRepository;
     private final MenuRepository menuRepository;
     private final ImageService imageService;
+    private final com.srFoodDelivery.repository.OfferRepository offerRepository;
 
-    public MenuItemService(MenuItemRepository menuItemRepository, MenuRepository menuRepository, ImageService imageService) {
+    public MenuItemService(MenuItemRepository menuItemRepository, MenuRepository menuRepository,
+            ImageService imageService, com.srFoodDelivery.repository.OfferRepository offerRepository) {
         this.menuItemRepository = menuItemRepository;
         this.menuRepository = menuRepository;
         this.imageService = imageService;
+        this.offerRepository = offerRepository;
     }
 
     public List<MenuItem> getAvailableItems() {
@@ -59,11 +62,68 @@ public class MenuItemService {
         }
         return items;
     }
-    
+
     private void ensureImageUrls(List<MenuItem> items) {
+        enrichValuesWithOffers(items);
         for (MenuItem item : items) {
             if (item.getImageUrl() == null || item.getImageUrl().trim().isEmpty()) {
                 item.setImageUrl(imageService.getImageUrlForFood(item.getName()));
+            }
+        }
+    }
+
+    private void enrichValuesWithOffers(List<MenuItem> items) {
+        if (items == null || items.isEmpty())
+            return;
+
+        List<com.srFoodDelivery.model.Offer> activeOffers = offerRepository
+                .findActiveOffers(java.time.LocalDateTime.now());
+
+        for (MenuItem item : items) {
+            String bestLabel = null;
+            java.math.BigDecimal bestValue = java.math.BigDecimal.ZERO;
+
+            for (com.srFoodDelivery.model.Offer offer : activeOffers) {
+                // Check if offer applies to this item
+                List<Long> applicableIds = offer.getApplicableMenuItemIdList();
+                boolean isApplicable = applicableIds.isEmpty() || applicableIds.contains(item.getId());
+
+                // Also check if restaurant matches (crucial for multi-restaurant)
+                if (item.getMenu() != null && item.getMenu().getRestaurant() != null) {
+                    if (!offer.getRestaurant().getId().equals(item.getMenu().getRestaurant().getId())) {
+                        continue;
+                    }
+                }
+
+                if (isApplicable) {
+                    if ("PERCENTAGE_OFF".equals(offer.getOfferType())) {
+                        if (offer.getDiscountValue() != null && offer.getDiscountValue().compareTo(bestValue) > 0) {
+                            bestValue = offer.getDiscountValue();
+                            bestLabel = String.format("%.0f%% OFF", bestValue);
+                        }
+                    } else if ("BUY_ONE_GET_ONE".equals(offer.getOfferType())) {
+                        // BOGO is visually very strong, prioritize it unless we have a huge % off
+                        if (bestLabel == null || !bestLabel.contains("BOGO")) {
+                            bestLabel = "BOGO FREE";
+                            bestValue = java.math.BigDecimal.valueOf(50); // treat as approx 50%
+                        }
+                    } else if ("FLAT_DISCOUNT".equals(offer.getOfferType())) {
+                        // Flat discount is hard to put on a single item label unless we know the total
+                        // But we can show "₹X OFF"
+                        if (offer.getDiscountValue() != null) {
+                            // Only show flat discount label if it's significant relative to item price?
+                            // For now, let's just show it.
+                            String label = "₹" + offer.getDiscountValue().intValue() + " OFF";
+                            // Simple priority: if we don't have a label yet
+                            if (bestLabel == null)
+                                bestLabel = label;
+                        }
+                    }
+                }
+            }
+
+            if (bestLabel != null) {
+                item.setOfferDisplayLabel(bestLabel);
             }
         }
     }
@@ -87,7 +147,7 @@ public class MenuItemService {
         }
         return item;
     }
-    
+
     /**
      * Get menu item for editing without calling ensureImageUrl
      * This preserves the user's custom imageUrl
@@ -101,7 +161,8 @@ public class MenuItemService {
 
     @Transactional
     public MenuItem updateMenuItem(Long id, MenuItemForm form) {
-        // Get item directly without calling getMenuItem to avoid ensureImageUrl interference
+        // Get item directly without calling getMenuItem to avoid ensureImageUrl
+        // interference
         MenuItem item = menuItemRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Menu item not found"));
         applyForm(item, form);
@@ -168,7 +229,7 @@ public class MenuItemService {
                             !item.getMenu().getRestaurant().isCafeLounge())
                     .collect(Collectors.toList());
         }
-        
+
         if (siteMode.isCafeMode()) {
             // Cafe mode: show only cafe items
             return items.stream()
@@ -190,9 +251,10 @@ public class MenuItemService {
         item.setName(form.getName());
         item.setDescription(form.getDescription());
         item.setPrice(form.getPrice());
+        item.setDiscountPercentage(form.getDiscountPercentage());
         item.setAvailable(form.isAvailable());
         item.setTags(form.getTags());
-        
+
         // Set category and veg status if provided in form
         if (form.getCategory() != null) {
             item.setCategory(form.getCategory());
@@ -200,8 +262,9 @@ public class MenuItemService {
         if (form.getIsVeg() != null) {
             item.setVeg(form.getIsVeg());
         }
-        
-        // Handle imageUrl: Use form's value if provided, otherwise keep existing or auto-generate
+
+        // Handle imageUrl: Use form's value if provided, otherwise keep existing or
+        // auto-generate
         String formImageUrl = form.getImageUrl();
         if (formImageUrl != null && !formImageUrl.trim().isEmpty()) {
             // User provided a URL in the form - use it (trimmed)

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -47,7 +48,7 @@
 			border-radius: 20px;
 			padding: 30px;
 			margin-bottom: 20px;
-			box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 		}
 
 		.order-id {
@@ -81,7 +82,7 @@
 			background: white;
 			border-radius: 20px;
 			padding: 30px;
-			box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 		}
 
 		.details-section {
@@ -198,11 +199,12 @@
 		}
 	</style>
 </head>
-<body th:classappend="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE} ? 'cafe-mode' : ''">
+
+<body th:classappend="${siteMode != null and siteMode.name() == 'CAFE'} ? 'cafe-mode' : ''">
 	<div class="order-container">
 		<!-- Preorder/Dine-In Message -->
 		<div th:if="${isMultiOrder and #lists.size(multiOrder.subOrders.?[reservationId != null or tableId != null or orderType == 'DINE_IN']) > 0}"
-		     class="alert alert-info text-center" style="margin: 20px 0; padding: 30px; border-radius: 15px;">
+			class="alert alert-info text-center" style="margin: 20px 0; padding: 30px; border-radius: 15px;">
 			<i class="fa fa-cutlery fa-3x mb-3 d-block" style="color: #fc8019;"></i>
 			<h4 style="color: #fc8019; font-weight: 600;">Dine-In / Preorder Order</h4>
 			<p class="mb-2">This is a dine-in order.</p>
@@ -220,7 +222,8 @@
 			<div class="order-info">
 				<div class="info-item">
 					<i class="fa fa-rupee"></i>
-					<span><strong>₹<span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)}">0.00</span></strong></span>
+					<span><strong>₹<span
+								th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)}">0.00</span></strong></span>
 				</div>
 				<div class="info-item" th:if="${order.restaurant != null}">
 					<i class="fa fa-cutlery"></i>
@@ -231,14 +234,13 @@
 					<span th:text="${order.chefProfile.chef.fullName}">Chef</span>
 				</div>
 				<div class="info-item">
-					<span class="status-badge" 
-						  th:classappend="${order.status == 'PENDING' ? 'status-pending' : 
+					<span class="status-badge" th:classappend="${order.status == 'PENDING' ? 'status-pending' : 
 						                  (order.status == 'CONFIRMED' ? 'status-confirmed' : 
 						                  (order.status == 'PREPARING' ? 'status-preparing' : 
 						                  (order.status == 'OUT_FOR_DELIVERY' ? 'status-out-for-delivery' : 
 						                  (order.status == 'DELIVERED' ? 'status-delivered' : 
 						                  (order.status == 'CANCELLED' ? 'status-cancelled' : '')))))}"
-						  th:text="${order.status}">PENDING</span>
+						th:text="${order.status}">PENDING</span>
 				</div>
 			</div>
 		</div>
@@ -249,21 +251,22 @@
 			<div class="order-info">
 				<div class="info-item">
 					<i class="fa fa-rupee"></i>
-					<span><strong>₹<span th:text="${#numbers.formatDecimal(multiOrder.totalAmount, 1, 2)}">0.00</span></strong></span>
+					<span><strong>₹<span
+								th:text="${#numbers.formatDecimal(multiOrder.totalAmount, 1, 2)}">0.00</span></strong></span>
 				</div>
 				<div class="info-item">
 					<i class="fa fa-shopping-bag"></i>
-					<span><span th:text="${#lists.size(multiOrder.subOrders)}">0</span> Restaurant<span th:text="${#lists.size(multiOrder.subOrders) > 1 ? 's' : ''}">s</span></span>
+					<span><span th:text="${#lists.size(multiOrder.subOrders)}">0</span> Restaurant<span
+							th:text="${#lists.size(multiOrder.subOrders) > 1 ? 's' : ''}">s</span></span>
 				</div>
 				<div class="info-item">
-					<span class="status-badge" 
-						  th:classappend="${multiOrder.status == 'PENDING' ? 'status-pending' : 
+					<span class="status-badge" th:classappend="${multiOrder.status == 'PENDING' ? 'status-pending' : 
 						                  (multiOrder.status == 'CONFIRMED' ? 'status-confirmed' : 
 						                  (multiOrder.status == 'PREPARING' ? 'status-preparing' : 
 						                  (multiOrder.status == 'OUT_FOR_DELIVERY' ? 'status-out-for-delivery' : 
 						                  (multiOrder.status == 'DELIVERED' ? 'status-delivered' : 
 						                  (multiOrder.status == 'CANCELLED' ? 'status-cancelled' : '')))))}"
-						  th:text="${multiOrder.status}">PENDING</span>
+						th:text="${multiOrder.status}">PENDING</span>
 				</div>
 			</div>
 		</div>
@@ -316,7 +319,8 @@
 							<td th:text="${item.itemName}">Item</td>
 							<td th:text="${item.quantity}">1</td>
 							<td th:text="'₹' + ${#numbers.formatDecimal(item.unitPrice, 1, 2)}">₹0.00</td>
-							<td><strong th:text="'₹' + ${#numbers.formatDecimal(item.lineTotal, 1, 2)}">₹0.00</strong></td>
+							<td><strong th:text="'₹' + ${#numbers.formatDecimal(item.lineTotal, 1, 2)}">₹0.00</strong>
+							</td>
 						</tr>
 					</tbody>
 				</table>
@@ -331,18 +335,18 @@
 
 		<!-- Order Details for MultiOrder -->
 		<div class="order-details" th:if="${isMultiOrder}">
-			<div th:each="subOrder : ${multiOrder.subOrders}" style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #eee;">
+			<div th:each="subOrder : ${multiOrder.subOrders}"
+				style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #eee;">
 				<div class="details-section">
 					<h5>
 						<i class="fa fa-cutlery"></i> <span th:text="${subOrder.restaurantName}">Restaurant</span>
-						<span class="status-badge" style="float: right;"
-							  th:classappend="${subOrder.status == 'PENDING' ? 'status-pending' : 
+						<span class="status-badge" style="float: right;" th:classappend="${subOrder.status == 'PENDING' ? 'status-pending' : 
 							                  (subOrder.status == 'CONFIRMED' ? 'status-confirmed' : 
 							                  (subOrder.status == 'PREPARING' ? 'status-preparing' : 
 							                  (subOrder.status == 'OUT_FOR_DELIVERY' ? 'status-out-for-delivery' : 
 							                  (subOrder.status == 'DELIVERED' ? 'status-delivered' : 
 							                  (subOrder.status == 'CANCELLED' ? 'status-cancelled' : '')))))}"
-							  th:text="${subOrder.status}">PENDING</span>
+							th:text="${subOrder.status}">PENDING</span>
 					</h5>
 				</div>
 
@@ -381,7 +385,9 @@
 								<td th:text="${item.name}">Item</td>
 								<td th:text="${item.quantity}">1</td>
 								<td th:text="'₹' + ${#numbers.formatDecimal(item.price, 1, 2)}">₹0.00</td>
-								<td><strong th:text="'₹' + ${#numbers.formatDecimal(item.price * item.quantity, 1, 2)}">₹0.00</strong></td>
+								<td><strong
+										th:text="'₹' + ${#numbers.formatDecimal(item.price * item.quantity, 1, 2)}">₹0.00</strong>
+								</td>
 							</tr>
 						</tbody>
 					</table>
@@ -389,7 +395,8 @@
 
 				<div class="detail-row" style="margin-top: 15px;">
 					<span class="detail-label"><strong>Subtotal:</strong></span>
-					<span class="detail-value"><strong th:text="'₹' + ${#numbers.formatDecimal(subOrder.totalAmount, 1, 2)}">₹0.00</strong></span>
+					<span class="detail-value"><strong
+							th:text="'₹' + ${#numbers.formatDecimal(subOrder.totalAmount, 1, 2)}">₹0.00</strong></span>
 				</div>
 			</div>
 
@@ -404,4 +411,5 @@
 	<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
 	<script th:src="@{/js/bootstrap.js}"></script>
 </body>
+
 </html>

@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title th:text="${restaurant.name} + ' - Restaurant'">Restaurant</title>
 	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
 	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
-	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+		rel="stylesheet">
 	<style>
 		:root {
 			--primary-color: #fc8019;
@@ -45,11 +47,13 @@
 			padding: 15px 0;
 			box-shadow: 0 4px 20px rgba(220, 53, 69, 0.3);
 		}
+
 		.navbar-custom .navbar-brand {
 			color: white;
 			font-weight: 700;
 			font-size: 24px;
 		}
+
 		.navbar-custom .nav-link {
 			color: white;
 			font-weight: 500;
@@ -57,16 +61,19 @@
 			border-radius: 20px;
 			transition: all 0.3s ease;
 		}
+
 		.navbar-custom .nav-link:hover {
 			background: rgba(255, 255, 255, 0.2);
 		}
+
 		.restaurant-header {
 			background: white;
 			padding: 30px;
 			border-radius: 20px;
-			box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+			box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 			margin-bottom: 30px;
 		}
+
 		.restaurant-image {
 			width: 100%;
 			max-height: 400px;
@@ -74,12 +81,14 @@
 			border-radius: 15px;
 			margin-bottom: 25px;
 		}
+
 		.restaurant-name {
 			font-size: 2.5rem;
 			font-weight: 700;
 			color: #222;
 			margin-bottom: 15px;
 		}
+
 		.restaurant-info {
 			color: #666;
 			font-size: 16px;
@@ -88,42 +97,49 @@
 			align-items: center;
 			gap: 10px;
 		}
+
 		.restaurant-info i {
 			color: #fc8019;
 			font-size: 18px;
 		}
+
 		.restaurant-description {
 			color: #555;
 			font-size: 16px;
 			line-height: 1.8;
 			margin: 20px 0;
 		}
+
 		.menu-card {
 			background: white;
 			border: 2px solid transparent;
 			border-radius: 15px;
 			padding: 25px;
 			margin-bottom: 20px;
-			box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 			transition: all 0.3s ease;
 		}
+
 		.menu-card:hover {
 			transform: translateY(-5px);
 			box-shadow: 0 8px 25px rgba(220, 53, 69, 0.2);
 			border-color: #fc8019;
 		}
+
 		.menu-title {
 			font-size: 1.5rem;
 			font-weight: 600;
 			color: #222;
 			margin-bottom: 10px;
 		}
+
 		.menu-description {
 			color: #666;
 			font-size: 15px;
 			margin-bottom: 20px;
 			line-height: 1.6;
 		}
+
 		.btn-view-menu {
 			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
 			border: none;
@@ -136,11 +152,13 @@
 			transition: all 0.3s ease;
 			box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
 		}
+
 		.btn-view-menu:hover {
 			transform: translateY(-2px);
 			box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
 			color: white;
 		}
+
 		.section-title {
 			font-size: 28px;
 			font-weight: 700;
@@ -149,6 +167,7 @@
 			position: relative;
 			padding-bottom: 10px;
 		}
+
 		.section-title::after {
 			content: '';
 			position: absolute;
@@ -159,6 +178,7 @@
 			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
 			border-radius: 2px;
 		}
+
 		.btn-outline-primary {
 			border: 2px solid #fc8019;
 			color: #fc8019;
@@ -167,11 +187,13 @@
 			font-weight: 500;
 			transition: all 0.3s ease;
 		}
+
 		.btn-outline-primary:hover {
 			background: #fc8019;
 			color: white;
 			transform: translateY(-2px);
 		}
+
 		.btn-outline-secondary {
 			border: 2px solid #666;
 			color: #666;
@@ -180,23 +202,27 @@
 			font-weight: 500;
 			transition: all 0.3s ease;
 		}
+
 		.btn-outline-secondary:hover {
 			background: #666;
 			color: white;
 			transform: translateY(-2px);
 		}
+
 		.info-grid {
 			display: grid;
 			grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 			gap: 20px;
 			margin: 25px 0;
 		}
+
 		.info-item {
 			background: #fff5eb;
 			padding: 15px;
 			border-radius: 10px;
 			border-left: 4px solid #fc8019;
 		}
+
 		/* Preorder Button Styles */
 		.btn-preorder {
 			background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
@@ -213,6 +239,7 @@
 			gap: 8px;
 			text-decoration: none;
 		}
+
 		.btn-preorder:hover {
 			background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
 			color: white;
@@ -220,12 +247,14 @@
 			box-shadow: 0 6px 20px rgba(23, 162, 184, 0.5);
 			text-decoration: none;
 		}
+
 		.btn-preorder i {
 			font-size: 16px;
 		}
 	</style>
 </head>
-<body th:classappend="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE} ? 'cafe-mode' : ''">
+
+<body th:classappend="${siteMode != null and siteMode.name() == 'CAFE'} ? 'cafe-mode' : ''">
 	<!-- Navigation -->
 	<nav class="navbar navbar-expand-lg navbar-custom">
 		<div class="container">
@@ -248,10 +277,15 @@
 		<!-- Restaurant Header -->
 		<div class="restaurant-header">
 			<div class="mb-3">
-				<img class="restaurant-image" th:src="${restaurant.imageUrl != null and !restaurant.imageUrl.isEmpty() ? restaurant.imageUrl : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600'}" th:alt="${restaurant.name}" onerror="this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600'; this.onerror=null;" style="width: 100%; height: auto; object-fit: cover;">
+				<img class="restaurant-image"
+					th:src="${restaurant.imageUrl != null and !restaurant.imageUrl.isEmpty() ? restaurant.imageUrl : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600'}"
+					th:alt="${restaurant.name}"
+					onerror="this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600'; this.onerror=null;"
+					style="width: 100%; height: auto; object-fit: cover;">
 			</div>
 			<div class="restaurant-name" th:text="${restaurant.name}">Restaurant Name</div>
-			<div class="restaurant-description" th:if="${restaurant.description}" th:text="${restaurant.description}">Description</div>
+			<div class="restaurant-description" th:if="${restaurant.description}" th:text="${restaurant.description}">
+				Description</div>
 			<div class="info-grid">
 				<div class="info-item" th:if="${restaurant.address}">
 					<div class="restaurant-info">
@@ -268,7 +302,8 @@
 				<div class="info-item" th:if="${restaurant.openingTime != null and restaurant.closingTime != null}">
 					<div class="restaurant-info">
 						<i class="fa fa-clock-o"></i>
-						<strong>Hours:</strong> <span th:text="${restaurant.openingTime + ' - ' + restaurant.closingTime}">Hours</span>
+						<strong>Hours:</strong> <span
+							th:text="${restaurant.openingTime + ' - ' + restaurant.closingTime}">Hours</span>
 					</div>
 				</div>
 			</div>
@@ -276,7 +311,7 @@
 
 		<!-- Menus Section -->
 		<div class="mb-4">
-			<h2 class="section-title">Menus 
+			<h2 class="section-title">Menus
 				<span class="badge badge-secondary" th:text="${#lists.size(menus)}">0</span>
 			</h2>
 		</div>
@@ -288,15 +323,16 @@
 		<div th:if="${!#lists.isEmpty(menus)}">
 			<div class="menu-card" th:each="m : ${menus}">
 				<div class="menu-title" th:text="${m.title}">Menu Title</div>
-				<div class="menu-description" th:text="${m.description ?: 'Delicious food awaits!'}">Menu Description</div>
+				<div class="menu-description" th:text="${m.description ?: 'Delicious food awaits!'}">Menu Description
+				</div>
 				<div class="d-flex gap-2 mt-3">
-					<a class="btn-view-menu" th:href="@{|/customer/menus/${m.id}|}" style="flex: 1; text-align: center;">
+					<a class="btn-view-menu" th:href="@{|/customer/menus/${m.id}|}"
+						style="flex: 1; text-align: center;">
 						View Items <i class="fa fa-arrow-right"></i>
 					</a>
 					<sec:authorize access="isAuthenticated()">
-						<a th:href="@{|/customer/restaurants/${restaurant.id}/preorder|}" 
-						   class="btn-preorder" 
-						   style="flex: 1; text-align: center;">
+						<a th:href="@{|/customer/restaurants/${restaurant.id}/preorder|}" class="btn-preorder"
+							style="flex: 1; text-align: center;">
 							<i class="fa fa-clock-o"></i> Preorder
 						</a>
 					</sec:authorize>
@@ -322,6 +358,5 @@
 	<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
 	<script th:src="@{/js/bootstrap.js}"></script>
 </body>
+
 </html>
-
-

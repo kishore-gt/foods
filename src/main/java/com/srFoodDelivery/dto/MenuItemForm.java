@@ -22,6 +22,9 @@ public class MenuItemForm {
     @DecimalMin(value = "0.0", inclusive = false)
     private BigDecimal price;
 
+    @DecimalMin(value = "0.0", inclusive = true)
+    private BigDecimal discountPercentage = BigDecimal.ZERO;
+
     private boolean available = true;
 
     private Set<String> tags = new HashSet<>();
@@ -56,6 +59,14 @@ public class MenuItemForm {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public BigDecimal getDiscountPercentage() {
+        return discountPercentage;
+    }
+
+    public void setDiscountPercentage(BigDecimal discountPercentage) {
+        this.discountPercentage = discountPercentage;
     }
 
     public boolean isAvailable() {

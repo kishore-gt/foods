@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Your Orders - Tummy Go!</title>
 	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
 	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
-	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+		rel="stylesheet">
 	<style>
 		:root {
 			--primary-color: #fc8019;
@@ -18,9 +20,9 @@
 			--bg-secondary: #f8f9fa;
 			--card-bg: #fff;
 			--border-color: #e5e7eb;
-			--shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-			--shadow-md: 0 4px 12px rgba(0,0,0,0.1);
-			--shadow-lg: 0 10px 25px rgba(0,0,0,0.12);
+			--shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+			--shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+			--shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
 		}
 
 		body.cafe-mode {
@@ -32,10 +34,10 @@
 			--bg-light: #3e2723;
 			--bg-secondary: #2c1810;
 			--card-bg: rgba(79, 55, 45, 0.85);
-			--border-color: rgba(255,255,255,0.15);
-			--shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
-			--shadow-md: 0 4px 15px rgba(0,0,0,0.4);
-			--shadow-lg: 0 10px 30px rgba(0,0,0,0.5);
+			--border-color: rgba(255, 255, 255, 0.15);
+			--shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+			--shadow-md: 0 4px 15px rgba(0, 0, 0, 0.4);
+			--shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
 			background: linear-gradient(180deg, #2c1810 0%, #3e2723 50%, #5d4037 100%) fixed;
 			color: var(--text-dark);
 		}
@@ -55,13 +57,15 @@
 		.navbar-custom {
 			background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
 			padding: 15px 0;
-			box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 		}
+
 		.navbar-custom .navbar-brand,
 		.navbar-custom .nav-link {
 			color: white;
 			font-weight: 500;
 		}
+
 		.order-card {
 			border: 1px solid var(--border-color);
 			border-radius: 16px;
@@ -71,17 +75,21 @@
 			box-shadow: var(--shadow-md);
 			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 		}
+
 		.order-card:hover {
 			box-shadow: var(--shadow-lg);
 			transform: translateY(-4px);
 		}
+
 		.preorder-card {
 			border-left: 4px solid #17a2b8;
 			background: linear-gradient(to right, #f8f9fa 0%, #fff 10%);
 		}
+
 		.delivery-card {
 			border-left: 4px solid #fc8019;
 		}
+
 		.status-badge {
 			display: inline-block;
 			padding: 8px 16px;
@@ -92,17 +100,62 @@
 			letter-spacing: 0.5px;
 			box-shadow: var(--shadow-sm);
 		}
-		.status-PENDING { background-color: #fff3cd; color: #856404; }
-		.status-CONFIRMED { background-color: #d0f0fd; color: #0c5460; }
-		.status-PREPARING { background-color: #fff3cd; color: #856404; }
-		.status-OUT_FOR_DELIVERY { background-color: #cce5ff; color: #004085; }
-		.status-ASSIGNED { background-color: #cce5ff; color: #004085; }
-		.status-ACCEPTED { background-color: #d1ecf1; color: #0c5460; }
-		.status-EN_ROUTE { background-color: #d4edda; color: #155724; }
-		.status-PICKED_UP { background-color: #cce5ff; color: #004085; }
-		.status-DELIVERED { background-color: #c3e6cb; color: #155724; }
-		.status-COMPLETED { background-color: #c3e6cb; color: #155724; }
-		.status-CANCELLED { background-color: #f8d7da; color: #721c24; }
+
+		.status-PENDING {
+			background-color: #fff3cd;
+			color: #856404;
+		}
+
+		.status-CONFIRMED {
+			background-color: #d0f0fd;
+			color: #0c5460;
+		}
+
+		.status-PREPARING {
+			background-color: #fff3cd;
+			color: #856404;
+		}
+
+		.status-OUT_FOR_DELIVERY {
+			background-color: #cce5ff;
+			color: #004085;
+		}
+
+		.status-ASSIGNED {
+			background-color: #cce5ff;
+			color: #004085;
+		}
+
+		.status-ACCEPTED {
+			background-color: #d1ecf1;
+			color: #0c5460;
+		}
+
+		.status-EN_ROUTE {
+			background-color: #d4edda;
+			color: #155724;
+		}
+
+		.status-PICKED_UP {
+			background-color: #cce5ff;
+			color: #004085;
+		}
+
+		.status-DELIVERED {
+			background-color: #c3e6cb;
+			color: #155724;
+		}
+
+		.status-COMPLETED {
+			background-color: #c3e6cb;
+			color: #155724;
+		}
+
+		.status-CANCELLED {
+			background-color: #f8d7da;
+			color: #721c24;
+		}
+
 		.sub-order-card {
 			background: var(--bg-secondary);
 			border-left: 4px solid var(--primary-color);
@@ -116,18 +169,21 @@
 			background: rgba(79, 55, 45, 0.5);
 			border-left-color: #d28b4b;
 		}
+
 		.rider-info {
 			background: #e3f2fd;
 			padding: 10px;
 			border-radius: 8px;
 			margin-top: 10px;
 		}
+
 		.table-info {
 			background: #d1ecf1;
 			padding: 15px;
 			border-radius: 8px;
 			margin-top: 10px;
 		}
+
 		.section-header {
 			background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
 			color: white;
@@ -136,9 +192,11 @@
 			margin-bottom: 20px;
 			font-weight: 600;
 		}
+
 		.section-header.preorder-header {
 			background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
 		}
+
 		/* Tab Navigation */
 		.orders-tabs {
 			display: flex;
@@ -148,6 +206,7 @@
 			border-radius: 10px 10px 0 0;
 			padding: 0;
 		}
+
 		.tab-button {
 			flex: 1;
 			padding: 16px 32px;
@@ -161,10 +220,12 @@
 			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 			text-align: center;
 		}
+
 		.tab-button:hover {
 			color: var(--primary-color);
 			background: var(--bg-secondary);
 		}
+
 		.tab-button.active {
 			color: var(--primary-color);
 			border-bottom-color: var(--primary-color);
@@ -181,17 +242,21 @@
 			color: #f4ba73;
 			background: rgba(79, 55, 45, 0.5);
 		}
+
 		.tab-button.preorder-tab.active {
 			color: #17a2b8;
 			border-bottom-color: #17a2b8;
 			background: #e3f2fd;
 		}
+
 		.tab-content {
 			display: none;
 		}
+
 		.tab-content.active {
 			display: block;
 		}
+
 		/* Order Tracking Styles */
 		.order-tracking {
 			background: #f8f9fa;
@@ -199,11 +264,13 @@
 			border-radius: 8px;
 			margin-top: 15px;
 		}
+
 		.tracking-steps {
 			display: flex;
 			flex-direction: column;
 			gap: 15px;
 		}
+
 		.tracking-step {
 			display: flex;
 			align-items: center;
@@ -212,10 +279,12 @@
 			border-radius: 6px;
 			transition: all 0.3s ease;
 		}
+
 		.tracking-step.active {
 			background: #fff5eb;
 			border-left: 3px solid #fc8019;
 		}
+
 		.step-icon {
 			width: 30px;
 			height: 30px;
@@ -224,420 +293,486 @@
 			justify-content: center;
 			font-size: 18px;
 		}
+
 		.tracking-step.active .step-icon {
 			color: #fc8019;
 		}
+
 		.tracking-step:not(.active) .step-icon {
 			color: #ccc;
 		}
+
 		.step-content {
 			flex: 1;
 		}
+
 		.step-content strong {
 			display: block;
 			color: #333;
 			font-size: 14px;
 		}
+
 		.tracking-step.active .step-content strong {
 			color: #fc8019;
 		}
+
 		.tracking-step:not(.active) .step-content strong {
 			color: #999;
 		}
 	</style>
 </head>
-<body th:classappend="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE} ? 'cafe-mode' : ''">
-<body>
-<nav class="navbar navbar-expand-lg navbar-custom">
-	<div class="container">
-		<a class="navbar-brand" th:href="@{/customer/restaurants}">
-			<i class="fa fa-cutlery"></i> Tummy Go!
-		</a>
-		<div class="ml-auto d-flex align-items-center">
-			<a class="nav-link" th:href="@{/customer/restaurants}">Restaurants</a>
-			<a class="nav-link" th:href="@{/customer/cart}">
-				<i class="fa fa-shopping-cart"></i> Cart
-				<span class="badge badge-light ml-1" th:text="${cartItemCount}">0</span>
-			</a>
-			<a class="nav-link active" th:href="@{/customer/orders}">
-				<i class="fa fa-list"></i> My Orders
-			</a>
-			<a sec:authorize="isAuthenticated()" class="nav-link" th:href="@{/logout}">Logout</a>
-		</div>
-	</div>
-</nav>
 
-<div class="container py-4">
-	<div th:if="${infoMessage}" class="alert alert-info alert-dismissible fade show" role="alert">
-		<i class="fa fa-info-circle"></i> <span th:text="${infoMessage}">Info message</span>
-		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-			<span aria-hidden="true">&times;</span>
-		</button>
-	</div>
-	<div class="d-flex justify-content-between align-items-center mb-4">
-		<div>
-			<h2 style="font-weight: 700; color: #2c3e50;">
-				<i class="fa fa-shopping-bag"></i> Your Orders
-			</h2>
-			<p class="text-muted mb-0">View your recent orders and reorder your favourites.</p>
-		</div>
-		<a class="btn btn-primary" th:href="@{/customer/restaurants}">
-			<i class="fa fa-arrow-left"></i> Continue Browsing
-		</a>
-	</div>
+<body th:classappend="${siteMode != null and siteMode.name() == 'CAFE'} ? 'cafe-mode' : ''">
 
-	<div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
-		<span th:text="${successMessage}"></span>
-		<button type="button" class="close" data-dismiss="alert">&times;</button>
-	</div>
-	<div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
-		<span th:text="${errorMessage}"></span>
-		<button type="button" class="close" data-dismiss="alert">&times;</button>
-	</div>
+	<body>
+		<nav class="navbar navbar-expand-lg navbar-custom">
+			<div class="container">
+				<a class="navbar-brand" th:href="@{/customer/restaurants}">
+					<i class="fa fa-cutlery"></i> Tummy Go!
+				</a>
+				<div class="ml-auto d-flex align-items-center">
+					<a class="nav-link" th:href="@{/customer/restaurants}">Restaurants</a>
+					<a class="nav-link" th:href="@{/customer/cart}">
+						<i class="fa fa-shopping-cart"></i> Cart
+						<span class="badge badge-light ml-1" th:text="${cartItemCount}">0</span>
+					</a>
+					<a class="nav-link active" th:href="@{/customer/orders}">
+						<i class="fa fa-list"></i> My Orders
+					</a>
+					<a sec:authorize="isAuthenticated()" class="nav-link" th:href="@{/logout}">Logout</a>
+				</div>
+			</div>
+		</nav>
 
-	<!-- Tab Navigation -->
-	<div class="orders-tabs">
-		<button class="tab-button active" onclick="showTab('delivery')" id="delivery-tab">
-			<i class="fa fa-truck"></i> Delivery Orders
-		</button>
-		<button class="tab-button preorder-tab" onclick="showTab('preorder')" id="preorder-tab">
-			<i class="fa fa-cutlery"></i> Preorders (Dine-In)
-		</button>
-	</div>
+		<div class="container py-4">
+			<div th:if="${infoMessage}" class="alert alert-info alert-dismissible fade show" role="alert">
+				<i class="fa fa-info-circle"></i> <span th:text="${infoMessage}">Info message</span>
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="d-flex justify-content-between align-items-center mb-4">
+				<div>
+					<h2 style="font-weight: 700; color: #2c3e50;">
+						<i class="fa fa-shopping-bag"></i> Your Orders
+					</h2>
+					<p class="text-muted mb-0">View your recent orders and reorder your favourites.</p>
+				</div>
+				<a class="btn btn-primary" th:href="@{/customer/restaurants}">
+					<i class="fa fa-arrow-left"></i> Continue Browsing
+				</a>
+			</div>
 
-	<!-- Delivery Orders Tab Content -->
-	<div id="delivery-tab-content" class="tab-content active">
-		<div th:if="${!#lists.isEmpty(multiOrders)}">
-			<!-- Filter: MultiOrders where NO sub-orders have preorderSlotId, reservationId, tableId, or orderType DINE_IN (includes single restaurant and multi-restaurant delivery orders) -->
-			<div th:with="deliveryMultiOrders=${multiOrders.?[subOrders.?[preorderSlotId != null or reservationId != null or tableId != null or orderType == 'DINE_IN'].size() == 0]}">
-				<div th:if="${!#lists.isEmpty(deliveryMultiOrders)}">
-					<div class="section-header">
-						<i class="fa fa-truck"></i> Delivery Orders
-					</div>
-					<div th:each="multiOrder : ${deliveryMultiOrders}" class="order-card delivery-card">
-						<div class="d-flex justify-content-between align-items-start mb-3">
-							<div>
-								<h4 style="color: #fc8019; font-weight: 700;">
-									Order #<span th:text="${multiOrder.id}">1</span>
-								</h4>
-								<p class="mb-1 text-muted">
-									<i class="fa fa-clock-o"></i> 
-									<span th:text="${#temporals.format(multiOrder.createdAt, 'dd MMM yyyy, hh:mm a')}">Date</span>
-								</p>
-								<p class="mb-0">
-									<strong>Total:</strong> 
-									<span style="font-size: 20px; color: #28a745; font-weight: 700;">
-										₹<span th:text="${#numbers.formatDecimal(multiOrder.totalAmount,1,2)}">0.00</span>
-									</span>
-								</p>
+			<div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
+				<span th:text="${successMessage}"></span>
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+			</div>
+			<div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
+				<span th:text="${errorMessage}"></span>
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+			</div>
+
+			<!-- Tab Navigation -->
+			<div class="orders-tabs">
+				<button class="tab-button active" onclick="showTab('delivery')" id="delivery-tab">
+					<i class="fa fa-truck"></i> Delivery Orders
+				</button>
+				<button class="tab-button preorder-tab" onclick="showTab('preorder')" id="preorder-tab">
+					<i class="fa fa-cutlery"></i> Preorders (Dine-In)
+				</button>
+			</div>
+
+			<!-- Delivery Orders Tab Content -->
+			<div id="delivery-tab-content" class="tab-content active">
+				<div th:if="${!#lists.isEmpty(multiOrders)}">
+					<!-- Filter: MultiOrders where NO sub-orders have preorderSlotId, reservationId, tableId, or orderType DINE_IN (includes single restaurant and multi-restaurant delivery orders) -->
+					<div
+						th:with="deliveryMultiOrders=${multiOrders.?[subOrders.?[preorderSlotId != null or reservationId != null or tableId != null or orderType == 'DINE_IN'].size() == 0]}">
+						<div th:if="${!#lists.isEmpty(deliveryMultiOrders)}">
+							<div class="section-header">
+								<i class="fa fa-truck"></i> Delivery Orders
 							</div>
-							<div>
-								<span class="status-badge" 
-									  th:classappend="' status-' + ${multiOrder.status}"
-									  th:text="${multiOrder.status}">STATUS</span>
-							</div>
-						</div>
-
-						<div class="mb-3">
-							<h6><i class="fa fa-map-marker"></i> Delivery Address</h6>
-							<p class="mb-1" th:text="${multiOrder.deliveryAddress}">Address</p>
-							<p class="text-muted mb-0" th:if="${multiOrder.specialInstructions}" 
-							   th:text="${'Notes: ' + multiOrder.specialInstructions}"></p>
-						</div>
-
-						<!-- Sub-Orders (One per restaurant) - Only show non-preorder sub-orders -->
-						<div th:if="${!#lists.isEmpty(multiOrder.subOrders)}">
-							<h6 class="mb-2"><i class="fa fa-cutlery"></i> Restaurants in this order:</h6>
-							<div th:each="subOrder : ${multiOrder.subOrders}" th:if="${subOrder.preorderSlotId == null and subOrder.reservationId == null and subOrder.tableId == null and subOrder.orderType != 'DINE_IN'}" class="sub-order-card">
-								<div class="d-flex justify-content-between align-items-start">
-									<div style="flex: 1;">
-										<h6 class="mb-1" th:if="${subOrder.restaurantName}" 
-											th:text="${subOrder.restaurantName}">Restaurant</h6>
+							<div th:each="multiOrder : ${deliveryMultiOrders}" class="order-card delivery-card">
+								<div class="d-flex justify-content-between align-items-start mb-3">
+									<div>
+										<h4 style="color: #fc8019; font-weight: 700;">
+											Order #<span th:text="${multiOrder.id}">1</span>
+										</h4>
 										<p class="mb-1 text-muted">
-											Sub-Order #<span th:text="${subOrder.id}">1</span> &middot;
-											<span class="status-badge" 
-												  th:classappend="' status-' + ${subOrder.status}"
-												  th:text="${subOrder.status}">STATUS</span>
+											<i class="fa fa-clock-o"></i>
+											<span
+												th:text="${#temporals.format(multiOrder.createdAt, 'dd MMM yyyy, hh:mm a')}">Date</span>
 										</p>
 										<p class="mb-0">
-											<strong>Amount:</strong> 
-											₹<span th:text="${#numbers.formatDecimal(subOrder.totalAmount,1,2)}">0.00</span>
+											<strong>Total:</strong>
+											<span style="font-size: 20px; color: #28a745; font-weight: 700;">
+												₹<span
+													th:text="${#numbers.formatDecimal(multiOrder.totalAmount,1,2)}">0.00</span>
+											</span>
 										</p>
-										
-										<!-- Order Tracking (only for delivery orders) -->
-										<div class="order-tracking mt-3" style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-											<h6 class="mb-3" style="color: #fc8019; font-weight: 600;">
-												<i class="fa fa-truck"></i> Order Tracking
-											</h6>
-											<div class="tracking-steps">
-												<!-- Step 1: Ordered (CONFIRMED) -->
-												<div class="tracking-step" th:classappend="${subOrder.status == 'CONFIRMED' or subOrder.status == 'PREPARING' or subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED' or subOrder.status == 'ASSIGNED' or subOrder.status == 'ACCEPTED' or subOrder.status == 'OFFERED' ? 'active' : ''}">
-													<div class="step-icon">
-														<i class="fa fa-check-circle" th:if="${subOrder.status == 'CONFIRMED' or subOrder.status == 'PREPARING' or subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED' or subOrder.status == 'ASSIGNED' or subOrder.status == 'ACCEPTED' or subOrder.status == 'OFFERED'}"></i>
-														<i class="fa fa-circle-o" th:unless="${subOrder.status == 'CONFIRMED' or subOrder.status == 'PREPARING' or subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED' or subOrder.status == 'ASSIGNED' or subOrder.status == 'ACCEPTED' or subOrder.status == 'OFFERED'}"></i>
-													</div>
-													<div class="step-content">
-														<strong>Ordered</strong>
-														<p class="text-muted mb-0" style="font-size: 12px;" th:text="${subOrder.status == 'PENDING' ? 'Waiting for confirmation' : 'Order confirmed'}">Order confirmed</p>
+									</div>
+									<div>
+										<span class="status-badge" th:classappend="' status-' + ${multiOrder.status}"
+											th:text="${multiOrder.status}">STATUS</span>
+									</div>
+								</div>
+
+								<div class="mb-3">
+									<h6><i class="fa fa-map-marker"></i> Delivery Address</h6>
+									<p class="mb-1" th:text="${multiOrder.deliveryAddress}">Address</p>
+									<p class="text-muted mb-0" th:if="${multiOrder.specialInstructions}"
+										th:text="${'Notes: ' + multiOrder.specialInstructions}"></p>
+								</div>
+
+								<!-- Sub-Orders (One per restaurant) - Only show non-preorder sub-orders -->
+								<div th:if="${!#lists.isEmpty(multiOrder.subOrders)}">
+									<h6 class="mb-2"><i class="fa fa-cutlery"></i> Restaurants in this order:</h6>
+									<div th:each="subOrder : ${multiOrder.subOrders}"
+										th:if="${subOrder.preorderSlotId == null and subOrder.reservationId == null and subOrder.tableId == null and subOrder.orderType != 'DINE_IN'}"
+										class="sub-order-card">
+										<div class="d-flex justify-content-between align-items-start">
+											<div style="flex: 1;">
+												<h6 class="mb-1" th:if="${subOrder.restaurantName}"
+													th:text="${subOrder.restaurantName}">Restaurant</h6>
+												<p class="mb-1 text-muted">
+													Sub-Order #<span th:text="${subOrder.id}">1</span> &middot;
+													<span class="status-badge"
+														th:classappend="' status-' + ${subOrder.status}"
+														th:text="${subOrder.status}">STATUS</span>
+												</p>
+												<p class="mb-0">
+													<strong>Amount:</strong>
+													₹<span
+														th:text="${#numbers.formatDecimal(subOrder.totalAmount,1,2)}">0.00</span>
+												</p>
+
+												<!-- Order Tracking (only for delivery orders) -->
+												<div class="order-tracking mt-3"
+													style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+													<h6 class="mb-3" style="color: #fc8019; font-weight: 600;">
+														<i class="fa fa-truck"></i> Order Tracking
+													</h6>
+													<div class="tracking-steps">
+														<!-- Step 1: Ordered (CONFIRMED) -->
+														<div class="tracking-step"
+															th:classappend="${subOrder.status == 'CONFIRMED' or subOrder.status == 'PREPARING' or subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED' or subOrder.status == 'ASSIGNED' or subOrder.status == 'ACCEPTED' or subOrder.status == 'OFFERED' ? 'active' : ''}">
+															<div class="step-icon">
+																<i class="fa fa-check-circle"
+																	th:if="${subOrder.status == 'CONFIRMED' or subOrder.status == 'PREPARING' or subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED' or subOrder.status == 'ASSIGNED' or subOrder.status == 'ACCEPTED' or subOrder.status == 'OFFERED'}"></i>
+																<i class="fa fa-circle-o"
+																	th:unless="${subOrder.status == 'CONFIRMED' or subOrder.status == 'PREPARING' or subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED' or subOrder.status == 'ASSIGNED' or subOrder.status == 'ACCEPTED' or subOrder.status == 'OFFERED'}"></i>
+															</div>
+															<div class="step-content">
+																<strong>Ordered</strong>
+																<p class="text-muted mb-0" style="font-size: 12px;"
+																	th:text="${subOrder.status == 'PENDING' ? 'Waiting for confirmation' : 'Order confirmed'}">
+																	Order confirmed</p>
+															</div>
+														</div>
+
+														<!-- Step 2: Preparing Food (PREPARING) -->
+														<div class="tracking-step"
+															th:classappend="${subOrder.status == 'PREPARING' or subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED' ? 'active' : ''}">
+															<div class="step-icon">
+																<i class="fa fa-check-circle"
+																	th:if="${subOrder.status == 'PREPARING' or subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED'}"></i>
+																<i class="fa fa-circle-o"
+																	th:unless="${subOrder.status == 'PREPARING' or subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED'}"></i>
+															</div>
+															<div class="step-content">
+																<strong>Preparing Food</strong>
+																<p class="text-muted mb-0" style="font-size: 12px;">
+																	Restaurant is preparing your order</p>
+															</div>
+														</div>
+
+														<!-- Step 3: Out for Delivery (OUT_FOR_DELIVERY) -->
+														<div class="tracking-step"
+															th:classappend="${subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED' or subOrder.status == 'EN_ROUTE' or subOrder.status == 'PICKED_UP' ? 'active' : ''}">
+															<div class="step-icon">
+																<i class="fa fa-check-circle"
+																	th:if="${subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED' or subOrder.status == 'EN_ROUTE' or subOrder.status == 'PICKED_UP'}"></i>
+																<i class="fa fa-circle-o"
+																	th:unless="${subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED' or subOrder.status == 'EN_ROUTE' or subOrder.status == 'PICKED_UP'}"></i>
+															</div>
+															<div class="step-content">
+																<strong>Out for Delivery</strong>
+																<p class="text-muted mb-0" style="font-size: 12px;">
+																	Order is on the way</p>
+															</div>
+														</div>
+
+														<!-- Step 4: Delivered (DELIVERED/COMPLETED) -->
+														<div class="tracking-step"
+															th:classappend="${subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED' ? 'active' : ''}">
+															<div class="step-icon">
+																<i class="fa fa-check-circle"
+																	th:if="${subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED'}"></i>
+																<i class="fa fa-circle-o"
+																	th:unless="${subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED'}"></i>
+															</div>
+															<div class="step-content">
+																<strong>Delivered</strong>
+																<p class="text-muted mb-0" style="font-size: 12px;">
+																	Order delivered successfully</p>
+															</div>
+														</div>
 													</div>
 												</div>
-												
-												<!-- Step 2: Preparing Food (PREPARING) -->
-												<div class="tracking-step" th:classappend="${subOrder.status == 'PREPARING' or subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED' ? 'active' : ''}">
-													<div class="step-icon">
-														<i class="fa fa-check-circle" th:if="${subOrder.status == 'PREPARING' or subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED'}"></i>
-														<i class="fa fa-circle-o" th:unless="${subOrder.status == 'PREPARING' or subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED'}"></i>
-													</div>
-													<div class="step-content">
-														<strong>Preparing Food</strong>
-														<p class="text-muted mb-0" style="font-size: 12px;">Restaurant is preparing your order</p>
-													</div>
+
+												<!-- Rider Info (only for delivery orders) -->
+												<div th:if="${subOrder.riderId != null}" class="rider-info mt-2">
+													<p class="mb-0">
+														<i class="fa fa-motorcycle"></i>
+														<strong>Delivery Agent:</strong>
+														<span
+															th:text="${subOrder.riderName != null ? subOrder.riderName : 'Assigned'}">Rider
+															Name</span>
+													</p>
+													<p class="mb-0 text-muted" style="font-size: 12px;">
+														<span
+															th:if="${subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'EN_ROUTE' or subOrder.status == 'PICKED_UP'}">
+															<i class="fa fa-map-marker"></i> On the way to you
+														</span>
+														<span th:if="${subOrder.status == 'ACCEPTED'}">
+															<i class="fa fa-check"></i> Order accepted by delivery agent
+														</span>
+														<span
+															th:if="${subOrder.status == 'ASSIGNED' or subOrder.status == 'OFFERED'}">
+															<i class="fa fa-clock-o"></i> Waiting for delivery agent
+															approval
+														</span>
+													</p>
 												</div>
-												
-												<!-- Step 3: Out for Delivery (OUT_FOR_DELIVERY) -->
-												<div class="tracking-step" th:classappend="${subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED' or subOrder.status == 'EN_ROUTE' or subOrder.status == 'PICKED_UP' ? 'active' : ''}">
-													<div class="step-icon">
-														<i class="fa fa-check-circle" th:if="${subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED' or subOrder.status == 'EN_ROUTE' or subOrder.status == 'PICKED_UP'}"></i>
-														<i class="fa fa-circle-o" th:unless="${subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED' or subOrder.status == 'EN_ROUTE' or subOrder.status == 'PICKED_UP'}"></i>
-													</div>
-													<div class="step-content">
-														<strong>Out for Delivery</strong>
-														<p class="text-muted mb-0" style="font-size: 12px;">Order is on the way</p>
-													</div>
-												</div>
-												
-												<!-- Step 4: Delivered (DELIVERED/COMPLETED) -->
-												<div class="tracking-step" th:classappend="${subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED' ? 'active' : ''}">
-													<div class="step-icon">
-														<i class="fa fa-check-circle" th:if="${subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED'}"></i>
-														<i class="fa fa-circle-o" th:unless="${subOrder.status == 'DELIVERED' or subOrder.status == 'COMPLETED'}"></i>
-													</div>
-													<div class="step-content">
-														<strong>Delivered</strong>
-														<p class="text-muted mb-0" style="font-size: 12px;">Order delivered successfully</p>
-													</div>
+
+												<!-- Order Items -->
+												<div class="mt-3"
+													th:if="${subOrder.items != null and !subOrder.items.isEmpty()}">
+													<h6><i class="fa fa-shopping-cart"></i> Items</h6>
+													<table class="table table-sm mb-0">
+														<thead>
+															<tr>
+																<th>Item</th>
+																<th class="text-center" style="width: 90px;">Qty</th>
+																<th class="text-right" style="width: 120px;">Price</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr th:each="item : ${subOrder.items}">
+																<td th:text="${item.itemName}">Item Name</td>
+																<td class="text-center" th:text="${item.quantity}">1
+																</td>
+																<td class="text-right"
+																	th:text="'₹' + ${#numbers.formatDecimal(item.lineTotal != null ? item.lineTotal : (item.unitPrice * item.quantity),1,2)}">
+																	₹0.00</td>
+															</tr>
+														</tbody>
+													</table>
 												</div>
 											</div>
-										</div>
-										
-										<!-- Rider Info (only for delivery orders) -->
-										<div th:if="${subOrder.riderId != null}" class="rider-info mt-2">
-											<p class="mb-0">
-												<i class="fa fa-motorcycle"></i> 
-												<strong>Delivery Agent:</strong> 
-												<span th:text="${subOrder.riderName != null ? subOrder.riderName : 'Assigned'}">Rider Name</span>
-											</p>
-											<p class="mb-0 text-muted" style="font-size: 12px;">
-												<span th:if="${subOrder.status == 'OUT_FOR_DELIVERY' or subOrder.status == 'EN_ROUTE' or subOrder.status == 'PICKED_UP'}">
-													<i class="fa fa-map-marker"></i> On the way to you
-												</span>
-												<span th:if="${subOrder.status == 'ACCEPTED'}">
-													<i class="fa fa-check"></i> Order accepted by delivery agent
-												</span>
-												<span th:if="${subOrder.status == 'ASSIGNED' or subOrder.status == 'OFFERED'}">
-													<i class="fa fa-clock-o"></i> Waiting for delivery agent approval
-												</span>
-											</p>
-										</div>
-
-										<!-- Order Items -->
-										<div class="mt-3" th:if="${subOrder.items != null and !subOrder.items.isEmpty()}">
-											<h6><i class="fa fa-shopping-cart"></i> Items</h6>
-											<table class="table table-sm mb-0">
-												<thead>
-													<tr>
-														<th>Item</th>
-														<th class="text-center" style="width: 90px;">Qty</th>
-														<th class="text-right" style="width: 120px;">Price</th>
-													</tr>
-												</thead>
-												<tbody>
-													<tr th:each="item : ${subOrder.items}">
-														<td th:text="${item.itemName}">Item Name</td>
-														<td class="text-center" th:text="${item.quantity}">1</td>
-														<td class="text-right" th:text="'₹' + ${#numbers.formatDecimal(item.lineTotal != null ? item.lineTotal : (item.unitPrice * item.quantity),1,2)}">₹0.00</td>
-													</tr>
-												</tbody>
-											</table>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
+						<div th:if="${#lists.isEmpty(deliveryMultiOrders)}" class="text-center py-4">
+							<i class="fa fa-truck" style="font-size: 60px; color: #dee2e6;"></i>
+							<p class="text-muted mt-2">No delivery orders yet</p>
+						</div>
 					</div>
 				</div>
-				<div th:if="${#lists.isEmpty(deliveryMultiOrders)}" class="text-center py-4">
+				<div th:if="${#lists.isEmpty(multiOrders)}" class="text-center py-4">
 					<i class="fa fa-truck" style="font-size: 60px; color: #dee2e6;"></i>
 					<p class="text-muted mt-2">No delivery orders yet</p>
 				</div>
 			</div>
-		</div>
-		<div th:if="${#lists.isEmpty(multiOrders)}" class="text-center py-4">
-			<i class="fa fa-truck" style="font-size: 60px; color: #dee2e6;"></i>
-			<p class="text-muted mt-2">No delivery orders yet</p>
-		</div>
-	</div>
 
-	<!-- Preorders Tab Content -->
-	<div id="preorder-tab-content" class="tab-content">
-		<div th:if="${!#lists.isEmpty(multiOrders)}">
-			<!-- Filter: MultiOrders where at least one sub-order has preorderSlotId, reservationId, tableId, or orderType DINE_IN (table bookings/preorders) -->
-			<div th:with="preorderMultiOrders=${multiOrders.?[subOrders.?[preorderSlotId != null or reservationId != null or tableId != null or orderType == 'DINE_IN'].size() > 0]}">
-				<div th:if="${!#lists.isEmpty(preorderMultiOrders)}">
-					<div class="section-header preorder-header">
-						<i class="fa fa-cutlery"></i> Preorders (Dine-In)
-					</div>
-					<div th:each="multiOrder : ${preorderMultiOrders}" class="order-card preorder-card">
-						<div class="d-flex justify-content-between align-items-start mb-3">
-							<div>
-								<h4 style="color: #17a2b8; font-weight: 700;">
-									<i class="fa fa-cutlery"></i> Preorder #<span th:text="${multiOrder.id}">1</span>
-								</h4>
-								<p class="mb-1 text-muted">
-									<i class="fa fa-clock-o"></i> 
-									<span th:text="${#temporals.format(multiOrder.createdAt, 'dd MMM yyyy, hh:mm a')}">Date</span>
-								</p>
-								<p class="mb-0">
-									<strong>Total:</strong> 
-									<span style="font-size: 20px; color: #28a745; font-weight: 700;">
-										₹<span th:text="${#numbers.formatDecimal(multiOrder.totalAmount,1,2)}">0.00</span>
-									</span>
-								</p>
+			<!-- Preorders Tab Content -->
+			<div id="preorder-tab-content" class="tab-content">
+				<div th:if="${!#lists.isEmpty(multiOrders)}">
+					<!-- Filter: MultiOrders where at least one sub-order has preorderSlotId, reservationId, tableId, or orderType DINE_IN (table bookings/preorders) -->
+					<div
+						th:with="preorderMultiOrders=${multiOrders.?[subOrders.?[preorderSlotId != null or reservationId != null or tableId != null or orderType == 'DINE_IN'].size() > 0]}">
+						<div th:if="${!#lists.isEmpty(preorderMultiOrders)}">
+							<div class="section-header preorder-header">
+								<i class="fa fa-cutlery"></i> Preorders (Dine-In)
 							</div>
-							<div>
-								<span class="status-badge" 
-									  th:classappend="' status-' + ${multiOrder.status}"
-									  th:text="${multiOrder.status}">STATUS</span>
-							</div>
-						</div>
-
-						<!-- Sub-Orders with Table Details (only preorder sub-orders) -->
-						<div th:if="${!#lists.isEmpty(multiOrder.subOrders)}">
-							<div th:each="subOrder : ${multiOrder.subOrders}" th:if="${subOrder.preorderSlotId != null or subOrder.reservationId != null or subOrder.tableId != null or subOrder.orderType == 'DINE_IN'}">
-								<div class="sub-order-card">
-									<h6 class="mb-2" th:if="${subOrder.restaurantName}" 
-										th:text="${subOrder.restaurantName}">Restaurant</h6>
-									<p class="mb-1 text-muted">
-										Sub-Order #<span th:text="${subOrder.id}">1</span> &middot;
-										<span class="status-badge" 
-											  th:classappend="' status-' + ${subOrder.status}"
-											  th:text="${subOrder.status}">STATUS</span>
-									</p>
-									<p class="mb-2">
-										<strong>Amount:</strong> 
-										₹<span th:text="${#numbers.formatDecimal(subOrder.totalAmount,1,2)}">0.00</span>
-									</p>
-									
-									<!-- Preorder Slot Details -->
-									<div class="table-info" th:if="${subOrder.preorderSlotId != null}">
-										<h6 class="mb-2"><i class="fa fa-clock-o"></i> Preorder Slot Details</h6>
-										<div class="row">
-											<div class="col-md-6 mb-2" th:if="${subOrder.preorderSlotStartTime != null}">
-												<strong>Slot Start Time:</strong> 
-												<span th:text="${#temporals.format(subOrder.preorderSlotStartTime, 'dd MMM yyyy, hh:mm a')}">Start Time</span>
-											</div>
-											<div class="col-md-6 mb-2" th:if="${subOrder.preorderSlotEndTime != null}">
-												<strong>Slot End Time:</strong> 
-												<span th:text="${#temporals.format(subOrder.preorderSlotEndTime, 'dd MMM yyyy, hh:mm a')}">End Time</span>
-											</div>
-										</div>
-										<p class="mb-0 text-muted" style="font-size: 12px; margin-top: 8px;">
-											<i class="fa fa-info-circle"></i> Your food will be ready during this time slot
+							<div th:each="multiOrder : ${preorderMultiOrders}" class="order-card preorder-card">
+								<div class="d-flex justify-content-between align-items-start mb-3">
+									<div>
+										<h4 style="color: #17a2b8; font-weight: 700;">
+											<i class="fa fa-cutlery"></i> Preorder #<span
+												th:text="${multiOrder.id}">1</span>
+										</h4>
+										<p class="mb-1 text-muted">
+											<i class="fa fa-clock-o"></i>
+											<span
+												th:text="${#temporals.format(multiOrder.createdAt, 'dd MMM yyyy, hh:mm a')}">Date</span>
+										</p>
+										<p class="mb-0">
+											<strong>Total:</strong>
+											<span style="font-size: 20px; color: #28a745; font-weight: 700;">
+												₹<span
+													th:text="${#numbers.formatDecimal(multiOrder.totalAmount,1,2)}">0.00</span>
+											</span>
 										</p>
 									</div>
+									<div>
+										<span class="status-badge" th:classappend="' status-' + ${multiOrder.status}"
+											th:text="${multiOrder.status}">STATUS</span>
+									</div>
+								</div>
 
-									<!-- Table Reservation Details -->
-									<div class="table-info" th:if="${subOrder.tableName != null or subOrder.reservationDate != null}">
-										<h6 class="mb-2"><i class="fa fa-table"></i> Table Reservation Details</h6>
-										<div class="row">
-											<div class="col-md-6 mb-2" th:if="${subOrder.tableName != null}">
-												<strong>Table:</strong> 
-												<span th:text="${subOrder.tableName}"></span>
-												<span th:if="${subOrder.tableNumber != null}" th:text="| (${subOrder.tableNumber})|"></span>
+								<!-- Sub-Orders with Table Details (only preorder sub-orders) -->
+								<div th:if="${!#lists.isEmpty(multiOrder.subOrders)}">
+									<div th:each="subOrder : ${multiOrder.subOrders}"
+										th:if="${subOrder.preorderSlotId != null or subOrder.reservationId != null or subOrder.tableId != null or subOrder.orderType == 'DINE_IN'}">
+										<div class="sub-order-card">
+											<h6 class="mb-2" th:if="${subOrder.restaurantName}"
+												th:text="${subOrder.restaurantName}">Restaurant</h6>
+											<p class="mb-1 text-muted">
+												Sub-Order #<span th:text="${subOrder.id}">1</span> &middot;
+												<span class="status-badge"
+													th:classappend="' status-' + ${subOrder.status}"
+													th:text="${subOrder.status}">STATUS</span>
+											</p>
+											<p class="mb-2">
+												<strong>Amount:</strong>
+												₹<span
+													th:text="${#numbers.formatDecimal(subOrder.totalAmount,1,2)}">0.00</span>
+											</p>
+
+											<!-- Preorder Slot Details -->
+											<div class="table-info" th:if="${subOrder.preorderSlotId != null}">
+												<h6 class="mb-2"><i class="fa fa-clock-o"></i> Preorder Slot Details
+												</h6>
+												<div class="row">
+													<div class="col-md-6 mb-2"
+														th:if="${subOrder.preorderSlotStartTime != null}">
+														<strong>Slot Start Time:</strong>
+														<span
+															th:text="${#temporals.format(subOrder.preorderSlotStartTime, 'dd MMM yyyy, hh:mm a')}">Start
+															Time</span>
+													</div>
+													<div class="col-md-6 mb-2"
+														th:if="${subOrder.preorderSlotEndTime != null}">
+														<strong>Slot End Time:</strong>
+														<span
+															th:text="${#temporals.format(subOrder.preorderSlotEndTime, 'dd MMM yyyy, hh:mm a')}">End
+															Time</span>
+													</div>
+												</div>
+												<p class="mb-0 text-muted" style="font-size: 12px; margin-top: 8px;">
+													<i class="fa fa-info-circle"></i> Your food will be ready during
+													this time slot
+												</p>
 											</div>
-											<div class="col-md-6 mb-2" th:if="${subOrder.reservationDate != null and subOrder.reservationTime != null}">
-												<strong>Date &amp; Time:</strong> 
-												<span th:text="|${subOrder.reservationDate} at ${subOrder.reservationTime}|">Date &amp; Time</span>
+
+											<!-- Table Reservation Details -->
+											<div class="table-info"
+												th:if="${subOrder.tableName != null or subOrder.reservationDate != null}">
+												<h6 class="mb-2"><i class="fa fa-table"></i> Table Reservation Details
+												</h6>
+												<div class="row">
+													<div class="col-md-6 mb-2" th:if="${subOrder.tableName != null}">
+														<strong>Table:</strong>
+														<span th:text="${subOrder.tableName}"></span>
+														<span th:if="${subOrder.tableNumber != null}"
+															th:text="| (${subOrder.tableNumber})|"></span>
+													</div>
+													<div class="col-md-6 mb-2"
+														th:if="${subOrder.reservationDate != null and subOrder.reservationTime != null}">
+														<strong>Date &amp; Time:</strong>
+														<span
+															th:text="|${subOrder.reservationDate} at ${subOrder.reservationTime}|">Date
+															&amp; Time</span>
+													</div>
+													<div class="col-md-6 mb-2"
+														th:if="${subOrder.durationMinutes != null}">
+														<strong>Duration:</strong>
+														<span
+															th:text="|${subOrder.durationMinutes} minutes|">Duration</span>
+													</div>
+													<div class="col-md-6 mb-2"
+														th:if="${subOrder.numberOfGuests != null}">
+														<strong>Guests:</strong>
+														<span th:text="${subOrder.numberOfGuests}">Guests</span>
+													</div>
+												</div>
 											</div>
-											<div class="col-md-6 mb-2" th:if="${subOrder.durationMinutes != null}">
-												<strong>Duration:</strong> 
-												<span th:text="|${subOrder.durationMinutes} minutes|">Duration</span>
-											</div>
-											<div class="col-md-6 mb-2" th:if="${subOrder.numberOfGuests != null}">
-												<strong>Guests:</strong> 
-												<span th:text="${subOrder.numberOfGuests}">Guests</span>
+
+											<!-- Order Items -->
+											<div class="mt-3"
+												th:if="${subOrder.items != null and !subOrder.items.isEmpty()}">
+												<h6><i class="fa fa-shopping-cart"></i> Items</h6>
+												<table class="table table-sm mb-0">
+													<thead>
+														<tr>
+															<th>Item</th>
+															<th class="text-center" style="width: 90px;">Qty</th>
+															<th class="text-right" style="width: 120px;">Price</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr th:each="item : ${subOrder.items}">
+															<td th:text="${item.itemName}">Item Name</td>
+															<td class="text-center" th:text="${item.quantity}">1</td>
+															<td class="text-right"
+																th:text="'₹' + ${#numbers.formatDecimal(item.lineTotal != null ? item.lineTotal : (item.unitPrice * item.quantity),1,2)}">
+																₹0.00</td>
+														</tr>
+													</tbody>
+												</table>
 											</div>
 										</div>
-									</div>
-
-									<!-- Order Items -->
-									<div class="mt-3" th:if="${subOrder.items != null and !subOrder.items.isEmpty()}">
-										<h6><i class="fa fa-shopping-cart"></i> Items</h6>
-										<table class="table table-sm mb-0">
-											<thead>
-												<tr>
-													<th>Item</th>
-													<th class="text-center" style="width: 90px;">Qty</th>
-													<th class="text-right" style="width: 120px;">Price</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr th:each="item : ${subOrder.items}">
-													<td th:text="${item.itemName}">Item Name</td>
-													<td class="text-center" th:text="${item.quantity}">1</td>
-													<td class="text-right" th:text="'₹' + ${#numbers.formatDecimal(item.lineTotal != null ? item.lineTotal : (item.unitPrice * item.quantity),1,2)}">₹0.00</td>
-												</tr>
-											</tbody>
-										</table>
 									</div>
 								</div>
 							</div>
 						</div>
+						<div th:if="${#lists.isEmpty(preorderMultiOrders)}" class="text-center py-4">
+							<i class="fa fa-cutlery" style="font-size: 60px; color: #dee2e6;"></i>
+							<p class="text-muted mt-2">No preorders yet</p>
+						</div>
 					</div>
 				</div>
-				<div th:if="${#lists.isEmpty(preorderMultiOrders)}" class="text-center py-4">
+				<div th:if="${#lists.isEmpty(multiOrders)}" class="text-center py-4">
 					<i class="fa fa-cutlery" style="font-size: 60px; color: #dee2e6;"></i>
 					<p class="text-muted mt-2">No preorders yet</p>
 				</div>
 			</div>
-		</div>
-		<div th:if="${#lists.isEmpty(multiOrders)}" class="text-center py-4">
-			<i class="fa fa-cutlery" style="font-size: 60px; color: #dee2e6;"></i>
-			<p class="text-muted mt-2">No preorders yet</p>
-		</div>
-	</div>
 
-	<!-- Empty State -->
-	<div th:if="${#lists.isEmpty(multiOrders)}" class="text-center py-5">
-		<i class="fa fa-shopping-bag" style="font-size: 80px; color: #dee2e6;"></i>
-		<h4 class="mt-3">No Orders Yet</h4>
-		<p class="text-muted">Add items to your cart and place your first order!</p>
-		<a th:href="@{/customer/restaurants}" class="btn btn-primary mt-3">
-			<i class="fa fa-utensils"></i> Browse Restaurants
-		</a>
-	</div>
-</div>
+			<!-- Empty State -->
+			<div th:if="${#lists.isEmpty(multiOrders)}" class="text-center py-5">
+				<i class="fa fa-shopping-bag" style="font-size: 80px; color: #dee2e6;"></i>
+				<h4 class="mt-3">No Orders Yet</h4>
+				<p class="text-muted">Add items to your cart and place your first order!</p>
+				<a th:href="@{/customer/restaurants}" class="btn btn-primary mt-3">
+					<i class="fa fa-utensils"></i> Browse Restaurants
+				</a>
+			</div>
+		</div>
 
-<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
-<script th:src="@{/js/bootstrap.js}"></script>
-<script>
-	function showTab(tabName) {
-		// Hide all tab contents
-		document.querySelectorAll('.tab-content').forEach(function(content) {
-			content.classList.remove('active');
-		});
-		
-		// Remove active class from all tab buttons
-		document.querySelectorAll('.tab-button').forEach(function(button) {
-			button.classList.remove('active');
-		});
-		
-		// Show selected tab content
-		document.getElementById(tabName + '-tab-content').classList.add('active');
-		
-		// Add active class to selected tab button
-		document.getElementById(tabName + '-tab').classList.add('active');
-	}
-</script>
-</body>
+		<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+		<script th:src="@{/js/bootstrap.js}"></script>
+		<script>
+			function showTab(tabName) {
+				// Hide all tab contents
+				document.querySelectorAll('.tab-content').forEach(function (content) {
+					content.classList.remove('active');
+				});
+
+				// Remove active class from all tab buttons
+				document.querySelectorAll('.tab-button').forEach(function (button) {
+					button.classList.remove('active');
+				});
+
+				// Show selected tab content
+				document.getElementById(tabName + '-tab-content').classList.add('active');
+
+				// Add active class to selected tab button
+				document.getElementById(tabName + '-tab').classList.add('active');
+			}
+		</script>
+	</body>
+
 </html>

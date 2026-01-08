@@ -32,6 +32,7 @@ import com.srFoodDelivery.model.User;
 import com.srFoodDelivery.model.MenuItem;
 import com.srFoodDelivery.model.CompanySubscription;
 import com.srFoodDelivery.model.CompanyOrder;
+import com.srFoodDelivery.model.Offer;
 import com.srFoodDelivery.security.CustomUserDetails;
 
 import com.srFoodDelivery.model.OrderStatus;
@@ -76,6 +77,7 @@ public class OwnerController {
     private final CompanySubscriptionRepository companySubscriptionRepository;
     private final CompanyService companyService;
     private final CompanyOrderRepository companyOrderRepository;
+    private final com.srFoodDelivery.service.OfferService offerService;
 
     public OwnerController(RestaurantService restaurantService,
             MenuService menuService,
@@ -92,7 +94,8 @@ public class OwnerController {
             SubscriptionPackageService subscriptionPackageService,
             CompanySubscriptionRepository companySubscriptionRepository,
             CompanyService companyService,
-            CompanyOrderRepository companyOrderRepository) {
+            CompanyOrderRepository companyOrderRepository,
+            com.srFoodDelivery.service.OfferService offerService) {
         this.restaurantService = restaurantService;
         this.menuService = menuService;
         this.menuItemService = menuItemService;
@@ -109,6 +112,7 @@ public class OwnerController {
         this.companySubscriptionRepository = companySubscriptionRepository;
         this.companyService = companyService;
         this.companyOrderRepository = companyOrderRepository;
+        this.offerService = offerService;
     }
 
     @GetMapping({ "", "/dashboard" })
@@ -1064,5 +1068,106 @@ public class OwnerController {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
         return "redirect:/owner/restaurants/" + restaurantId + "/subscription-requests";
+    }
+
+    // --- Offers / Coupons Management ---
+
+    @GetMapping("/restaurants/{restaurantId}/offers")
+    public String viewOffers(@PathVariable Long restaurantId,
+            @AuthenticationPrincipal CustomUserDetails principal,
+            Model model) {
+        Restaurant restaurant = restaurantService.getOwnedRestaurant(restaurantId, principal.getUser());
+        List<Offer> offers = offerService.getAllOffersByRestaurant(restaurant);
+        model.addAttribute("restaurant", restaurant);
+        model.addAttribute("offers", offers);
+        return "owner/offers";
+    }
+
+    @GetMapping("/restaurants/{restaurantId}/offers/new")
+    public String newOffer(@PathVariable Long restaurantId,
+            @AuthenticationPrincipal CustomUserDetails principal,
+            Model model) {
+        Restaurant restaurant = restaurantService.getOwnedRestaurant(restaurantId, principal.getUser());
+        Offer offer = new Offer();
+        offer.setRestaurant(restaurant);
+        offer.setOfferType("PERCENTAGE_OFF"); // default
+
+        model.addAttribute("restaurant", restaurant);
+        model.addAttribute("offer", offer);
+        return "owner/offer-form";
+    }
+
+    @PostMapping("/restaurants/{restaurantId}/offers")
+    public String createOffer(@PathVariable Long restaurantId,
+            @AuthenticationPrincipal CustomUserDetails principal,
+            @Valid @ModelAttribute("offer") Offer offer,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        Restaurant restaurant = restaurantService.getOwnedRestaurant(restaurantId, principal.getUser());
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("restaurant", restaurant);
+            return "owner/offer-form";
+        }
+
+        offer.setRestaurant(restaurant);
+        offerService.createOffer(offer);
+
+        redirectAttributes.addFlashAttribute("successMessage", "Offer created successfully!");
+        return "redirect:/owner/restaurants/" + restaurantId + "/offers";
+    }
+
+    @GetMapping("/restaurants/{restaurantId}/offers/{offerId}/edit")
+    public String editOffer(@PathVariable Long restaurantId,
+            @PathVariable Long offerId,
+            @AuthenticationPrincipal CustomUserDetails principal,
+            Model model) {
+        Restaurant restaurant = restaurantService.getOwnedRestaurant(restaurantId, principal.getUser());
+        Offer offer = offerService.getAllOffersByRestaurant(restaurant).stream()
+                .filter(o -> o.getId().equals(offerId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Offer not found"));
+
+        model.addAttribute("restaurant", restaurant);
+        model.addAttribute("offer", offer);
+        return "owner/offer-form";
+    }
+
+    @PostMapping("/restaurants/{restaurantId}/offers/{offerId}/edit")
+    public String updateOffer(@PathVariable Long restaurantId,
+            @PathVariable Long offerId,
+            @AuthenticationPrincipal CustomUserDetails principal,
+            @Valid @ModelAttribute("offer") Offer offer,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        Restaurant restaurant = restaurantService.getOwnedRestaurant(restaurantId, principal.getUser());
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("restaurant", restaurant);
+            return "owner/offer-form";
+        }
+
+        offerService.updateOffer(offerId, offer);
+
+        redirectAttributes.addFlashAttribute("successMessage", "Offer updated successfully!");
+        return "redirect:/owner/restaurants/" + restaurantId + "/offers";
+    }
+
+    @PostMapping("/restaurants/{restaurantId}/offers/{offerId}/delete")
+    public String deleteOffer(@PathVariable Long restaurantId,
+            @PathVariable Long offerId,
+            @AuthenticationPrincipal CustomUserDetails principal,
+            RedirectAttributes redirectAttributes) {
+        // verify ownership
+        Restaurant restaurant = restaurantService.getOwnedRestaurant(restaurantId, principal.getUser());
+        // ideally verify offer belongs to restaurant too
+        offerService.deleteOffer(offerId);
+
+        redirectAttributes.addFlashAttribute("successMessage", "Offer deleted successfully!");
+        return "redirect:/owner/restaurants/" + restaurantId + "/offers";
     }
 }

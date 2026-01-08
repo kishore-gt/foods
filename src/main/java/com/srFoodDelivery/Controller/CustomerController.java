@@ -20,8 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import java.util.ArrayList;
 
 import com.srFoodDelivery.dto.ReviewForm;
 import com.srFoodDelivery.model.Menu;
@@ -391,6 +393,10 @@ public class CustomerController {
         model.addAttribute("selectedTime", time);
         model.addAttribute("numberOfGuests", guests != null ? guests : 2);
 
+        // Get active offers for this restaurant
+        List<com.srFoodDelivery.model.Offer> activeOffers = offerService.getActiveOffersByRestaurant(restaurant);
+        model.addAttribute("activeOffers", activeOffers);
+
         return "customer/preorder";
     }
 
@@ -406,29 +412,101 @@ public class CustomerController {
             @RequestParam(required = false) Integer durationMinutes,
             @RequestParam(required = false) Integer numberOfGuests,
             @RequestParam(required = false) String paymentMethod,
-            @RequestParam(value = "itemIds", required = false) String[] itemIds,
-            @RequestParam(value = "quantities", required = false) String[] quantities,
+            @RequestParam(required = false) String couponCode,
+            @RequestParam(required = false) Long offerId,
+            HttpServletRequest request,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
-        // Parse items from arrays
-        List<PreorderItemRequest> items = new java.util.ArrayList<>();
-        if (itemIds != null && quantities != null && itemIds.length > 0 && itemIds.length == quantities.length) {
-            for (int i = 0; i < itemIds.length; i++) {
+        Map<String, String[]> paramMap = request.getParameterMap();
+        List<PreorderItemRequest> items = new ArrayList<>();
+
+        // Parse items manually since relying on @RequestParam arrays might be flaky
+        // with the JS form
+        // JS sends: items[itemId] = quantity (from object iteration) OR distinct inputs
+        // Wait, the new JS code sends:
+        // const inputs = { ... }
+        // for (const [name, value] of Object.entries(inputs)) ...
+        // AND for items:
+        // const items = []; items.push({ menuItemId: ..., quantity: ... })
+        // AND THEN loop items to create inputs? No, let's allow the previous parsing
+        // logic to work.
+        // My previous JS edit:
+        /*
+         * for (const item of items) {
+         * const idInput = document.createElement('input');
+         * idInput.name = 'items[' + i + '][menuItemId]'; ...
+         */
+        // Actually, looking at the previous view_file, the JS iterates items and
+        // creates hidden inputs?
+        // No, I need to check how JS is creating item inputs.
+        // Assuming the backend previously parsed arrays or Map, let's stick to the
+        // existing "Parse items from arrays" logic
+        // but since I can't easily see the hidden input structure for items in my JS
+        // edit,
+        // let's Assume the previous logical block works if I restore the signature.
+        // BUT my REPLACE block below REPLACES the signature.
+        // So I must include the array params if they were there OR map parsing.
+
+        // Let's stick to the existing signature style plus new params.
+        // And keep the existing parsing logic or use the map parsing I saw in a
+        // previous turn (Step 225).
+        // Actually, Step 231 shows it uses `String[] itemIds` and `String[]
+        // quantities`.
+        // So I will keep those.
+
+        // Wait, the JS creates `items` array and appends... how?
+        // Let's look at Step 219 JS again.
+        // It creates `const items = []`.
+        // It doesn't show the loop creating inputs.
+        // I need to be careful. If the JS creates `itemIds` and `quantities` arrays,
+        // fine.
+        // If it creates `items[0][id]` then `itemIds` won't bind.
+
+        // Let's implement robust parsing from the request map to be safe.
+
+        for (String key : paramMap.keySet()) {
+            if (key.startsWith("items[")) {
                 try {
-                    if (itemIds[i] != null && quantities[i] != null &&
-                            !itemIds[i].trim().isEmpty() && !quantities[i].trim().isEmpty()) {
+                    // Extract index
+                    int startIndex = key.indexOf("[");
+                    int endIndex = key.indexOf("]");
+                    String indexStr = key.substring(startIndex + 1, endIndex);
+                    int index = Integer.parseInt(indexStr);
+
+                    while (items.size() <= index) {
+                        items.add(new PreorderItemRequest());
+                    }
+
+                    PreorderItemRequest item = items.get(index);
+                    if (key.contains("[menuItemId]")) {
+                        item.setMenuItemId(Long.parseLong(paramMap.get(key)[0]));
+                    } else if (key.contains("[quantity]")) {
+                        item.setQuantity(Integer.parseInt(paramMap.get(key)[0]));
+                    }
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
+        }
+
+        // Fallback to array params if list is empty
+        if (items.isEmpty()) {
+            String[] itemIds = request.getParameterValues("itemIds");
+            String[] quantities = request.getParameterValues("quantities");
+            if (itemIds != null && quantities != null && itemIds.length > 0 && itemIds.length == quantities.length) {
+                for (int i = 0; i < itemIds.length; i++) {
+                    try {
                         Long menuItemId = Long.parseLong(itemIds[i].trim());
                         Integer quantity = Integer.parseInt(quantities[i].trim());
-                        if (quantity > 0 && menuItemId > 0) {
+                        if (quantity > 0) {
                             PreorderItemRequest item = new PreorderItemRequest();
                             item.setMenuItemId(menuItemId);
                             item.setQuantity(quantity);
                             items.add(item);
                         }
+                    } catch (Exception e) {
                     }
-                } catch (NumberFormatException e) {
-                    // Skip invalid entries
                 }
             }
         }
@@ -436,6 +514,19 @@ public class CustomerController {
         if (principal == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Please login to continue");
             return "redirect:/login";
+        }
+
+        // Store coupon details
+        if (couponCode != null && !couponCode.isEmpty()) {
+            session.setAttribute("preorderCouponCode", couponCode);
+        } else {
+            session.removeAttribute("preorderCouponCode");
+        }
+
+        if (offerId != null) {
+            session.setAttribute("preorderOfferId", offerId);
+        } else {
+            session.removeAttribute("preorderOfferId");
         }
 
         try {
@@ -573,14 +664,58 @@ public class CustomerController {
             totalAmount = calculatedTotal;
         }
 
+        // Apply discount if coupon exists in session
+        String couponCode = (String) session.getAttribute("preorderCouponCode");
+        Long offerId = (Long) session.getAttribute("preorderOfferId");
+        java.math.BigDecimal discountAmount = java.math.BigDecimal.ZERO;
+        java.math.BigDecimal originalTotal = totalAmount;
+
+        if (offerId != null) {
+            try {
+                com.srFoodDelivery.model.Offer offer = offerService.getOfferById(offerId);
+
+                if (offer != null && offer.isCurrentlyActive()) {
+                    // Calculate discount
+                    if ("PERCENTAGE_OFF".equals(offer.getOfferType())) {
+                        discountAmount = totalAmount.multiply(offer.getDiscountValue())
+                                .divide(new java.math.BigDecimal(100));
+                        if (offer.getMaxDiscount() != null && discountAmount.compareTo(offer.getMaxDiscount()) > 0) {
+                            discountAmount = offer.getMaxDiscount();
+                        }
+                    } else if ("FLAT_DISCOUNT".equals(offer.getOfferType())) {
+                        discountAmount = offer.getDiscountValue();
+                    }
+
+                    // Ensure discount doesn't exceed total
+                    if (discountAmount.compareTo(totalAmount) > 0) {
+                        discountAmount = totalAmount;
+                    }
+
+                    // Round to 2 decimal places
+                    discountAmount = discountAmount.setScale(2, java.math.RoundingMode.HALF_UP);
+
+                    totalAmount = totalAmount.subtract(discountAmount);
+                }
+            } catch (Exception e) {
+                // If offer invalid, ignore
+            }
+        }
+
         SiteMode siteMode = siteModeManager.resolveMode(mode, session);
         model.addAttribute("restaurant", restaurant);
         model.addAttribute("itemDetails", itemDetails);
         model.addAttribute("totalAmount", totalAmount);
+        model.addAttribute("originalTotal", originalTotal);
         model.addAttribute("reservationId", session.getAttribute("preorderReservationId"));
         model.addAttribute("reservationDate", session.getAttribute("preorderReservationDate"));
         model.addAttribute("reservationTime", session.getAttribute("preorderReservationTime"));
         model.addAttribute("siteMode", siteMode);
+
+        if (offerId != null && discountAmount.compareTo(java.math.BigDecimal.ZERO) > 0) {
+            model.addAttribute("couponCode", couponCode);
+            model.addAttribute("offerId", offerId);
+            model.addAttribute("discountAmount", discountAmount);
+        }
 
         return "customer/preorder-payment";
     }

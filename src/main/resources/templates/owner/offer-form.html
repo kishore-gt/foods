@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Offer Details - Owner Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        .navbar-custom {
+            background: linear-gradient(135deg, #fc8019 0%, #e66a00 100%);
+        }
+
+        .navbar-custom .navbar-brand,
+        .navbar-custom .nav-link {
+            color: #fff;
+        }
+
+        .card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-primary {
+            background: #fc8019;
+            border-color: #fc8019;
+            border-radius: 25px;
+            padding: 6px 20px;
+        }
+
+        .btn-primary:hover {
+            background: #e66a00;
+            border-color: #e66a00;
+        }
+
+        label {
+            font-weight: 500;
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/owner/dashboard}">Tummy Go! Owner</a>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-body p-5">
+                        <h3 class="mb-4 text-center" th:text="${offer.id == null ? 'Create New Offer' : 'Edit Offer'}">
+                            Create Offer</h3>
+
+                        <form
+                            th:action="@{|/owner/restaurants/${restaurant.id}/offers${offer.id != null ? '/' + offer.id + '/edit' : ''}|}"
+                            th:object="${offer}" method="post">
+
+                            <div class="form-group">
+                                <label>Title *</label>
+                                <input type="text" class="form-control" th:field="*{title}"
+                                    placeholder="e.g. Summer Special 10% Off" required>
+                                <div th:if="${#fields.hasErrors('title')}" th:errors="*{title}"
+                                    class="text-danger small"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea class="form-control" th:field="*{description}" rows="2"></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <label>Coupon Code (Optional)</label>
+                                    <input type="text" class="form-control" th:field="*{couponCode}"
+                                        placeholder="Leave empty for auto-apply">
+                                    <small class="text-muted">If set, users must enter this code.</small>
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label>Offer Type *</label>
+                                    <select class="form-control" th:field="*{offerType}">
+                                        <option value="PERCENTAGE_OFF">Percentage Off (%)</option>
+                                        <option value="FLAT_DISCOUNT">Flat Discount (₹)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <label>Discount Value *</label>
+                                    <input type="number" step="0.01" class="form-control" th:field="*{discountValue}"
+                                        required>
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label>Max Discount Amount (₹)</label>
+                                    <input type="number" step="0.01" class="form-control" th:field="*{maxDiscount}">
+                                    <small class="text-muted">Optional cap for percentage offers</small>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <label>Min Order Amount (₹)</label>
+                                    <input type="number" step="0.01" class="form-control" th:field="*{minOrderAmount}">
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <div class="custom-control custom-switch mt-4">
+                                        <input type="checkbox" class="custom-control-input" id="activeSwitch"
+                                            th:field="*{active}">
+                                        <label class="custom-control-label" for="activeSwitch">Active</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <label>Start Date *</label>
+                                    <input type="datetime-local" class="form-control" th:field="*{startDate}" required>
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label>End Date *</label>
+                                    <input type="datetime-local" class="form-control" th:field="*{endDate}" required>
+                                </div>
+                            </div>
+
+                            <!-- Applicable Items Section -->
+                            <div class="card mb-4" th:if="${not #lists.isEmpty(menuItems)}">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <span class="h6 mb-0">Applicable Items (Optional)</span>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                        onclick="toggleAllItems()">Select All / None</button>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted small mb-3">
+                                        Select items for this offer. If selected, the offer (e.g., % off, BOGO) applies
+                                        ONLY to these items.
+                                        <br><strong>Leave all unchecked to apply to ALL items.</strong>
+                                    </p>
+                                    <div class="row" style="max-height: 300px; overflow-y: auto;">
+                                        <div class="col-md-6 mb-2" th:each="item : ${menuItems}">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input"
+                                                    th:id="'item-' + ${item.id}" name="applicableMenuItemIdList"
+                                                    th:value="${item.id}"
+                                                    th:checked="${offer.applicableMenuItemIdList.contains(item.id)}">
+                                                <label class="custom-control-label" th:for="'item-' + ${item.id}">
+                                                    <span th:text="${item.name}">Item Name</span>
+                                                    <span class="text-muted small"
+                                                        th:text="'(₹' + ${item.price} + ')'">Price</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mt-4 text-center">
+                                <a th:href="@{|/owner/restaurants/${restaurant.id}/offers|}"
+                                    class="btn btn-light mr-2">Cancel</a>
+                                <button type="submit" class="btn btn-primary px-5">Save Offer</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+    <script th:src="@{/js/bootstrap.js}"></script>
+    <script>
+        function toggleAllItems() {
+            var checkboxes = document.querySelectorAll('input[name="applicableMenuItemIdList"]');
+            var allChecked = true;
+
+            // Check if all are currently checked
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (!checkboxes[i].checked) {
+                    allChecked = false;
+                    break;
+                }
+            }
+
+            // Toggle
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = !allChecked;
+            }
+        }
+    </script>
+</body>
+
+</html>

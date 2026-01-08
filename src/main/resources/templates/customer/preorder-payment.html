@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,18 +28,21 @@
 			background-color: #fc8019;
 			padding: 15px 0;
 		}
+
 		.navbar-custom .navbar-brand,
 		.navbar-custom .nav-link {
 			color: white;
 			font-weight: 500;
 		}
+
 		.payment-card {
 			border: 1px solid #e0e0e0;
 			border-radius: 8px;
 			padding: 20px;
 			background: #fff;
-			box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 		}
+
 		.payment-option {
 			border: 1px solid #ececec;
 			border-radius: 6px;
@@ -49,177 +53,193 @@
 			display: flex;
 			align-items: center;
 		}
+
 		.payment-option input {
 			margin-right: 10px;
 		}
+
 		.payment-option:hover {
 			border-color: #fc8019;
-			box-shadow: 0 2px 8px rgba(252,128,25,0.2);
+			box-shadow: 0 2px 8px rgba(252, 128, 25, 0.2);
 		}
+
 		.payment-option.active {
 			border-color: #fc8019;
-			box-shadow: 0 2px 8px rgba(252,128,25,0.25);
+			box-shadow: 0 2px 8px rgba(252, 128, 25, 0.25);
 		}
+
 		.payment-details {
 			border-top: 1px solid #f2f2f2;
 			margin-top: 1rem;
 			padding-top: 1rem;
 		}
+
 		.summary-row {
 			display: flex;
 			justify-content: space-between;
 			margin-bottom: 8px;
 		}
+
 		.item-row {
 			display: flex;
 			justify-content: space-between;
 			padding: 8px 0;
 			border-bottom: 1px solid #f0f0f0;
 		}
+
 		.item-row:last-child {
 			border-bottom: none;
 		}
 	</style>
 </head>
-<body th:classappend="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE} ? 'cafe-mode' : ''">
-<nav class="navbar navbar-expand-lg navbar-custom">
-	<div class="container">
-		<a class="navbar-brand" th:href="@{/customer/restaurants}">Tummy Go!</a>
-		<div class="ml-auto d-flex align-items-center">
-			<a sec:authorize="isAuthenticated()" class="nav-link" th:href="@{/logout}">Logout</a>
-		</div>
-	</div>
-</nav>
 
-<div class="container py-4">
-	<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
-	<div th:if="${infoMessage}" class="alert alert-info" th:text="${infoMessage}"></div>
-
-	<div class="d-flex justify-content-between align-items-center mb-3">
-		<h3>Complete Your Preorder Payment</h3>
-		<a class="btn btn-outline-secondary" th:href="@{|/customer/restaurants/${restaurant.id}/preorder|}">
-			<i class="fa fa-arrow-left"></i> Back
-		</a>
-	</div>
-
-	<div class="row">
-		<div class="col-lg-7 mb-4">
-			<div class="payment-card">
-				<h5 class="mb-3">Select a payment method</h5>
-				<form method="post" th:action="@{/customer/preorder/payment/confirm}" id="payment-form">
-					<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-
-					<label class="payment-option" onclick="selectPayment('UPI')">
-						<input type="radio" name="paymentOption" value="UPI" checked>
-						<span><strong>UPI</strong> (GPay / PhonePe / Paytm)</span>
-					</label>
-					<div id="upi-details" class="payment-details">
-						<div class="form-group">
-							<label>UPI ID</label>
-							<input type="text" name="upiId" class="form-control" placeholder="name@bank" required>
-						</div>
-					</div>
-
-					<label class="payment-option" onclick="selectPayment('CARD')">
-						<input type="radio" name="paymentOption" value="CARD">
-						<span><strong>Card</strong> (Credit / Debit)</span>
-					</label>
-					<div id="card-details" class="payment-details" style="display: none;">
-						<div class="form-group">
-							<label>Card Holder Name</label>
-							<input type="text" name="cardHolderName" class="form-control" placeholder="John Doe">
-						</div>
-						<div class="form-group">
-							<label>Card Number</label>
-							<input type="text" name="cardNumber" class="form-control" placeholder="1234567890123456" maxlength="16">
-						</div>
-						<div class="row">
-							<div class="col-md-6">
-								<div class="form-group">
-									<label>Expiry (MM/YY)</label>
-									<input type="text" name="cardExpiry" class="form-control" placeholder="12/25" maxlength="5">
-								</div>
-							</div>
-							<div class="col-md-6">
-								<div class="form-group">
-									<label>CVV</label>
-									<input type="text" name="cardCvv" class="form-control" placeholder="123" maxlength="4">
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<label class="payment-option" onclick="selectPayment('COD')">
-						<input type="radio" name="paymentOption" value="COD">
-						<span><strong>Pay at Restaurant</strong></span>
-					</label>
-
-					<div class="mt-4">
-						<button type="submit" class="btn btn-primary btn-lg btn-block">
-							<i class="fa fa-check"></i> Complete Booking
-						</button>
-					</div>
-				</form>
+<body th:classappend="${siteMode != null and siteMode.name() == 'CAFE'} ? 'cafe-mode' : ''">
+	<nav class="navbar navbar-expand-lg navbar-custom">
+		<div class="container">
+			<a class="navbar-brand" th:href="@{/customer/restaurants}">Tummy Go!</a>
+			<div class="ml-auto d-flex align-items-center">
+				<a sec:authorize="isAuthenticated()" class="nav-link" th:href="@{/logout}">Logout</a>
 			</div>
 		</div>
+	</nav>
 
-		<div class="col-lg-5">
-			<div class="payment-card">
-				<h5 class="mb-3">Order Summary</h5>
-				<div class="mb-3">
-					<strong th:text="${restaurant.name}">Restaurant Name</strong>
-					<div class="text-muted small" th:if="${reservationDate != null and reservationTime != null}">
-						Reservation: <span th:text="${reservationDate}">Date</span> at <span th:text="${reservationTime}">Time</span>
-					</div>
-				</div>
-				<div class="mb-3">
-					<div th:each="itemDetail : ${itemDetails}" class="item-row">
-						<div>
-							<span th:text="${itemDetail.menuItem.name}">Item</span>
-							<span class="text-muted small"> x <span th:text="${itemDetail.quantity}">1</span></span>
+	<div class="container py-4">
+		<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+		<div th:if="${infoMessage}" class="alert alert-info" th:text="${infoMessage}"></div>
+
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<h3>Complete Your Preorder Payment</h3>
+			<a class="btn btn-outline-secondary" th:href="@{|/customer/restaurants/${restaurant.id}/preorder|}">
+				<i class="fa fa-arrow-left"></i> Back
+			</a>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-7 mb-4">
+				<div class="payment-card">
+					<h5 class="mb-3">Select a payment method</h5>
+					<form method="post" th:action="@{/customer/preorder/payment/confirm}" id="payment-form">
+						<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}"
+							th:value="${_csrf.token}">
+
+						<label class="payment-option" onclick="selectPayment('UPI')">
+							<input type="radio" name="paymentOption" value="UPI" checked>
+							<span><strong>UPI</strong> (GPay / PhonePe / Paytm)</span>
+						</label>
+						<div id="upi-details" class="payment-details">
+							<div class="form-group">
+								<label>UPI ID</label>
+								<input type="text" name="upiId" class="form-control" placeholder="name@bank" required>
+							</div>
 						</div>
-						<div>
-							<strong>₹<span th:text="${#numbers.formatDecimal(itemDetail.total, 1, 2)}">0.00</span></strong>
+
+						<label class="payment-option" onclick="selectPayment('CARD')">
+							<input type="radio" name="paymentOption" value="CARD">
+							<span><strong>Card</strong> (Credit / Debit)</span>
+						</label>
+						<div id="card-details" class="payment-details" style="display: none;">
+							<div class="form-group">
+								<label>Card Holder Name</label>
+								<input type="text" name="cardHolderName" class="form-control" placeholder="John Doe">
+							</div>
+							<div class="form-group">
+								<label>Card Number</label>
+								<input type="text" name="cardNumber" class="form-control" placeholder="1234567890123456"
+									maxlength="16">
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Expiry (MM/YY)</label>
+										<input type="text" name="cardExpiry" class="form-control" placeholder="12/25"
+											maxlength="5">
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>CVV</label>
+										<input type="text" name="cardCvv" class="form-control" placeholder="123"
+											maxlength="4">
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<label class="payment-option" onclick="selectPayment('COD')">
+							<input type="radio" name="paymentOption" value="COD">
+							<span><strong>Pay at Restaurant</strong></span>
+						</label>
+
+						<div class="mt-4">
+							<button type="submit" class="btn btn-primary btn-lg btn-block">
+								<i class="fa fa-check"></i> Complete Booking
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<div class="col-lg-5">
+				<div class="payment-card">
+					<h5 class="mb-3">Order Summary</h5>
+					<div class="mb-3">
+						<strong th:text="${restaurant.name}">Restaurant Name</strong>
+						<div class="text-muted small" th:if="${reservationDate != null and reservationTime != null}">
+							Reservation: <span th:text="${reservationDate}">Date</span> at <span
+								th:text="${reservationTime}">Time</span>
 						</div>
 					</div>
-				</div>
-				<div class="summary-row" style="border-top: 2px solid #fc8019; padding-top: 10px; margin-top: 10px;">
-					<strong>Total Amount:</strong>
-					<strong style="color: #fc8019; font-size: 1.2em;">₹<span th:text="${#numbers.formatDecimal(totalAmount, 1, 2)}">0.00</span></strong>
+					<div class="mb-3">
+						<div th:each="itemDetail : ${itemDetails}" class="item-row">
+							<div>
+								<span th:text="${itemDetail.menuItem.name}">Item</span>
+								<span class="text-muted small"> x <span th:text="${itemDetail.quantity}">1</span></span>
+							</div>
+							<div>
+								<strong>₹<span
+										th:text="${#numbers.formatDecimal(itemDetail.total, 1, 2)}">0.00</span></strong>
+							</div>
+						</div>
+					</div>
+					<div class="summary-row"
+						style="border-top: 2px solid #fc8019; padding-top: 10px; margin-top: 10px;">
+						<strong>Total Amount:</strong>
+						<strong style="color: #fc8019; font-size: 1.2em;">₹<span
+								th:text="${#numbers.formatDecimal(totalAmount, 1, 2)}">0.00</span></strong>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
 
-<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
-<script th:src="@{/js/bootstrap.js}"></script>
-<script>
-	function selectPayment(option) {
-		document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('active'));
-		event.currentTarget.classList.add('active');
-		
-		document.getElementById('upi-details').style.display = option === 'UPI' ? 'block' : 'none';
-		document.getElementById('card-details').style.display = option === 'CARD' ? 'block' : 'none';
-		
-		if (option === 'UPI') {
-			document.querySelector('input[name="upiId"]').required = true;
-			document.querySelectorAll('#card-details input').forEach(inp => inp.required = false);
-		} else if (option === 'CARD') {
-			document.querySelector('input[name="upiId"]').required = false;
-			document.querySelectorAll('#card-details input').forEach(inp => inp.required = true);
-		} else {
-			document.querySelector('input[name="upiId"]').required = false;
-			document.querySelectorAll('#card-details input').forEach(inp => inp.required = false);
+	<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+	<script th:src="@{/js/bootstrap.js}"></script>
+	<script>
+		function selectPayment(option) {
+			document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('active'));
+			event.currentTarget.classList.add('active');
+
+			document.getElementById('upi-details').style.display = option === 'UPI' ? 'block' : 'none';
+			document.getElementById('card-details').style.display = option === 'CARD' ? 'block' : 'none';
+
+			if (option === 'UPI') {
+				document.querySelector('input[name="upiId"]').required = true;
+				document.querySelectorAll('#card-details input').forEach(inp => inp.required = false);
+			} else if (option === 'CARD') {
+				document.querySelector('input[name="upiId"]').required = false;
+				document.querySelectorAll('#card-details input').forEach(inp => inp.required = true);
+			} else {
+				document.querySelector('input[name="upiId"]').required = false;
+				document.querySelectorAll('#card-details input').forEach(inp => inp.required = false);
+			}
 		}
-	}
-	
-	document.querySelectorAll('input[name="paymentOption"]').forEach(radio => {
-		radio.addEventListener('change', function() {
-			selectPayment(this.value);
-		});
-	});
-</script>
-</body>
-</html>
 
+		document.querySelectorAll('input[name="paymentOption"]').forEach(radio => {
+			radio.addEventListener('change', function () {
+				selectPayment(this.value);
+			});
+		});
+	</script>
+</body>
+
+</html>

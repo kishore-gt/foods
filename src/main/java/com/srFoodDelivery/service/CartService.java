@@ -26,7 +26,7 @@ public class CartService {
     private final MenuItemRepository menuItemRepository;
 
     public CartService(CartRepository cartRepository,
-                       MenuItemRepository menuItemRepository) {
+            MenuItemRepository menuItemRepository) {
         this.cartRepository = cartRepository;
         this.menuItemRepository = menuItemRepository;
     }
@@ -66,7 +66,8 @@ public class CartService {
 
         // Allow items from multiple restaurants - no restriction
         // The cart's restaurant_id is kept for backward compatibility
-        // When the cart is empty or has items from one restaurant, set the cart's restaurant
+        // When the cart is empty or has items from one restaurant, set the cart's
+        // restaurant
         // for backward compatibility with legacy order system
         if (cart.getItems().isEmpty()) {
             // First item - set the restaurant for backward compatibility
@@ -80,7 +81,7 @@ public class CartService {
                         Restaurant itemRest = extractRestaurant(item.getMenuItem());
                         return itemRest == null || !Objects.equals(itemRest.getId(), itemRestaurant.getId());
                     });
-            
+
             if (hasMultipleRestaurants) {
                 // Mixed restaurants - clear cart restaurant to indicate multi-restaurant
                 cart.setRestaurant(null);
@@ -101,8 +102,9 @@ public class CartService {
             newItem.setCart(cart);
             newItem.setMenuItem(menuItem);
             newItem.setQuantity(quantity);
-            newItem.setUnitPrice(menuItem.getPrice());
-            newItem.setLineTotal(calculateLineTotal(menuItem.getPrice(), quantity));
+            // Use effective price (after discount)
+            newItem.setUnitPrice(menuItem.getEffectivePrice());
+            newItem.setLineTotal(calculateLineTotal(newItem.getUnitPrice(), quantity));
             cart.getItems().add(newItem);
         }
 
@@ -172,18 +174,18 @@ public class CartService {
         if (cart == null || cart.getItems().isEmpty()) {
             return false;
         }
-        
+
         // If cart restaurant is null, it means mixed restaurants
         if (cart.getRestaurant() == null && cart.getItems().size() > 1) {
             return true;
         }
-        
+
         // Check if items are from different restaurants
         Restaurant firstRestaurant = null;
-        
+
         for (CartItem item : cart.getItems()) {
             Restaurant itemRest = extractRestaurant(item.getMenuItem());
-            
+
             if (firstRestaurant == null) {
                 firstRestaurant = itemRest;
             } else {
@@ -192,7 +194,7 @@ public class CartService {
                 }
             }
         }
-        
+
         return false;
     }
 
@@ -229,18 +231,18 @@ public class CartService {
             total = total.add(lineTotal);
         }
         cart.setTotalAmount(total.setScale(2, RoundingMode.HALF_UP));
-        
+
         // Update cart restaurant based on items
         // If all items are from same restaurant, set it; otherwise null
         if (items.size() > 0) {
             Restaurant firstRestaurant = extractRestaurant(items.get(0).getMenuItem());
-            
+
             boolean allSameRestaurant = items.stream().allMatch(item -> {
                 Restaurant itemRest = extractRestaurant(item.getMenuItem());
-                return firstRestaurant != null && itemRest != null && 
-                       Objects.equals(firstRestaurant.getId(), itemRest.getId());
+                return firstRestaurant != null && itemRest != null &&
+                        Objects.equals(firstRestaurant.getId(), itemRest.getId());
             });
-            
+
             if (allSameRestaurant && firstRestaurant != null) {
                 cart.setRestaurant(firstRestaurant);
                 cart.setChefProfile(null);

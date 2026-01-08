@@ -50,6 +50,9 @@ public class MenuItem {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
+    @Column(name = "discount_percentage", precision = 5, scale = 2)
+    private BigDecimal discountPercentage = BigDecimal.ZERO;
+
     @Column(nullable = false)
     private boolean available = true;
 
@@ -126,6 +129,14 @@ public class MenuItem {
         this.price = price;
     }
 
+    public BigDecimal getDiscountPercentage() {
+        return discountPercentage;
+    }
+
+    public void setDiscountPercentage(BigDecimal discountPercentage) {
+        this.discountPercentage = discountPercentage;
+    }
+
     public boolean isAvailable() {
         return available;
     }
@@ -180,5 +191,31 @@ public class MenuItem {
 
     public void setVeg(boolean isVeg) {
         this.isVeg = isVeg;
+    }
+
+    public BigDecimal getEffectivePrice() {
+        if (discountPercentage == null || discountPercentage.compareTo(BigDecimal.ZERO) <= 0) {
+            return price;
+        }
+        BigDecimal discountFactor = BigDecimal.valueOf(100).subtract(discountPercentage)
+                .divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+        return price.multiply(discountFactor).setScale(2, java.math.RoundingMode.HALF_UP);
+
+    }
+
+    // For display in templates
+    public boolean hasDiscount() {
+        return discountPercentage != null && discountPercentage.compareTo(BigDecimal.ZERO) > 0;
+    }
+
+    @jakarta.persistence.Transient
+    private String offerDisplayLabel;
+
+    public String getOfferDisplayLabel() {
+        return offerDisplayLabel;
+    }
+
+    public void setOfferDisplayLabel(String offerDisplayLabel) {
+        this.offerDisplayLabel = offerDisplayLabel;
     }
 }

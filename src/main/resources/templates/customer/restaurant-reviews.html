@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,8 +8,10 @@
 	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
 	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
 	<style>
-		body { background-color: #f8f9fb; }
-		
+		body {
+			background-color: #f8f9fb;
+		}
+
 		body.cafe-mode {
 			--primary-color: #d28b4b;
 			--primary-dark: #8b4513;
@@ -25,47 +28,57 @@
 			border: 1px solid rgba(255, 255, 255, 0.1);
 		}
 
-		.review-card { background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-		.rating { color: #ffc107; }
+		.review-card {
+			background: #fff;
+			border-radius: 10px;
+			padding: 20px;
+			margin-bottom: 15px;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+		}
+
+		.rating {
+			color: #ffc107;
+		}
 	</style>
 </head>
-<body th:classappend="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE} ? 'cafe-mode' : ''">
-<div class="container py-4">
-	<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
-	
-	<h2 class="mb-4">Reviews for <span th:text="${restaurant.name}">Restaurant</span></h2>
-	
-	<div class="mb-4">
-		<div class="alert alert-info">
-			<strong>Average Rating:</strong> 
-			<span th:if="${averageRating > 0}" th:text="${#numbers.formatDecimal(averageRating, 1, 1)}">0.0</span>
-			<span th:if="${averageRating == 0}">No ratings yet</span>
-			<span class="rating">
-				<span th:each="i : ${#numbers.sequence(1, 5)}">
-					<i class="fa" th:classappend="${i <= averageRating} ? 'fa-star' : 'fa-star-o'"></i>
-				</span>
-			</span>
-		</div>
-		<a th:href="@{|/customer/restaurants/${restaurant.id}/review|}" class="btn btn-primary">Write a Review</a>
-	</div>
 
-	<div th:if="${#lists.isEmpty(reviews)}" class="alert alert-info">No reviews yet. Be the first to review!</div>
+<body th:classappend="${siteMode != null and siteMode.name() == 'CAFE'} ? 'cafe-mode' : ''">
+	<div class="container py-4">
+		<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
 
-	<div th:each="review : ${reviews}" class="review-card">
-		<div class="d-flex justify-content-between align-items-start mb-2">
-			<div>
-				<strong th:text="${review.user.fullName}">User</strong>
-				<span class="rating ml-2">
+		<h2 class="mb-4">Reviews for <span th:text="${restaurant.name}">Restaurant</span></h2>
+
+		<div class="mb-4">
+			<div class="alert alert-info">
+				<strong>Average Rating:</strong>
+				<span th:if="${averageRating > 0}" th:text="${#numbers.formatDecimal(averageRating, 1, 1)}">0.0</span>
+				<span th:if="${averageRating == 0}">No ratings yet</span>
+				<span class="rating">
 					<span th:each="i : ${#numbers.sequence(1, 5)}">
-						<i class="fa" th:classappend="${i <= review.rating} ? 'fa-star' : 'fa-star-o'"></i>
+						<i class="fa" th:classappend="${i <= averageRating} ? 'fa-star' : 'fa-star-o'"></i>
 					</span>
 				</span>
 			</div>
-			<small class="text-muted" th:text="${#temporals.format(review.createdAt, 'MMM dd, yyyy')}">Date</small>
+			<a th:href="@{|/customer/restaurants/${restaurant.id}/review|}" class="btn btn-primary">Write a Review</a>
 		</div>
-		<p th:if="${review.comment}" th:text="${review.comment}">Comment</p>
-	</div>
-</div>
-</body>
-</html>
 
+		<div th:if="${#lists.isEmpty(reviews)}" class="alert alert-info">No reviews yet. Be the first to review!</div>
+
+		<div th:each="review : ${reviews}" class="review-card">
+			<div class="d-flex justify-content-between align-items-start mb-2">
+				<div>
+					<strong th:text="${review.user.fullName}">User</strong>
+					<span class="rating ml-2">
+						<span th:each="i : ${#numbers.sequence(1, 5)}">
+							<i class="fa" th:classappend="${i <= review.rating} ? 'fa-star' : 'fa-star-o'"></i>
+						</span>
+					</span>
+				</div>
+				<small class="text-muted" th:text="${#temporals.format(review.createdAt, 'MMM dd, yyyy')}">Date</small>
+			</div>
+			<p th:if="${review.comment}" th:text="${review.comment}">Comment</p>
+		</div>
+	</div>
+</body>
+
+</html>

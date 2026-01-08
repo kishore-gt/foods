@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title th:text="'${categoryName} - Tummy Go!'">Category - Tummy Go!</title>
 	<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
 	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
-	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+		rel="stylesheet">
 	<style>
 		:root {
 			--primary-color: #fc8019;
@@ -26,7 +28,7 @@
 			--text-dark: #f5e6d3;
 			--text-light: #d4b896;
 			--bg-light: #3e2723;
-			--border-color: rgba(255,255,255,0.15);
+			--border-color: rgba(255, 255, 255, 0.15);
 			--white: rgba(79, 55, 45, 0.7);
 			background: linear-gradient(180deg, #2c1810 0%, #3e2723 50%, #5d4037 100%) fixed;
 			color: var(--text-dark);
@@ -44,7 +46,7 @@
 		.navbar-custom {
 			background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
 			padding: 15px 0;
-			box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 		}
 
 		.navbar-custom .navbar-brand {
@@ -69,7 +71,7 @@
 			background: white;
 			padding: 15px;
 			border-radius: 15px;
-			box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 			margin-bottom: 30px;
 		}
 
@@ -102,7 +104,7 @@
 			border-radius: 15px;
 			padding: 20px;
 			margin-bottom: 30px;
-			box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 		}
 
 		.restaurant-header {
@@ -205,7 +207,8 @@
 		}
 	</style>
 </head>
-<body th:classappend="${siteMode == T(com.srFoodDelivery.model.SiteMode).CAFE} ? 'cafe-mode' : ''">
+
+<body th:classappend="${siteMode != null and siteMode.name() == 'CAFE'} ? 'cafe-mode' : ''">
 	<!-- Navigation -->
 	<nav class="navbar navbar-expand-lg navbar-custom">
 		<div class="container">
@@ -213,9 +216,9 @@
 			<div class="ml-auto d-flex align-items-center">
 				<a class="nav-link" th:href="@{/customer/restaurants}">Restaurants</a>
 				<a class="nav-link" th:href="@{/customer/offers}">Offers</a>
-			<a class="nav-link" th:href="@{/customer/orders}">
-				<i class="fa fa-list"></i> My Orders
-			</a>
+				<a class="nav-link" th:href="@{/customer/orders}">
+					<i class="fa fa-list"></i> My Orders
+				</a>
 				<a class="nav-link d-flex align-items-center" th:href="@{/customer/cart}">
 					<i class="fa fa-shopping-cart"></i>
 					<span class="ml-1">Cart</span>
@@ -239,19 +242,16 @@
 		<div class="veg-filter-section">
 			<div class="d-flex align-items-center gap-3">
 				<strong style="color: #333; font-size: 16px;">Filter:</strong>
-				<a th:href="@{'/customer/category/' + ${categoryName}}" 
-				   class="veg-filter-btn"
-				   th:classappend="${vegFilter == null or vegFilter.isEmpty()} ? 'active' : ''">
+				<a th:href="@{'/customer/category/' + ${categoryName}}" class="veg-filter-btn"
+					th:classappend="${vegFilter == null or vegFilter.isEmpty()} ? 'active' : ''">
 					<i class="fa fa-th"></i> All
 				</a>
-				<a th:href="@{'/customer/category/' + ${categoryName} + '?vegFilter=veg'}" 
-				   class="veg-filter-btn"
-				   th:classappend="${vegFilter == 'veg'} ? 'active' : ''">
+				<a th:href="@{'/customer/category/' + ${categoryName} + '?vegFilter=veg'}" class="veg-filter-btn"
+					th:classappend="${vegFilter == 'veg'} ? 'active' : ''">
 					<span class="veg-icon">🟢</span> Veg
 				</a>
-				<a th:href="@{'/customer/category/' + ${categoryName} + '?vegFilter=nonveg'}" 
-				   class="veg-filter-btn"
-				   th:classappend="${vegFilter == 'nonveg'} ? 'active' : ''">
+				<a th:href="@{'/customer/category/' + ${categoryName} + '?vegFilter=nonveg'}" class="veg-filter-btn"
+					th:classappend="${vegFilter == 'nonveg'} ? 'active' : ''">
 					<span class="nonveg-icon">🔴</span> Non-Veg
 				</a>
 			</div>
@@ -265,32 +265,52 @@
 			<div class="restaurant-section" th:each="entry : ${itemsByRestaurant}">
 				<div class="restaurant-header">
 					<h2 class="restaurant-name" th:text="${entry.key.name}">Restaurant Name</h2>
-					<a th:href="@{'/customer/restaurants/' + ${entry.key.id}}" 
-					   class="btn btn-outline-primary ml-auto">
+					<a th:href="@{'/customer/restaurants/' + ${entry.key.id}}" class="btn btn-outline-primary ml-auto">
 						<i class="fa fa-arrow-right"></i> View Restaurant
 					</a>
 				</div>
 				<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;">
 					<div th:each="item : ${entry.value}">
 						<div class="item-card">
-							<img th:src="${item.imageUrl != null and !item.imageUrl.isEmpty() ? item.imageUrl : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400'}" 
-							     th:alt="${item.name}"
-							     onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400'">
+							<img th:src="${item.imageUrl != null and !item.imageUrl.isEmpty() ? item.imageUrl : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400'}"
+								th:alt="${item.name}"
+								onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400'">
 							<div class="item-card-body">
 								<div class="d-flex align-items-center justify-content-between mb-2">
 									<div class="item-name" th:text="${item.name}">Item Name</div>
 								</div>
-								<p class="text-muted small mb-3" th:text="${item.description ?: 'Delicious food item'}" style="display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Description</p>
+								<p class="text-muted small mb-3" th:text="${item.description ?: 'Delicious food item'}"
+									style="display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+									Description</p>
 								<div class="mt-auto">
 									<div class="d-flex justify-content-between align-items-center mb-3">
-										<span class="item-price" th:text="'₹' + ${#numbers.formatDecimal(item.price,1,2)}">₹0.00</span>
+										<div>
+											<div th:if="${item.hasDiscount()}">
+												<span class="text-muted"
+													style="text-decoration: line-through; font-size: 14px;"
+													th:text="'₹' + ${#numbers.formatDecimal(item.price,1,2)}"></span>
+												<span class="item-price"
+													th:text="'₹' + ${#numbers.formatDecimal(item.getEffectivePrice(),1,2)}"
+													style="font-size: 20px;">₹0.00</span>
+												<span class="badge badge-success bg-success text-white"
+													style="font-size: 10px;"
+													th:text="${#numbers.formatDecimal(item.discountPercentage,1,0)} + '% OFF'"></span>
+											</div>
+											<div th:unless="${item.hasDiscount()}">
+												<span class="item-price"
+													th:text="'₹' + ${#numbers.formatDecimal(item.price,1,2)}">₹0.00</span>
+											</div>
+										</div>
 										<sec:authorize access="isAuthenticated()">
 											<form class="d-inline" method="post" th:action="@{/customer/cart/add}">
 												<input type="hidden" name="menuItemId" th:value="${item.id}">
 												<input type="hidden" name="quantity" value="1">
-												<input type="hidden" name="returnUrl" th:value="${#httpServletRequest != null and #httpServletRequest.requestURI != null ? #httpServletRequest.requestURI : '/customer/category/' + categoryName}">
-												<input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-												<button type="submit" class="btn btn-sm btn-primary" th:disabled="${!item.available}">
+												<input type="hidden" name="returnUrl"
+													th:value="${#httpServletRequest != null and #httpServletRequest.requestURI != null ? #httpServletRequest.requestURI : '/customer/category/' + categoryName}">
+												<input type="hidden" th:if="${_csrf != null}"
+													th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+												<button type="submit" class="btn btn-sm btn-primary"
+													th:disabled="${!item.available}">
 													<i class="fa fa-shopping-cart"></i> Add
 												</button>
 											</form>
@@ -308,5 +328,5 @@
 	<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
 	<script th:src="@{/js/bootstrap.js}"></script>
 </body>
-</html>
 
+</html>

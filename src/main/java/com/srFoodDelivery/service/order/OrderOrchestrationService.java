@@ -228,7 +228,7 @@ public class OrderOrchestrationService {
 
         for (MultiOrderCreateRequest.CartItemRequest cartItem : cartItems) {
             MenuItem menuItem = menuItemMap.get(cartItem.getMenuItemId());
-            BigDecimal unitPrice = menuItem.getPrice();
+            BigDecimal unitPrice = menuItem.getEffectivePrice();
             BigDecimal lineTotal = unitPrice.multiply(BigDecimal.valueOf(cartItem.getQuantity()));
 
             SubOrderItem subOrderItem = new SubOrderItem();
